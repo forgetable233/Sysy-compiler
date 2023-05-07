@@ -11,7 +11,7 @@ void FuncTypeAST::Dump() const {
 void FuncDefAST::Dump() const {
     std::cout << "FuncDefAST: { ";
     func_type_->Dump();
-    std::cout << ", " << ident_ << ", ";
+    std::cout << ", FuncName: { " << ident_ << " }, ";
     block_->Dump();
     std::cout << " }";
 }
@@ -19,6 +19,10 @@ void FuncDefAST::Dump() const {
 void BlockAST::Dump() const {
     std::cout << "BaseAST: { ";
     stmt_->Dump();
+    if (block_ != nullptr) {
+        block_->Dump();
+    }
+//    stmt_.emplace_back()
     std::cout << " }";
 }
 
@@ -30,5 +34,11 @@ void CompUnitAST::Dump() const {
 
 void StmtAST::Dump() const {
     std::cout << "StmtAST: { ";
-    std::cout << statement_ << " }";
+    expression_->Dump();
+    std::cout << " } ";
+}
+
+void ExpressionAST::Dump() const {
+    std::cout << "Expression: { ";
+    std::cout << state_ << ' ' << num_ << " } ";
 }

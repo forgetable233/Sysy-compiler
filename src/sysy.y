@@ -41,12 +41,15 @@ using namespace std;
 // 新添加了ast_token
 // 终结符类型定义
 %token RETURN
-%token <str_val> IDENT INT
+%token <str_val> IDENT INT VOID DOUBLE FLOAT FUNC
 %token <int_val> INT_CONST
 
 // 非终结符的类型定义
-%type <ast_val> FuncDef FuncType Block Stmt
+%type <ast_val> FuncDef FuncType Block Stmt Expr
 %type <int_val> Number
+
+%left ADD SUB
+%left PLUS DIV
 // %type <str_val> Number
 
 %%
@@ -75,11 +78,11 @@ CompUnit
 // 虽然此处你看不出用 unique_ptr 和手动 delete 的区别, 但当我们定义了 AST 之后
 // 这种写法会省下很多内存管理的负担
 FuncDef
-  : FuncType IDENT '(' ')' Block {
+  : FuncType IDENT '(' ')' '{' Block '}' {
     auto ast = new FuncDefAST();
     ast->func_type_ = unique_ptr<BaseAST>($1);
     ast->ident_ = *unique_ptr<string>($2);
-    ast->block_ = unique_ptr<BaseAST>($5);
+    ast->block_ = unique_ptr<BaseAST>($6);
     $$ = ast;
   }
   ;
@@ -90,22 +93,50 @@ FuncType
     auto ast = new FuncTypeAST();
     ast->type_ = *(new string("int"));
     $$ = ast;
+  } | DOUBLE {
+    auto ast = new FuncTypeAST();
+    ast->type_ = *(new string("double"));
+    $$ = ast;
+  } | VOID {
+   auto ast = new FuncTypeAST();
+   ast->type_ = *(new string("void"));
+   $$ = ast;
+  } | FLOAT {
+    auto ast = new FuncTypeAST();
+    ast->type_ = *(new string("float"));
+    $$ = ast;
   }
   ;
 
 Block
-  : '{' Stmt '}' {
+  : Stmt {
     auto ast = new BlockAST();
-    ast->stmt_ = unique_ptr<BaseAST>($2);
+    ast->stmt_ = unique_ptr<BaseAST>($1);
+    ast->block_ = nullptr;
+    $$ = ast;
+  } | Stmt Block {
+    auto ast = new BlockAST();
+    ast->stmt_ = unique_ptr<BaseAST>($1);
+    ast->block_ = unique_ptr<BaseAST>($2);
     $$ = ast;
   }
   ;
 
 Stmt
-  : RETURN Number ';' {
+  : Expr ';' {
     auto ast = new StmtAST();
-    ast->statement_ = *(new string("return " + to_string($2) + ";"));
+    ast->expression_ = unique_ptr<BaseAST>($1);
+    // ast->statement_ = *(new string("return " + to_string($2) + ";"));
     $$ =  ast;
+  }
+  ;
+
+Expr
+  : RETURN Number {
+    auto ast = new ExpressionAST();
+    ast->state_ = *new string("return ");
+    ast->num_ = to_string($2);
+    $$ = ast;
   }
   ;
 

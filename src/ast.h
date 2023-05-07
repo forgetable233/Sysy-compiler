@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <iostream>
+#include <vector>
 
 // 所有AST的基础类
 class BaseAST {
@@ -20,12 +21,42 @@ public:
     virtual void Dump() const = 0;
 };
 
+class ExpressionAST : public BaseAST {
+public:
+    std::string func_;
+
+    std::string lNum_;
+
+    std::string rNum_;
+
+    std::string state_;
+
+    std::string num_;
+
+    std::unique_ptr<BaseAST> lExp_ = nullptr;
+
+    std::unique_ptr<BaseAST> rExp_ = nullptr;
+
+    ExpressionAST() = default;
+
+    ~ExpressionAST() override = default;
+
+    void Dump() const override;
+};
+
 /**
  * 代码段的AST
  */
 class StmtAST : public BaseAST {
 public:
-    std::string statement_;
+//    std::string statement_;
+//
+//    std::string name_;
+//
+//    std::string type_;
+//
+//    std::string func_;
+    std::unique_ptr<BaseAST> expression_ = nullptr;
 
     StmtAST() = default;
 
@@ -54,7 +85,9 @@ public:
  */
 class BlockAST : public BaseAST {
 public:
-    std::unique_ptr<BaseAST> stmt_;
+    std::unique_ptr<BaseAST> stmt_ = nullptr;
+
+    std::unique_ptr<BaseAST> block_ = nullptr;
 
     BlockAST() = default;
 
