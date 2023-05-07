@@ -1,7 +1,7 @@
 %code requires {
   #include <memory>
   #include <string>
-  #include "/home/dcr/codes/CLionProjects/compiler/src/base_ast.h"
+  #include "../src/ast.h"
   
 }
 
@@ -11,7 +11,7 @@
 #include <memory>
 #include <string>
 
-#include "/home/dcr/codes/CLionProjects/compiler/src/base_ast.h"
+#include "../src/ast.h"
 
 // 声明 lexer 函数和错误处理函数
 int yylex();
@@ -24,6 +24,7 @@ using namespace std;
 // 定义 parser 函数和错误处理函数的附加参数
 // 这里返回一个自己定义的Ast作为参数
 // 解析完成后, 我们要手动修改这个参数, 把它设置成解析得到的字符串
+// 这里是parser的输入参数类型
 %parse-param { std::unique_ptr<BaseAST> &ast }
 
 // yylval 的定义, 我们把它定义成了一个联合体 (union)
@@ -31,27 +32,26 @@ using namespace std;
 // 之前我们在 lexer 中用到的 str_val 和 int_val 就是在这里被定义的
 // 至于为什么要用字符串指针而不直接用 string 或者 unique_ptr<string>
 %union {
-
   std::string *str_val;
   int int_val;
   BaseAST *ast_val;
 }
 
 // lexer 返回的所有 token 种类的声明
-// 注意 IDENT 和 INT_CONST 会返回 token 的值, 分别对应 str_val 和 int_val
 // 新添加了ast_token
-%token INT RETURN
-%token <str_val> IDENT
+// 终结符类型定义
+%token RETURN
+%token <str_val> IDENT INT
 %token <int_val> INT_CONST
-%token <ast_val> AST_CONST
 
 // 非终结符的类型定义
 %type <ast_val> FuncDef FuncType Block Stmt
 %type <int_val> Number
+// %type <str_val> Number
 
 %%
 
-// 开始符, CompUnit ::= FuncDef, 大括号后声明了解析完成后 parser 要做的事情
+// 开始符, CompUnit ::= FuncDef, 大括号后声明了解析完成后 parser 要做的事情，这个整体是按照EBNF范式的形式组织的
 // 之前我们定义了 FuncDef 会返回一个 str_val, 也就是字符串指针
 // 而 parser 一旦解析完 CompUnit, 就说明所有的 token 都被解析了, 即解析结束了
 // 此时我们应该把 FuncDef 返回的结果收集起来, 作为 AST 传给调用 parser 的函数
@@ -87,27 +87,31 @@ FuncDef
 // 同上, 不再解释
 FuncType
   : INT {
-    $$ = new string("int");
+    auto ast = new FuncTypeAST();
+    ast->type_ = *(new string("int"));
+    $$ = ast;
   }
   ;
 
 Block
   : '{' Stmt '}' {
-    auto stmt = unique_ptr<string>($2);
-    $$ = new string("{ " + *stmt + " }");
+    auto ast = new BlockAST();
+    ast->stmt_ = unique_ptr<BaseAST>($2);
+    $$ = ast;
   }
   ;
 
 Stmt
   : RETURN Number ';' {
-    auto number = unique_ptr<string>($2);
-    $$ = new string("return " + *number + ";");
+    auto ast = new StmtAST();
+    ast->statement_ = *(new string("return " + to_string($2) + ";"));
+    $$ =  ast;
   }
   ;
 
 Number
   : INT_CONST {
-    $$ = new string(to_string($1));
+    $$ = $1;
   }
   ;
 

@@ -53,9 +53,11 @@ file(GLOB_RECURSE C_SOURCES "src/*.c")
 file(GLOB_RECURSE CXX_SOURCES "src/*.cpp")
 file(GLOB_RECURSE CC_SOURCES "src/*.cc")
 set(SOURCES ${C_SOURCES} ${CXX_SOURCES} ${CC_SOURCES}
-        ${FLEX_Lexer_OUTPUTS} ${BISON_Parser_OUTPUT_SOURCE} src/base_ast.h)
+        ${FLEX_Lexer_OUTPUTS} ${BISON_Parser_OUTPUT_SOURCE} src/ast.h)
 
 llvm_map_components_to_libnames(llvm_libs support core irreader)
 add_executable(compiler ${SOURCES})
 set_target_properties(compiler PROPERTIES C_STANDARD 11 CXX_STANDARD 17)
 target_link_libraries(compiler ${llvm_libs} pthread dl)
+
+#add_executable(test test.cpp)

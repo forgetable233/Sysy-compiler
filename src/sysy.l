@@ -10,7 +10,7 @@
 // 因为 Flex 会用到 Bison 中关于 token 的定义
 // 所以需要 include Bison 生成的头文件
 #include "sysy.tab.hpp"
-#include "/home/dcr/codes/CLionProjects/compiler/src/base_ast.h"
+// #include "/home/dcr/codes/CLionProjects/compiler/src/base_ast.h"
 
 using namespace std;
 
