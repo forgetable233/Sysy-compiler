@@ -9,6 +9,17 @@
 #include <iostream>
 #include <vector>
 
+enum ExpType {
+    ADD,
+    SUB,
+    PLUS,
+    DIV,
+    LPAREN,
+    RPAREN,
+    ASSIGN,
+    RETURN
+};
+
 // 所有AST的基础类
 class BaseAST {
 private:
@@ -21,17 +32,31 @@ public:
     virtual void Dump() const = 0;
 };
 
+class IdentAST : public BaseAST{
+public:
+    std::string num_;
+
+    IdentAST() = default;
+
+    ~IdentAST() override = default;
+};
+
+/**
+ * 运算的AST
+ */
 class ExpressionAST : public BaseAST {
 public:
+    ExpType type_;
+
     std::string func_;
 
     std::string lNum_;
 
     std::string rNum_;
 
-    std::string state_;
+    std::unique_ptr<BaseAST> lIdent_ = nullptr;
 
-    std::string num_;
+    std::unique_ptr<BaseAST> rIdent = nullptr;
 
     std::unique_ptr<BaseAST> lExp_ = nullptr;
 
@@ -42,6 +67,22 @@ public:
     ~ExpressionAST() override = default;
 
     void Dump() const override;
+};
+
+/**
+ * 声明的AST
+ */
+class DeclareAST : public BaseAST {
+public:
+    std::string type_;
+
+    std::string ident_;
+
+    std::unique_ptr<BaseAST> expr_ = nullptr;
+
+    DeclareAST() = default;
+
+    ~DeclareAST() override = default;
 };
 
 /**
