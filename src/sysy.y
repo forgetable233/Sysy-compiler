@@ -41,15 +41,16 @@ using namespace std;
 // 新添加了ast_token
 // 终结符类型定义
 %token RETURN
-%token <str_val> IDENT INT VOID DOUBLE FLOAT ADD SUB PLUS DIV ASS
+%token <str_val> IDENT INT VOID DOUBLE FLOAT ADD SUB MUL DIV ASS
 %token <int_val> INT_CONST
 
 // 非终结符的类型定义
-%type <ast_val> FuncDef FuncType Block Stmt
+%type <ast_val> FuncDef FuncType Block Stmt Expr
 %type <int_val> Number
 
+%left ASS
 %left ADD SUB
-%left PLUS DIV
+%left MUL DIV
 // %type <str_val> Number
 
 %%
@@ -131,15 +132,65 @@ Block
 Stmt
   : RETURN Number ';' {
     auto ast = new StmtAST();
-    ast->type_ = kReturn;
+    // ast->type_ = kReturn;
     ast->key_word_ = *make_unique<string>("return");
-    ast->rNum_ = *make_unique<string>(to_string($2));
+    // ast->exp_ = unique_ptr<BaseBlock>();
     $$ = ast;
   } | INT IDENT ';' {
     auto ast = new StmtAST();
+    // ast->type_ = kDeclare;
     ast->type_ = kDeclare;
     ast->key_word_ = *make_unique<string>("int");
-    ast->lIdent_ = *unique_ptr<string>($2);
+    ast->ident_ = *unique_ptr<string>($2);
+    $$ = ast;
+  } | Expr ';' {
+    auto ast = new StmtAST();
+    ast->type_ = kExpression;
+    ast->exp_ = unique_ptr<BaseAST>($1);
+    $$ = ast;
+  }
+  ;
+
+Expr
+  : IDENT ASS Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kAssign;
+    ast->ident_ = *unique_ptr<string>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | Expr ADD Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kAdd;
+    ast->lExp_ = unique_ptr<BaseAST>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | Expr SUB Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kSub;
+    ast->lExp_ = unique_ptr<BaseAST>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | Expr MUL Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kMul;
+    ast->lExp_ = unique_ptr<BaseAST>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | Expr DIV Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kDiv;
+    ast->lExp_ = unique_ptr<BaseAST>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | IDENT {
+    auto ast = new ExprAST();
+    ast->type_ = kAtomIdent;
+    ast->ident_ = *unique_ptr<string>($1);
+    $$ = ast;
+  } | Number {
+    auto ast = new ExprAST();
+    ast->type_ = kAtomNum;
+    ast->num_ = *make_unique<string>(to_string($1));
     $$ = ast;
   }
   ;

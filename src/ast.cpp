@@ -4,43 +4,135 @@
 
 #include "ast.h"
 
-void FuncTypeAST::Dump() const {
-    std::cout << "FuncType: { " << this->type_ << " }";
-}
-
-void FuncDefAST::Dump() const {
-    std::cout << "FuncDefAST: { ";
-    func_type_->Dump();
-    std::cout << ", FuncName: { " << ident_ << " }, ";
-    block_->Dump();
-    std::cout << " }";
-}
-
-void BlockAST::Dump() const {
-    std::cout << "BlockAST: { ";
-    for (const auto &temp: stmt_) {
-        temp->Dump();
+void OutTab(int num) {
+    for (int i = 0; i < num; ++i) {
+        std::cout << "    ";
     }
-    std::cout << " }";
 }
 
-void CompUnitAST::Dump() const {
-    std::cout << "ComUnitAST: { ";
-    func_def_->Dump();
-    std::cout << " }";
+void FuncTypeAST::Dump(int tab_num) const {
+    OutTab(tab_num);
+    std::cout << "FuncType: { " << std::endl;
+    OutTab(tab_num + 1);
+    std::cout << "Type: " << this->type_ << std::endl;
+    OutTab(tab_num);
+    std::cout << "}";
 }
 
-void StmtAST::Dump() const {
-    std::cout << "StmtAST: { ";
+void FuncDefAST::Dump(int tab_num) const {
+    OutTab(tab_num);
+    std::cout << "FuncDefAST: { " << std::endl;
+
+    func_type_->Dump(tab_num + 1);
+    std::cout << "," << std::endl;
+    OutTab(tab_num + 1);
+    std::cout << "FuncName: " << ident_ << std::endl;
+//    OutTab(tab_num + 1);
+//    std::cout << "Name: " << ident_ << std::endl;
+    OutTab(tab_num + 1);
+    std::cout << "}," << std::endl;
+//    std::cout << ", FuncName: { " << ident_ << " }, ";
+    block_->Dump(tab_num + 1);
+
+    std::cout << std::endl;
+    OutTab(tab_num);
+    std::cout << "}";
+}
+
+void BlockAST::Dump(int tab_num) const {
+    OutTab(tab_num);
+    std::cout << "BlockAST: { " << std::endl;
+    for (int i = 0; i < stmt_.size() - 1; ++i) {
+        stmt_[i]->Dump(tab_num + 1);
+        std::cout << "," << std::endl;
+    }
+    stmt_.back()->Dump(tab_num + 1);
+//    for (const auto &temp: stmt_) {
+//        temp->Dump(tab_num + 1);
+//        std::cout << "," << std::endl;
+//    }
+
+    std::cout << std::endl;
+    OutTab(tab_num);
+    std::cout << "}";
+}
+
+void CompUnitAST::Dump(int tab_num) const {
+    OutTab(tab_num);
+    std::cout << "ComUnitAST: { " << std::endl;
+    func_def_->Dump(tab_num + 1);
+    std::cout << std::endl;
+    OutTab(tab_num);
+    std::cout << "}";
+}
+
+void StmtAST::Dump(int tab_num) const {
+    OutTab(tab_num);
+    std::cout << "StmtAST: { " << std::endl;
     switch (type_) {
-        case kReturn:
-            std::cout << key_word_ << " " << rNum_;
-            break;
         case kDeclare:
-            std::cout << key_word_ << " " << lIdent_;
+            OutTab(tab_num + 1);
+            std::cout << "Type: " << this->key_word_ << ',' << std::endl;
+            OutTab(tab_num + 1);
+            std::cout << "Ident: " << this->ident_;
             break;
-        default:
-            std::cerr << "error";
+        case kExpression:
+            this->exp_->Dump(tab_num + 1);
     }
-    std::cout << " } ";
+    std::cout << std::endl;
+    OutTab(tab_num);
+    std::cout << "} ";
+}
+
+void ExprAST::Dump(int tab_num) const {
+    OutTab(tab_num);
+    std::cout << "ExprAST: {" << std::endl;
+    switch (type_) {
+        case kAtomIdent:
+            OutTab(tab_num + 1);
+            std::cout << "Ident: " << ident_;
+            break;
+        case kAtomNum:
+            OutTab(tab_num + 1);
+            std::cout << "Num: " << num_;
+            break;
+        case kAdd:
+            lExp_->Dump(tab_num + 1);
+            std::cout << ',' << std::endl;
+            OutTab(tab_num + 1);
+            std::cout << "Operator: " << "+ ," << std::endl;
+            rExp_->Dump(tab_num + 1);
+            break;
+        case kSub:
+            lExp_->Dump(tab_num + 1);
+            std::cout << ',' << std::endl;
+            OutTab(tab_num + 1);
+            std::cout << "Operator: " << "- ," << std::endl;
+            rExp_->Dump(tab_num + 1);
+            break;
+        case kMul:
+            lExp_->Dump(tab_num + 1);
+            std::cout << ',' << std::endl;
+            OutTab(tab_num + 1);
+            std::cout << "Operator: " << "* ," << std::endl;
+            rExp_->Dump(tab_num + 1);
+            break;
+        case kDiv:
+            lExp_->Dump(tab_num + 1);
+            std::cout << ',' << std::endl;
+            OutTab(tab_num + 1);
+            std::cout << "Operator: " << "/ ," << std::endl;
+            rExp_->Dump(tab_num + 1);
+            break;
+        case kAssign:
+            OutTab(tab_num + 1);
+            std::cout << "Ident: " << ident_ << ',' << std::endl;
+            OutTab(tab_num + 1);
+            std::cout << "Operator: " << "= ," << std::endl;
+            rExp_->Dump(tab_num + 1);
+    }
+
+    std::cout << std::endl;
+    OutTab(tab_num);
+    std::cout << "}";
 }

@@ -12,14 +12,17 @@
 enum ExpType {
     kAdd,
     kSub,
-    kPlus,
+    kMul,
     kDiv,
-    kLParen,
-    kRParen,
+    kAtomIdent,
+    kAtomNum,
     kAssign,
-    kReturn,
+    kReturn
+};
+
+enum StmtType {
     kDeclare,
-    kDeclareAssign
+    kExpression
 };
 
 // 所有AST的基础类
@@ -31,96 +34,46 @@ public:
 
     virtual ~BaseAST() = default;
 
-    virtual void Dump() const = 0;
+    virtual void Dump(int tab_num) const = 0;
 };
 
-//class IdentAST : public BaseAST{
-//public:
-//    std::string num_;
-//
-//    IdentAST() = default;
-//
-//    ~IdentAST() override = default;
-//};
+class ExprAST : public BaseAST {
+public:
+    ExpType type_;
 
-/**
- * 运算的AST，同时还有return
- */
-//class ExpressionAST : public BaseAST {
-//public:
-//    ExpType type_;
-//
-//    std::string key_word_;
-//
-//    std::string opera_;
-//
-//    std::string lNum_;
-//
-//    std::string rNum_;
-//
-//    std::string lIdent_;
-//
-//    std::string rIdent;
-//
-//    std::unique_ptr<BaseAST> lExp_ = nullptr;
-//
-//    std::unique_ptr<BaseAST> rExp_ = nullptr;
-//
-//    ExpressionAST() = default;
-//
-//    ~ExpressionAST() override = default;
-//
-//    void Dump() const override;
-//};
+    std::string ident_;
 
-/**
- * 声明的AST
- */
-//class DeclareAST : public BaseAST {
-//public:
-//    std::string type_;
-//
-//    std::string ident_;
-//
-//    std::unique_ptr<BaseAST> expr_ = nullptr;
-//
-//    DeclareAST() = default;
-//
-//    ~DeclareAST() override = default;
-//};
+    std::string num_;
+
+    std::unique_ptr<BaseAST> lExp_ = nullptr;
+
+    std::unique_ptr<BaseAST> rExp_ = nullptr;
+
+    ExprAST() = default;
+
+    ~ExprAST() override = default;
+
+    void Dump(int tab_num) const override;
+};
 
 /**
  * 代码段的AST
  */
 class StmtAST : public BaseAST {
 public:
-    ExpType type_;
+    StmtType type_;
 
     std::string key_word_;
 
-    std::string opera_;
+    std::string ident_;
 
-    std::string lNum_;
-
-    std::string rNum_;
-
-    std::string lIdent_;
-
-    std::string rIdent;
-
-    std::unique_ptr<BaseAST> lExp_ = nullptr;
-
-    std::unique_ptr<BaseAST> rExp_ = nullptr;
-
-//    std::unique_ptr<BaseAST> expression_ = nullptr;
-//
-//    std::unique_ptr<BaseAST> declare_ = nullptr;
+    std::unique_ptr<BaseAST> exp_ = nullptr;
 
     StmtAST() = default;
 
     ~StmtAST() override = default;
 
-    void Dump() const override;
+    void Dump(int tab_num) const override;
 };
 
 /**
@@ -135,7 +88,7 @@ public:
 
     ~CompUnitAST() override = default;
 
-    void Dump() const override;
+    void Dump(int tab_num) const override;
 };
 
 /**
@@ -152,7 +105,7 @@ public:
 
     ~BlockAST() override = default;
 
-    void Dump() const override;
+    void Dump(int tab_num) const override;
 };
 
 /**
@@ -166,7 +119,7 @@ public:
 
     ~FuncTypeAST() override = default;
 
-    void Dump() const override;
+    void Dump(int tab_num) const override;
 };
 
 /**
@@ -185,7 +138,7 @@ public:
     ~FuncDefAST() override = default;
 
 
-    void Dump() const override;
+    void Dump(int tab_num) const override;
 };
 
 #endif //COMPILER_AST_H

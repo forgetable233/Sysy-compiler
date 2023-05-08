@@ -42,7 +42,7 @@ Hexadecimal   0[xX][0-9a-fA-F]+
 "float"         { return FLOAT; }
 "+"             { return ADD; }
 "-"             { return SUB; }
-"*"             { return PLUS; }
+"*"             { return MUL; }
 "/"             { return DIV; }
 "="             { return ASS; }
 

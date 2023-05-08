@@ -33,7 +33,7 @@ int main(int argc, const char *argv[]) {
     unique_ptr<BaseAST> ast;
     auto ret = yyparse(ast);
     assert(!ret);
-    ast->Dump();
+    ast->Dump(0);
 
 
     return 0;
