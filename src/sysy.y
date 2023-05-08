@@ -41,11 +41,11 @@ using namespace std;
 // 新添加了ast_token
 // 终结符类型定义
 %token RETURN
-%token <str_val> IDENT INT VOID DOUBLE FLOAT FUNC
+%token <str_val> IDENT INT VOID DOUBLE FLOAT ADD SUB PLUS DIV ASS
 %token <int_val> INT_CONST
 
 // 非终结符的类型定义
-%type <ast_val> FuncDef FuncType Block Stmt Expr
+%type <ast_val> FuncDef FuncType Block Stmt
 %type <int_val> Number
 
 %left ADD SUB
@@ -91,19 +91,19 @@ FuncDef
 FuncType
   : INT {
     auto ast = new FuncTypeAST();
-    ast->type_ = *(new string("int"));
+    ast->type_ = *make_unique<string>("int");
     $$ = ast;
   } | DOUBLE {
     auto ast = new FuncTypeAST();
-    ast->type_ = *(new string("double"));
+    ast->type_ = *make_unique<string>("double");
     $$ = ast;
   } | VOID {
    auto ast = new FuncTypeAST();
-   ast->type_ = *(new string("void"));
+   ast->type_ = *make_unique<string>("void");
    $$ = ast;
   } | FLOAT {
     auto ast = new FuncTypeAST();
-    ast->type_ = *(new string("float"));
+    ast->type_ = *make_unique<string>("float");
     $$ = ast;
   }
   ;
@@ -111,31 +111,35 @@ FuncType
 Block
   : Stmt {
     auto ast = new BlockAST();
-    ast->stmt_ = unique_ptr<BaseAST>($1);
-    ast->block_ = nullptr;
+    // auto temp_stmt = ;
+    ast->stmt_.emplace_back(unique_ptr<BaseAST>($1));
     $$ = ast;
   } | Stmt Block {
     auto ast = new BlockAST();
-    ast->stmt_ = unique_ptr<BaseAST>($1);
-    ast->block_ = unique_ptr<BaseAST>($2);
+    // auto temp_stmt = ;
+    ast->stmt_.emplace_back(unique_ptr<BaseAST>($1));
+
+    auto temp_block = $2;
+    auto block = (BlockAST*)temp_block;
+    for(auto &item : block->stmt_) {
+        ast->stmt_.emplace_back(move(item));
+    }
     $$ = ast;
   }
   ;
 
 Stmt
-  : Expr ';' {
+  : RETURN Number ';' {
     auto ast = new StmtAST();
-    ast->expression_ = unique_ptr<BaseAST>($1);
-    // ast->statement_ = *(new string("return " + to_string($2) + ";"));
-    $$ =  ast;
-  }
-  ;
-
-Expr
-  : RETURN Number {
-    auto ast = new ExpressionAST();
-    ast->state_ = *new string("return ");
-    ast->num_ = to_string($2);
+    ast->type_ = kReturn;
+    ast->key_word_ = *make_unique<string>("return");
+    ast->rNum_ = *make_unique<string>(to_string($2));
+    $$ = ast;
+  } | INT IDENT ';' {
+    auto ast = new StmtAST();
+    ast->type_ = kDeclare;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->lIdent_ = *unique_ptr<string>($2);
     $$ = ast;
   }
   ;

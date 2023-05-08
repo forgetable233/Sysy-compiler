@@ -10,14 +10,16 @@
 #include <vector>
 
 enum ExpType {
-    ADD,
-    SUB,
-    PLUS,
-    DIV,
-    LPAREN,
-    RPAREN,
-    ASSIGN,
-    RETURN
+    kAdd,
+    kSub,
+    kPlus,
+    kDiv,
+    kLParen,
+    kRParen,
+    kAssign,
+    kReturn,
+    kDeclare,
+    kDeclareAssign
 };
 
 // 所有AST的基础类
@@ -32,72 +34,87 @@ public:
     virtual void Dump() const = 0;
 };
 
-class IdentAST : public BaseAST{
-public:
-    std::string num_;
-
-    IdentAST() = default;
-
-    ~IdentAST() override = default;
-};
+//class IdentAST : public BaseAST{
+//public:
+//    std::string num_;
+//
+//    IdentAST() = default;
+//
+//    ~IdentAST() override = default;
+//};
 
 /**
- * 运算的AST
+ * 运算的AST，同时还有return
  */
-class ExpressionAST : public BaseAST {
-public:
-    ExpType type_;
-
-    std::string func_;
-
-    std::string lNum_;
-
-    std::string rNum_;
-
-    std::unique_ptr<BaseAST> lIdent_ = nullptr;
-
-    std::unique_ptr<BaseAST> rIdent = nullptr;
-
-    std::unique_ptr<BaseAST> lExp_ = nullptr;
-
-    std::unique_ptr<BaseAST> rExp_ = nullptr;
-
-    ExpressionAST() = default;
-
-    ~ExpressionAST() override = default;
-
-    void Dump() const override;
-};
+//class ExpressionAST : public BaseAST {
+//public:
+//    ExpType type_;
+//
+//    std::string key_word_;
+//
+//    std::string opera_;
+//
+//    std::string lNum_;
+//
+//    std::string rNum_;
+//
+//    std::string lIdent_;
+//
+//    std::string rIdent;
+//
+//    std::unique_ptr<BaseAST> lExp_ = nullptr;
+//
+//    std::unique_ptr<BaseAST> rExp_ = nullptr;
+//
+//    ExpressionAST() = default;
+//
+//    ~ExpressionAST() override = default;
+//
+//    void Dump() const override;
+//};
 
 /**
  * 声明的AST
  */
-class DeclareAST : public BaseAST {
-public:
-    std::string type_;
-
-    std::string ident_;
-
-    std::unique_ptr<BaseAST> expr_ = nullptr;
-
-    DeclareAST() = default;
-
-    ~DeclareAST() override = default;
-};
+//class DeclareAST : public BaseAST {
+//public:
+//    std::string type_;
+//
+//    std::string ident_;
+//
+//    std::unique_ptr<BaseAST> expr_ = nullptr;
+//
+//    DeclareAST() = default;
+//
+//    ~DeclareAST() override = default;
+//};
 
 /**
  * 代码段的AST
  */
 class StmtAST : public BaseAST {
 public:
-//    std::string statement_;
+    ExpType type_;
+
+    std::string key_word_;
+
+    std::string opera_;
+
+    std::string lNum_;
+
+    std::string rNum_;
+
+    std::string lIdent_;
+
+    std::string rIdent;
+
+    std::unique_ptr<BaseAST> lExp_ = nullptr;
+
+    std::unique_ptr<BaseAST> rExp_ = nullptr;
+
+//    std::unique_ptr<BaseAST> expression_ = nullptr;
 //
-//    std::string name_;
-//
-//    std::string type_;
-//
-//    std::string func_;
-    std::unique_ptr<BaseAST> expression_ = nullptr;
+//    std::unique_ptr<BaseAST> declare_ = nullptr;
 
     StmtAST() = default;
 
@@ -126,9 +143,10 @@ public:
  */
 class BlockAST : public BaseAST {
 public:
-    std::unique_ptr<BaseAST> stmt_ = nullptr;
+    std::vector<std::unique_ptr<BaseAST>> stmt_;
+//    std::unique_ptr<BaseAST> stmt_ = nullptr;
 
-    std::unique_ptr<BaseAST> block_ = nullptr;
+//    std::unique_ptr<BaseAST> block_ = nullptr;
 
     BlockAST() = default;
 

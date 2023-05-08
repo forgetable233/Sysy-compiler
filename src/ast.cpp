@@ -17,12 +17,10 @@ void FuncDefAST::Dump() const {
 }
 
 void BlockAST::Dump() const {
-    std::cout << "BaseAST: { ";
-    stmt_->Dump();
-    if (block_ != nullptr) {
-        block_->Dump();
+    std::cout << "BlockAST: { ";
+    for (const auto &temp: stmt_) {
+        temp->Dump();
     }
-//    stmt_.emplace_back()
     std::cout << " }";
 }
 
@@ -34,11 +32,15 @@ void CompUnitAST::Dump() const {
 
 void StmtAST::Dump() const {
     std::cout << "StmtAST: { ";
-    expression_->Dump();
+    switch (type_) {
+        case kReturn:
+            std::cout << key_word_ << " " << rNum_;
+            break;
+        case kDeclare:
+            std::cout << key_word_ << " " << lIdent_;
+            break;
+        default:
+            std::cerr << "error";
+    }
     std::cout << " } ";
-}
-
-void ExpressionAST::Dump() const {
-    std::cout << "Expression: { ";
-    std::cout << state_ << ' ' << num_ << " } ";
 }

@@ -29,7 +29,6 @@ Octal         0[0-7]*
 Hexadecimal   0[xX][0-9a-fA-F]+
 
 /* 运算符 */
-Functions     [-+=*/]
 
 %%
 
@@ -41,9 +40,13 @@ Functions     [-+=*/]
 "double"        { return DOUBLE; }
 "void"          { return VOID; }
 "float"         { return FLOAT; }
+"+"             { return ADD; }
+"-"             { return SUB; }
+"*"             { return PLUS; }
+"/"             { return DIV; }
+"="             { return ASS; }
 
 {Identifier}    { yylval.str_val = new string(yytext); return IDENT; }
-{Functions}     { yylval.str_val = new string(yytext); return FUNC; }
 
 {Decimal}       { yylval.int_val = strtol(yytext, nullptr, 0); return INT_CONST; }
 {Octal}         { yylval.int_val = strtol(yytext, nullptr, 0); return INT_CONST; }

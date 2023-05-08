@@ -6,7 +6,7 @@
 #include <string>
 
 
-class base{
+class base {
 public:
     virtual void out() const = 0;
 };
@@ -14,6 +14,8 @@ public:
 class next : public base {
 public:
     next();
+
+    int a = 1;
 
     void out() const override {
         std::cout << "test ";
@@ -28,8 +30,9 @@ int main() {
     base *test_1 = new next();
     test_1->out();
 
-    delete test_1;
-    auto a = new std::string("test1");
-    auto test = std::unique_ptr<std::string>(a);
+    next *test2 = (next *) test_1;
+    std::cout << test2->a ;
+
+
     return 0;
 }
