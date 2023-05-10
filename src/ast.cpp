@@ -19,6 +19,14 @@ void FuncTypeAST::Dump(int tab_num) const {
     std::cout << "}";
 }
 
+llvm::Value *FuncTypeAST::CodeGen() {
+    return BaseAST::CodeGen();
+}
+
+llvm::Value *FuncTypeAST::ErrorValue(const char *str) {
+    return BaseAST::ErrorValue(str);
+}
+
 void FuncDefAST::Dump(int tab_num) const {
     OutTab(tab_num);
     std::cout << "FuncDefAST: { " << std::endl;
@@ -39,6 +47,14 @@ void FuncDefAST::Dump(int tab_num) const {
     std::cout << "}";
 }
 
+llvm::Value *FuncDefAST::CodeGen() {
+    return BaseAST::CodeGen();
+}
+
+llvm::Value *FuncDefAST::ErrorValue(const char *str) {
+    return BaseAST::ErrorValue(str);
+}
+
 void BlockAST::Dump(int tab_num) const {
     OutTab(tab_num);
     std::cout << "BlockAST: { " << std::endl;
@@ -57,6 +73,14 @@ void BlockAST::Dump(int tab_num) const {
     std::cout << "}";
 }
 
+llvm::Value *BlockAST::CodeGen() {
+    return BaseAST::CodeGen();
+}
+
+llvm::Value *BlockAST::ErrorValue(const char *str) {
+    return BaseAST::ErrorValue(str);
+}
+
 void CompUnitAST::Dump(int tab_num) const {
     OutTab(tab_num);
     std::cout << "ComUnitAST: { " << std::endl;
@@ -64,6 +88,14 @@ void CompUnitAST::Dump(int tab_num) const {
     std::cout << std::endl;
     OutTab(tab_num);
     std::cout << "}";
+}
+
+llvm::Value *CompUnitAST::CodeGen() {
+    return BaseAST::CodeGen();
+}
+
+llvm::Value *CompUnitAST::ErrorValue(const char *str) {
+    return BaseAST::ErrorValue(str);
 }
 
 void StmtAST::Dump(int tab_num) const {
@@ -82,6 +114,14 @@ void StmtAST::Dump(int tab_num) const {
     std::cout << std::endl;
     OutTab(tab_num);
     std::cout << "} ";
+}
+
+llvm::Value *StmtAST::CodeGen() {
+    return BaseAST::CodeGen();
+}
+
+llvm::Value *StmtAST::ErrorValue(const char *str) {
+    return BaseAST::ErrorValue(str);
 }
 
 void ExprAST::Dump(int tab_num) const {
@@ -135,4 +175,20 @@ void ExprAST::Dump(int tab_num) const {
     std::cout << std::endl;
     OutTab(tab_num);
     std::cout << "}";
+}
+
+llvm::Value *ExprAST::CodeGen() {
+    return BaseAST::CodeGen();
+}
+
+llvm::Value *ExprAST::ErrorValue(const char *str) {
+    return BaseAST::ErrorValue(str);
+}
+
+llvm::Value *BaseAST::CodeGen() {
+    return nullptr;
+}
+
+llvm::Value *BaseAST::ErrorValue(const char *str) {
+    return nullptr;
 }

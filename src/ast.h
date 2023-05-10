@@ -8,6 +8,9 @@
 #include <memory>
 #include <iostream>
 #include <vector>
+#include <map>
+#include <llvm/IR/Value.h>
+#include <llvm/IR/IRBuilder.h>
 
 enum ExpType {
     kAdd,
@@ -30,11 +33,21 @@ class BaseAST {
 private:
 
 public:
+    static llvm::Module *module_;
+
+    static llvm::IRBuilder<> builder_;
+
+    static std::map<std::string, llvm::Value*> name_values_;
+
     BaseAST() = default;
 
     virtual ~BaseAST() = default;
 
     virtual void Dump(int tab_num) const = 0;
+
+    virtual llvm::Value *CodeGen();
+
+    virtual llvm::Value *ErrorValue(const char *str);
 };
 
 class ExprAST : public BaseAST {
@@ -54,6 +67,10 @@ public:
     ~ExprAST() override = default;
 
     void Dump(int tab_num) const override;
+
+    llvm::Value *CodeGen() override;
+
+    llvm::Value *ErrorValue(const char *str) override;
 };
 
 /**
@@ -74,6 +91,10 @@ public:
     ~StmtAST() override = default;
 
     void Dump(int tab_num) const override;
+
+    llvm::Value *CodeGen() override;
+
+    llvm::Value *ErrorValue(const char *str) override;
 };
 
 /**
@@ -89,6 +110,10 @@ public:
     ~CompUnitAST() override = default;
 
     void Dump(int tab_num) const override;
+
+    llvm::Value *CodeGen() override;
+
+    llvm::Value *ErrorValue(const char *str) override;
 };
 
 /**
@@ -106,6 +131,10 @@ public:
     ~BlockAST() override = default;
 
     void Dump(int tab_num) const override;
+
+    llvm::Value *CodeGen() override;
+
+    llvm::Value *ErrorValue(const char *str) override;
 };
 
 /**
@@ -120,6 +149,10 @@ public:
     ~FuncTypeAST() override = default;
 
     void Dump(int tab_num) const override;
+
+    llvm::Value *CodeGen() override;
+
+    llvm::Value *ErrorValue(const char *str) override;
 };
 
 /**
@@ -137,8 +170,11 @@ public:
 
     ~FuncDefAST() override = default;
 
-
     void Dump(int tab_num) const override;
+
+    llvm::Value *CodeGen() override;
+
+    llvm::Value *ErrorValue(const char *str) override;
 };
 
 #endif //COMPILER_AST_H
