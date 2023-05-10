@@ -36,19 +36,13 @@ class BaseAST {
 private:
 
 public:
-    static llvm::Module *module_;
-
-    static llvm::IRBuilder<> builder_;
-
-    static std::map<std::string, llvm::Value*> name_values_;
-
     BaseAST() = default;
 
     virtual ~BaseAST() = default;
 
     virtual void Dump(int tab_num) const = 0;
 
-    virtual llvm::Value *CodeGen();
+    virtual llvm::Value *CodeGen(llvm::IRBuilder<> &builder);
 
     virtual llvm::Value *ErrorValue(const char *str);
 };
@@ -71,7 +65,7 @@ public:
 
     void Dump(int tab_num) const override;
 
-    llvm::Value *CodeGen() override;
+    llvm::Value *CodeGen(llvm::IRBuilder<> &builder) override;
 
     llvm::Value *ErrorValue(const char *str) override;
 };
@@ -95,7 +89,7 @@ public:
 
     void Dump(int tab_num) const override;
 
-    llvm::Value *CodeGen() override;
+    llvm::Value *CodeGen(llvm::IRBuilder<> &builder) override;
 
     llvm::Value *ErrorValue(const char *str) override;
 };
@@ -114,7 +108,7 @@ public:
 
     void Dump(int tab_num) const override;
 
-    llvm::Value *CodeGen() override;
+    llvm::Value *CodeGen(llvm::IRBuilder<> &builder) override;
 
     llvm::Value *ErrorValue(const char *str) override;
 };
@@ -135,7 +129,7 @@ public:
 
     void Dump(int tab_num) const override;
 
-    llvm::Value *CodeGen() override;
+    llvm::Value *CodeGen(llvm::IRBuilder<> &builder) override;
 
     llvm::Value *ErrorValue(const char *str) override;
 };
@@ -153,7 +147,7 @@ public:
 
     void Dump(int tab_num) const override;
 
-    llvm::Value *CodeGen() override;
+    llvm::Value *CodeGen(llvm::IRBuilder<> &builder) override;
 
     llvm::Value *ErrorValue(const char *str) override;
 };
@@ -175,7 +169,7 @@ public:
 
     void Dump(int tab_num) const override;
 
-    llvm::Value *CodeGen() override;
+    llvm::Value *CodeGen(llvm::IRBuilder<> &builder) override;
 
     llvm::Value *ErrorValue(const char *str) override;
 };

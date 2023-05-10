@@ -19,8 +19,8 @@ void FuncTypeAST::Dump(int tab_num) const {
     std::cout << "}";
 }
 
-llvm::Value *FuncTypeAST::CodeGen() {
-    return BaseAST::CodeGen();
+llvm::Value *FuncTypeAST::CodeGen(llvm::IRBuilder<> &builder) {
+    return BaseAST::CodeGen(builder);
 }
 
 llvm::Value *FuncTypeAST::ErrorValue(const char *str) {
@@ -47,8 +47,8 @@ void FuncDefAST::Dump(int tab_num) const {
     std::cout << "}";
 }
 
-llvm::Value *FuncDefAST::CodeGen() {
-    return BaseAST::CodeGen();
+llvm::Value *FuncDefAST::CodeGen(llvm::IRBuilder<> &builder) {
+    return BaseAST::CodeGen(builder);
 }
 
 llvm::Value *FuncDefAST::ErrorValue(const char *str) {
@@ -73,8 +73,8 @@ void BlockAST::Dump(int tab_num) const {
     std::cout << "}";
 }
 
-llvm::Value *BlockAST::CodeGen() {
-    return BaseAST::CodeGen();
+llvm::Value *BlockAST::CodeGen(llvm::IRBuilder<> &builder) {
+    return BaseAST::CodeGen(builder);
 }
 
 llvm::Value *BlockAST::ErrorValue(const char *str) {
@@ -90,8 +90,8 @@ void CompUnitAST::Dump(int tab_num) const {
     std::cout << "}";
 }
 
-llvm::Value *CompUnitAST::CodeGen() {
-    return BaseAST::CodeGen();
+llvm::Value *CompUnitAST::CodeGen(llvm::IRBuilder<> &builder) {
+    return BaseAST::CodeGen(builder);
 }
 
 llvm::Value *CompUnitAST::ErrorValue(const char *str) {
@@ -123,8 +123,8 @@ void StmtAST::Dump(int tab_num) const {
     std::cout << "} ";
 }
 
-llvm::Value *StmtAST::CodeGen() {
-    return BaseAST::CodeGen();
+llvm::Value *StmtAST::CodeGen(llvm::IRBuilder<> &builder) {
+    return BaseAST::CodeGen(builder);
 }
 
 llvm::Value *StmtAST::ErrorValue(const char *str) {
@@ -184,20 +184,40 @@ void ExprAST::Dump(int tab_num) const {
     std::cout << "}";
 }
 
-llvm::Value *ExprAST::CodeGen() {
-//    switch (type_) {
-//        case kAtomNum:
-//
-//            return llvm::ConstantFP::get(llvm::LLVMContext, llvm::APFloat(atof(num_.c_str())));
-//    }
-//    return BaseAST::CodeGen();
+llvm::Value *ExprAST::CodeGen(llvm::IRBuilder<> &builder) {
+    llvm::LLVMContext &context = builder.getContext();
+    llvm::Value *l_exp_value = lExp_->CodeGen(builder);
+    llvm::Value *r_exp_value = rExp_->CodeGen(builder);
+    if (!l_exp_value || !r_exp_value) {
+        return 0;
+    }
+    switch (type_) {
+        case kAtomNum:
+            return llvm::ConstantFP::get(context, llvm::APFloat(strtod(num_.c_str(), nullptr)));
+        case kAtomIdent:
+
+            break;
+        case kAdd:
+            return builder.CreateFAdd(l_exp_value, r_exp_value, "add");
+        case kSub:
+            return builder.CreateFSub(l_exp_value, r_exp_value, "sub");
+        case kMul:
+            return builder.CreateFMul(l_exp_value, r_exp_value, "mul");
+        case kDiv:
+            return builder.CreateFDiv(l_exp_value, r_exp_value, "div");
+        case kAssign:
+            return builder.CreateStore(l_exp_value, r_exp_value, "store");
+        default:
+            throw std::runtime_error("invalid binary operator");
+            return ErrorValue("invalid binary operator");
+    }
 }
 
 llvm::Value *ExprAST::ErrorValue(const char *str) {
     return BaseAST::ErrorValue(str);
 }
 
-llvm::Value *BaseAST::CodeGen() {
+llvm::Value *BaseAST::CodeGen(llvm::IRBuilder<> &builder) {
     return nullptr;
 }
 
