@@ -109,6 +109,13 @@ void StmtAST::Dump(int tab_num) const {
             std::cout << "Ident: " << this->ident_;
             break;
         case kExpression:
+            OutTab(tab_num + 1);
+            std::cout << "Type: " << this->key_word_ << ',' << std::endl;
+            this->exp_->Dump(tab_num + 1);
+            break;
+        case kReturn:
+            OutTab(tab_num + 1);
+            std::cout << "Type: " << "Return" << ',' << std::endl;
             this->exp_->Dump(tab_num + 1);
     }
     std::cout << std::endl;
@@ -178,7 +185,12 @@ void ExprAST::Dump(int tab_num) const {
 }
 
 llvm::Value *ExprAST::CodeGen() {
-    return BaseAST::CodeGen();
+//    switch (type_) {
+//        case kAtomNum:
+//
+//            return llvm::ConstantFP::get(llvm::LLVMContext, llvm::APFloat(atof(num_.c_str())));
+//    }
+//    return BaseAST::CodeGen();
 }
 
 llvm::Value *ExprAST::ErrorValue(const char *str) {

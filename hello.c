@@ -8,6 +8,6 @@ double test() {
     c = a + b - 1 * 2;
     int d;
     d = c * 1 + 1 * a + b / 3;
-//    return 0;
+    return 0;
 //    return 0;
 }

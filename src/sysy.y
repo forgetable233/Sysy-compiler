@@ -130,11 +130,10 @@ Block
   ;
 
 Stmt
-  : RETURN Number ';' {
+  : RETURN Expr ';' {
     auto ast = new StmtAST();
-    // ast->type_ = kReturn;
-    ast->key_word_ = *make_unique<string>("return");
-    // ast->exp_ = unique_ptr<BaseBlock>();
+    ast->type_ = kReturn;
+    ast->exp_ = unique_ptr<BaseAST>($2);
     $$ = ast;
   } | INT IDENT ';' {
     auto ast = new StmtAST();
