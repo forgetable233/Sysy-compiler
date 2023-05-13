@@ -19,8 +19,8 @@ void FuncTypeAST::Dump(int tab_num) const {
     std::cout << "}";
 }
 
-llvm::Value *FuncTypeAST::CodeGen(llvm::IRBuilder<> &builder) {
-    return BaseAST::CodeGen(builder);
+llvm::Value *FuncTypeAST::CodeGen(llvm::IRBuilder<> &builder, llvm::Module &module) {
+    return BaseAST::CodeGen(builder, module);
 }
 
 llvm::Value *FuncTypeAST::ErrorValue(const char *str) {
@@ -47,8 +47,12 @@ void FuncDefAST::Dump(int tab_num) const {
     std::cout << "}";
 }
 
-llvm::Value *FuncDefAST::CodeGen(llvm::IRBuilder<> &builder) {
-    return BaseAST::CodeGen(builder);
+llvm::Value *FuncDefAST::CodeGen(llvm::IRBuilder<> &builder, llvm::Module &module) {
+    llvm::IntegerType *return_type = llvm::IntegerType::get(module.getContext(), 32);
+    llvm::FunctionType *func_type = llvm::FunctionType::get(return_type, false);
+    llvm::Function *func = llvm::Function::Create(func_type, llvm::GlobalValue::ExternalLinkage, this->ident_, module);
+    llvm::BasicBlock *entry = llvm::BasicBlock::Create(module.getContext(), "entry", func);
+    return BaseAST::CodeGen(builder, module);
 }
 
 llvm::Value *FuncDefAST::ErrorValue(const char *str) {
@@ -73,8 +77,8 @@ void BlockAST::Dump(int tab_num) const {
     std::cout << "}";
 }
 
-llvm::Value *BlockAST::CodeGen(llvm::IRBuilder<> &builder) {
-    return BaseAST::CodeGen(builder);
+llvm::Value *BlockAST::CodeGen(llvm::IRBuilder<> &builder, llvm::Module &module) {
+    return BaseAST::CodeGen(builder, module);
 }
 
 llvm::Value *BlockAST::ErrorValue(const char *str) {
@@ -90,8 +94,9 @@ void CompUnitAST::Dump(int tab_num) const {
     std::cout << "}";
 }
 
-llvm::Value *CompUnitAST::CodeGen(llvm::IRBuilder<> &builder) {
-    return BaseAST::CodeGen(builder);
+llvm::Value *CompUnitAST::CodeGen(llvm::IRBuilder<> &builder, llvm::Module &module) {
+    return func_def_->CodeGen(builder, module);
+//    return BaseAST::CodeGen(builder, module);
 }
 
 llvm::Value *CompUnitAST::ErrorValue(const char *str) {
@@ -123,8 +128,8 @@ void StmtAST::Dump(int tab_num) const {
     std::cout << "} ";
 }
 
-llvm::Value *StmtAST::CodeGen(llvm::IRBuilder<> &builder) {
-    return BaseAST::CodeGen(builder);
+llvm::Value *StmtAST::CodeGen(llvm::IRBuilder<> &builder, llvm::Module &module) {
+    return BaseAST::CodeGen(builder, module);
 }
 
 llvm::Value *StmtAST::ErrorValue(const char *str) {
@@ -184,10 +189,10 @@ void ExprAST::Dump(int tab_num) const {
     std::cout << "}";
 }
 
-llvm::Value *ExprAST::CodeGen(llvm::IRBuilder<> &builder) {
+llvm::Value *ExprAST::CodeGen(llvm::IRBuilder<> &builder, llvm::Module &module) {
     llvm::LLVMContext &context = builder.getContext();
-    llvm::Value *l_exp_value = lExp_->CodeGen(builder);
-    llvm::Value *r_exp_value = rExp_->CodeGen(builder);
+    llvm::Value *l_exp_value = lExp_->CodeGen(builder, module);
+    llvm::Value *r_exp_value = rExp_->CodeGen(builder, module);
     if (!l_exp_value || !r_exp_value) {
         return 0;
     }
@@ -217,7 +222,7 @@ llvm::Value *ExprAST::ErrorValue(const char *str) {
     return BaseAST::ErrorValue(str);
 }
 
-llvm::Value *BaseAST::CodeGen(llvm::IRBuilder<> &builder) {
+llvm::Value *BaseAST::CodeGen(llvm::IRBuilder<> &builder, llvm::Module &module) {
     return nullptr;
 }
 

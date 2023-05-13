@@ -43,7 +43,7 @@ int main(int argc, const char *argv[]) {
     auto ret = yyparse(ast);
     assert(!ret);
     ast->Dump(0);
-
+    ast->CodeGen(builder_, module_);
 
     return 0;
 }
