@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <llvm/Support/raw_ostream.h>
 
 #include "ast.h"
 
@@ -42,8 +43,8 @@ int main(int argc, const char *argv[]) {
     unique_ptr<BaseAST> ast;
     auto ret = yyparse(ast);
     assert(!ret);
-    ast->Dump(0);
-    ast->CodeGen(builder_, module_);
-
+//    ast->Dump(0);
+    ast->CodeGen(module_);
+    module_.print(llvm::outs(), nullptr);
     return 0;
 }
