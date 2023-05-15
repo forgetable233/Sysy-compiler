@@ -7,6 +7,7 @@
 
 #include "ast.h"
 
+
 using namespace std;
 
 // 声明 lexer 的输入, 以及 parser 函数
@@ -18,14 +19,14 @@ extern FILE *yyin;
 extern int yyparse(unique_ptr<BaseAST> &ast);
 
 int main(int argc, const char *argv[]) {
-
+    std::string ir_name = "top";
     llvm::LLVMContext context;
 
     static llvm::Module module_("top", context);
 
-    static llvm::IRBuilder<> builder_(context);
-
     static std::map<std::string, llvm::Value*> name_values_;
+
+    auto ir = std::make_unique<IR>(ir_name);
 
     // 解析命令行参数. 测试脚本/评测平台要求你的编译器能接收如下参数:
     // compiler 模式 输入文件 -o 输出文件
@@ -45,6 +46,8 @@ int main(int argc, const char *argv[]) {
     assert(!ret);
 //    ast->Dump(0);
     ast->CodeGen(module_);
+    std::cout << "finish CodeGen" << std::endl;
     module_.print(llvm::outs(), nullptr);
+    std::cout << "print finished" << std::endl;
     return 0;
 }

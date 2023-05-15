@@ -49,7 +49,7 @@ void FuncDefAST::Dump(int tab_num) const {
 
 /**
  * 函数声明的AST
- * 目前只有INT类型的函数，偷懒，没有进一步细化
+ * 目前只有INT类型的函数，没有进一步细化
  * 留下了接口以后进行更新
  * @param module
  * @return
@@ -59,9 +59,11 @@ llvm::Value *FuncDefAST::CodeGen(llvm::Module &module) {
     llvm::FunctionType *func_type = llvm::FunctionType::get(return_type, false);
     llvm::Function *func = llvm::Function::Create(func_type, llvm::GlobalValue::ExternalLinkage, this->ident_, module);
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(module.getContext(), "entry", func);
-    llvm::IRBuilder<> builder_(entry);
 
     auto tar_block = (BlockAST *) (&(*block_));
+//    func->getBasicBlockList().push_back(entry);
+    module.getFunctionList().push_back(func);
+    std::cout << "Enter func" << std::endl;
     return tar_block->CodeGen(entry, module);
 //    return BaseAST::CodeGen(module);
 }
@@ -151,7 +153,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, llvm::Module &modul
     builder->SetInsertPoint(entry_block);
     llvm::Type *int_type = llvm::Type::getInt32Ty(module.getContext());
     llvm::AllocaInst *alloca_inst = builder->CreateAlloca(int_type, nullptr, this->ident_);
-    auto exp = (ExprAST*)(&(this->exp_));
+    auto exp = (ExprAST *) (&(this->exp_));
     switch (type_) {
         case kDeclare:
             entry_block->getInstList().push_back(alloca_inst);

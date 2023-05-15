@@ -15,6 +15,8 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 
+#include "IR.h"
+
 enum ExpType {
     kAdd,
     kSub,
