@@ -30,7 +30,7 @@ public:
 
     IR(std::string &name);
 
-    ~IR() = default;
+    ~IR();
 };
 
 

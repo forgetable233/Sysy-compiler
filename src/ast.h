@@ -14,6 +14,7 @@
 #include <llvm/IR/GlobalIFunc.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
+#include <llvm/Support/raw_ostream.h>
 
 #include "IR.h"
 
