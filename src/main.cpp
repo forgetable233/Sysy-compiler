@@ -45,9 +45,9 @@ int main(int argc, const char *argv[]) {
     auto ret = yyparse(ast);
     assert(!ret);
 //    ast->Dump(0);
-    ast->CodeGen(module_);
+    ast->CodeGen(*ir);
     std::cout << "finish CodeGen" << std::endl;
-    module_.print(llvm::outs(), nullptr);
+    ir->module_->print(llvm::outs(), nullptr);
     std::cout << "print finished" << std::endl;
     return 0;
 }

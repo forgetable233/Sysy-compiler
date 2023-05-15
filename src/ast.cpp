@@ -19,10 +19,6 @@ void FuncTypeAST::Dump(int tab_num) const {
     std::cout << "}";
 }
 
-llvm::Value *FuncTypeAST::CodeGen(llvm::Module &module) {
-    return BaseAST::CodeGen(module);
-}
-
 llvm::Value *FuncTypeAST::ErrorValue(const char *str) {
     return BaseAST::ErrorValue(str);
 }
@@ -47,27 +43,6 @@ void FuncDefAST::Dump(int tab_num) const {
     std::cout << "}";
 }
 
-/**
- * 函数声明的AST
- * 目前只有INT类型的函数，没有进一步细化
- * 留下了接口以后进行更新
- * @param module
- * @return
- */
-llvm::Value *FuncDefAST::CodeGen(llvm::Module &module) {
-    llvm::IntegerType *return_type = llvm::IntegerType::get(module.getContext(), 32);
-    llvm::FunctionType *func_type = llvm::FunctionType::get(return_type, false);
-    llvm::Function *func = llvm::Function::Create(func_type, llvm::GlobalValue::ExternalLinkage, this->ident_, module);
-    llvm::BasicBlock *entry = llvm::BasicBlock::Create(module.getContext(), "entry", func);
-
-    auto tar_block = (BlockAST *) (&(*block_));
-//    func->getBasicBlockList().push_back(entry);
-    module.getFunctionList().push_back(func);
-    std::cout << "Enter func" << std::endl;
-    return tar_block->CodeGen(entry, module);
-//    return BaseAST::CodeGen(module);
-}
-
 llvm::Value *FuncDefAST::ErrorValue(const char *str) {
     return BaseAST::ErrorValue(str);
 }
@@ -85,18 +60,11 @@ void BlockAST::Dump(int tab_num) const {
     std::cout << "}";
 }
 
-llvm::Value *BlockAST::CodeGen(llvm::Module &module) {
-    for (auto &it: this->stmt_) {
-        it->CodeGen(module);
-    }
-    return BaseAST::CodeGen(module);
-}
-
 llvm::Value *BlockAST::ErrorValue(const char *str) {
     return BaseAST::ErrorValue(str);
 }
 
-llvm::Value *BlockAST::CodeGen(llvm::BasicBlock *entry_block, llvm::Module &module) {
+llvm::Value *BlockAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     return nullptr;
 }
 
@@ -107,12 +75,6 @@ void CompUnitAST::Dump(int tab_num) const {
     std::cout << std::endl;
     OutTab(tab_num);
     std::cout << "}";
-}
-
-llvm::Value *CompUnitAST::CodeGen(llvm::Module &module) {
-    auto temp_func = (FuncDefAST *) (&(*func_def_));
-    return temp_func->CodeGen(module);
-//    return BaseAST::CodeGen(builder, module);
 }
 
 llvm::Value *CompUnitAST::ErrorValue(const char *str) {
@@ -144,14 +106,14 @@ void StmtAST::Dump(int tab_num) const {
     std::cout << "} ";
 }
 
-llvm::Value *StmtAST::CodeGen(llvm::Module &module) {
+llvm::Value *StmtAST::CodeGen(IR &ir) {
     return nullptr;
 }
 
-llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, llvm::Module &module) {
-    auto builder = std::make_unique<llvm::IRBuilder<>>(module.getContext());
+llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
+    auto builder = std::make_unique<llvm::IRBuilder<>>(ir.module_->getContext());
     builder->SetInsertPoint(entry_block);
-    llvm::Type *int_type = llvm::Type::getInt32Ty(module.getContext());
+    llvm::Type *int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
     llvm::AllocaInst *alloca_inst = builder->CreateAlloca(int_type, nullptr, this->ident_);
     auto exp = (ExprAST *) (&(this->exp_));
     switch (type_) {
@@ -159,10 +121,10 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, llvm::Module &modul
             entry_block->getInstList().push_back(alloca_inst);
             break;
         case kExpression:
-            exp->CodeGen(entry_block, module);
+            exp->CodeGen(entry_block, ir);
             break;
         case kReturn:
-            builder->CreateRet(exp->CodeGen(entry_block, module));
+            builder->CreateRet(exp->CodeGen(entry_block, ir));
 
             break;
         default:
@@ -228,7 +190,7 @@ void ExprAST::Dump(int tab_num) const {
     std::cout << "}";
 }
 
-llvm::Value *ExprAST::CodeGen(llvm::Module &module) {
+llvm::Value *ExprAST::CodeGen(IR &ir) {
     return nullptr;
 }
 
@@ -236,14 +198,61 @@ llvm::Value *ExprAST::ErrorValue(const char *str) {
     return BaseAST::ErrorValue(str);
 }
 
-llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, llvm::Module &module) {
-    auto builder = std::make_unique<llvm::IRBuilder<>>(module.getContext());
+llvm::Value *FuncTypeAST::CodeGen(IR &ir) {
+    return nullptr;
+}
+
+/**
+ * 函数声明的AST
+ * 目前只有INT类型的函数，没有进一步细化
+ * 留下了接口以后进行更新
+ * @param module
+ * @return
+ */
+llvm::Value *FuncDefAST::CodeGen(IR &ir) {
+    llvm::IntegerType *return_type = llvm::IntegerType::get(ir.module_->getContext(), 32);
+    llvm::FunctionType *func_type = llvm::FunctionType::get(return_type, false);
+    llvm::Function *func = llvm::Function::Create(func_type,
+                                                  llvm::GlobalValue::ExternalLinkage,
+                                                  this->ident_,
+                                                  *ir.module_);
+    llvm::BasicBlock *entry = llvm::BasicBlock::Create(ir.module_->getContext(), "entry", func);
+
+    auto tar_block = (BlockAST *) (&(*block_));
+//    func->getBasicBlockList().push_back(entry);
+    ir.module_->getFunctionList().push_back(func);
+    std::cout << "Enter func" << std::endl;
+    return tar_block->CodeGen(entry, ir);
+//    return BaseAST::CodeGen(module);
+}
+
+llvm::Value *BlockAST::CodeGen(IR &ir) {
+    for (auto &it: this->stmt_) {
+        it->CodeGen(ir);
+    }
+    return BaseAST::CodeGen(ir);
+}
+
+llvm::Value *CompUnitAST::CodeGen(IR &ir) {
+    auto temp_func = (FuncDefAST *) (&(*func_def_));
+    return temp_func->CodeGen(ir);
+//    return BaseAST::CodeGen(builder, module);
+}
+
+llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
+    auto builder = std::make_unique<llvm::IRBuilder<>>(*ir.context_);
     builder->SetInsertPoint(entry_block);
-    llvm::LLVMContext &context = module.getContext();
-    llvm::Value *l_exp_value = lExp_->CodeGen(module);
-    llvm::Value *r_exp_value = rExp_->CodeGen(module);
-    if (!l_exp_value || !r_exp_value) {
-        return nullptr;
+    llvm::LLVMContext &context = *ir.context_;
+    auto l_exp = (ExprAST *) (&(*lExp_));
+    auto r_exp = (ExprAST *) (&(*rExp_));
+    llvm::Value *l_exp_value = nullptr;
+    llvm::Value *r_exp_value = nullptr;
+    if (type_ != kAtomIdent && type_ != kAtomNum) {
+        l_exp_value = l_exp->CodeGen(entry_block, ir);
+        r_exp_value = r_exp->CodeGen(entry_block, ir);
+        if (!l_exp_value || !r_exp_value) {
+            return nullptr;
+        }
     }
     switch (type_) {
         case kAtomNum:
@@ -268,7 +277,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, llvm::Module &modul
     return nullptr;
 }
 
-llvm::Value *BaseAST::CodeGen(llvm::Module &module) {
+llvm::Value *BaseAST::CodeGen(IR &ir) {
 
     return nullptr;
 }

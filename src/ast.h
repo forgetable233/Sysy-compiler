@@ -44,7 +44,7 @@ public:
 
     virtual void Dump(int tab_num) const = 0;
 
-    virtual llvm::Value *CodeGen(llvm::Module &module);
+    virtual llvm::Value *CodeGen(IR &ir);
 
     virtual llvm::Value *ErrorValue(const char *str);
 };
@@ -67,9 +67,9 @@ public:
 
     void Dump(int tab_num) const override;
 
-    llvm::Value *CodeGen(llvm::Module &module) override;
+    llvm::Value *CodeGen(IR &ir) override;
 
-    llvm::Value *CodeGen(llvm::BasicBlock *entry_block, llvm::Module &module);
+    llvm::Value *CodeGen(llvm::BasicBlock *entry_block, IR &ir);
 
     llvm::Value *ErrorValue(const char *str) override;
 };
@@ -93,9 +93,9 @@ public:
 
     void Dump(int tab_num) const override;
 
-    llvm::Value *CodeGen(llvm::Module &module) override;
+    llvm::Value *CodeGen(IR &ir) override;
 
-    llvm::Value *CodeGen(llvm::BasicBlock *entry_block, llvm::Module &module);
+    llvm::Value *CodeGen(llvm::BasicBlock *entry_block, IR &ir);
 
 
     llvm::Value *ErrorValue(const char *str) override;
@@ -115,7 +115,7 @@ public:
 
     void Dump(int tab_num) const override;
 
-    llvm::Value *CodeGen(llvm::Module &module) override;
+    llvm::Value *CodeGen(IR &ir) override;
 
     llvm::Value *ErrorValue(const char *str) override;
 };
@@ -136,9 +136,9 @@ public:
 
     void Dump(int tab_num) const override;
 
-    llvm::Value *CodeGen(llvm::Module &module) override;
+    llvm::Value *CodeGen(IR &ir) override;
 
-    llvm::Value *CodeGen(llvm::BasicBlock *entry_block, llvm::Module &module);
+    llvm::Value *CodeGen(llvm::BasicBlock *entry_block, IR &ir);
 
     llvm::Value *ErrorValue(const char *str) override;
 };
@@ -156,7 +156,7 @@ public:
 
     void Dump(int tab_num) const override;
 
-    llvm::Value *CodeGen(llvm::Module &module) override;
+    llvm::Value *CodeGen(IR &ir) override;
 
     llvm::Value *ErrorValue(const char *str) override;
 };
@@ -178,8 +178,7 @@ public:
 
     void Dump(int tab_num) const override;
 
-    llvm::Value *CodeGen(llvm::Module &module) override;
-
+    llvm::Value *CodeGen(IR &ir) override;
 
     llvm::Value *ErrorValue(const char *str) override;
 };
