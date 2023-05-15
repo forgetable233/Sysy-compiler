@@ -260,6 +260,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     builder->SetInsertPoint(entry_block);
     llvm::LLVMContext &context = *ir.context_;
     llvm::Value *value;
+    llvm::LoadInst *load_inst;
     ExprAST *l_exp;
     ExprAST *r_exp;
 //    auto l_exp = (ExprAST *) (&(*lExp_));
@@ -270,23 +271,10 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
         case kAtomNum:
             return llvm::ConstantFP::get(context, llvm::APFloat(strtod(num_.c_str(), nullptr)));
         case kAtomIdent:
-            return llvm::ConstantFP::get(context, llvm::APFloat(strtod(num_.c_str(), nullptr)));
-            break;
-//        case kAdd:
-            l_exp = (ExprAST *) (&(*lExp_));
-            r_exp = (ExprAST *) (&(*rExp_));
-//            l_exp_value =
-            return builder->CreateFAdd(l_exp_value, r_exp_value, "add");
-//        case kSub:
-//            return builder->CreateFSub(l_exp_value, r_exp_value, "sub");
-//        case kMul:
-//            return builder->CreateFMul(l_exp_value, r_exp_value, "mul");
-//        case kDiv:
-//            return builder->CreateFDiv(l_exp_value, r_exp_value, "div");
-//        case kAssign:
-//            return builder->CreateStore(l_exp_value, r_exp_value, "store");
+//            value = ir.module_->getNamedGlobal(this->ident_);
+            load_inst = builder->CreateLoad(ir.module_->getGlobalVariable(this->ident_), this->ident_);
+            return builder->Insert(load_inst);
         case kAssign:
-//            value = entry_block.getV
             value = ir.module_->getNamedValue(ident_);
             if (value != nullptr) {
                 r_exp = (ExprAST *) (&(*rExp_));
@@ -296,7 +284,6 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                 llvm::errs() << "Error variable " << ident_ << " not declared";
                 return nullptr;
             }
-            break;
         default:
             l_exp = (ExprAST *) (&(*lExp_));
             r_exp = (ExprAST *) (&(*rExp_));

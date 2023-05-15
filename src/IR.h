@@ -20,9 +20,9 @@
 class IR {
 
 public:
-    std::unique_ptr<llvm::LLVMContext> context_;
+    std::shared_ptr<llvm::LLVMContext> context_;
 
-    std::unique_ptr<llvm::Module> module_;
+    std::shared_ptr<llvm::Module> module_;
 
     std::map<std::string, llvm::Value*> name_values_;
 
