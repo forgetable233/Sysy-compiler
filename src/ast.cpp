@@ -116,11 +116,11 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     switch (type_) {
         case kDeclare:
 //            entry_block->getInstList().push_back(alloca_inst);
-            var =new llvm::GlobalVariable(*ir.module_,
-                                             int_type,
-                                             false,
-                                             llvm::GlobalVariable::ExternalLinkage,
-                                             nullptr, this->ident_);
+            var = new llvm::GlobalVariable(*ir.module_,
+                                           int_type,
+                                           false,
+                                           llvm::GlobalVariable::ExternalLinkage,
+                                           nullptr, this->ident_);
 //            ir.module_->getGlobalList().push_back();
             break;
         case kExpression:
