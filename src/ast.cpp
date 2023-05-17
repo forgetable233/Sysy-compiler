@@ -4,6 +4,7 @@
 
 #include "ast.h"
 
+// TODO 完成While与If的IR生成
 void OutTab(int num) {
     for (int i = 0; i < num; ++i) {
         std::cout << "    ";
@@ -317,7 +318,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     builder->SetInsertPoint(entry_block);
     llvm::LLVMContext &context = *ir.context_;
     llvm::Value *value;
-    llvm::LoadInst *load_inst;
+//    llvm::LoadInst *load_inst;
     ExprAST *l_exp;
     ExprAST *r_exp;
 //    auto l_exp = (ExprAST *) (&(*lExp_));
@@ -373,10 +374,10 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                     return builder->CreateFDiv(l_exp_value, r_exp_value, "div");
                 default:
                     throw std::runtime_error("invalid binary operator");
-                    return ErrorValue("invalid binary operator");
+//                    return ErrorValue("invalid binary operator");
             }
     }
-    return nullptr;
+//    return nullptr;
 }
 
 ExprAST::~ExprAST() {
