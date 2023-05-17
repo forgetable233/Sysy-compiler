@@ -14,6 +14,12 @@ double test() {
         e = 1;
         f = e + 1;
     }
+    while (b) {
+        int d;
+        int f;
+        d = 10;
+        f = d + 100;
+    }
     return 0;
 //    return 0;
 }

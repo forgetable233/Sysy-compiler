@@ -96,6 +96,31 @@ void StmtAST::Dump(int tab_num) const {
             OutTab(tab_num + 1);
             std::cout << "Type: " << "Return" << ',' << std::endl;
             this->exp_->Dump(tab_num + 1);
+            break;
+        case kIf:
+            OutTab(tab_num + 1);
+            std::cout << "Type : " << "If" << "," << std::endl;
+            OutTab(tab_num + 1);
+            std::cout << "The Expression is :" << std::endl;
+            this->exp_->Dump(tab_num + 1);
+            std::cout << std::endl;
+            OutTab(tab_num + 1);
+            std::cout << std::endl << "The Block is :" << std::endl;
+            this->block_->Dump(tab_num + 1);
+            break;
+        case kWhile:
+            OutTab(tab_num + 1);
+            std::cout << "Type : " << "While" << "," << std::endl;
+            OutTab(tab_num + 1);
+            std::cout << "The Expression is :" << std::endl;
+            this->exp_->Dump(tab_num + 1);
+            std::cout << std::endl;
+            OutTab(tab_num + 1);
+            std::cout << std::endl << "The Block is :" << std::endl;
+            this->block_->Dump(tab_num + 1);
+            break;
+        default:
+            std::cerr << "Error in Stmt Undefined type" << std::endl;
     }
     std::cout << std::endl;
     OutTab(tab_num);
