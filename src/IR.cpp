@@ -5,16 +5,16 @@
 #include "IR.h"
 
 IR::IR() {
-    context_ = std::make_shared<llvm::LLVMContext>();
-    module_ = std::make_shared<llvm::Module>("default", *context_);
+    context_ = std::make_unique<llvm::LLVMContext>();
+    module_ = std::make_unique<llvm::Module>("default", *context_);
 }
 
 IR::IR(std::string &name) {
-    context_ = std::make_shared<llvm::LLVMContext>();
-    module_ = std::make_shared<llvm::Module>(name, *context_);
+    context_ = std::make_unique<llvm::LLVMContext>();
+    module_ = std::make_unique<llvm::Module>(name, *context_);
 }
 
 IR::~IR() {
-//    module_.reset();
-//    context_.reset();
+    context_.reset();
+    module_.reset();
 }

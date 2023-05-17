@@ -69,7 +69,7 @@ public:
 
     ExprAST() = default;
 
-    ~ExprAST() override = default;
+    ~ExprAST() override;
 
     void Dump(int tab_num) const override;
 
@@ -97,7 +97,7 @@ public:
 
     StmtAST() = default;
 
-    ~StmtAST() override = default;
+    ~StmtAST() override;
 
     void Dump(int tab_num) const override;
 
@@ -119,7 +119,7 @@ public:
 
     CompUnitAST() = default;
 
-    ~CompUnitAST() override = default;
+    ~CompUnitAST() override;
 
     void Dump(int tab_num) const override;
 
@@ -135,7 +135,7 @@ class BlockAST : public BaseAST {
 public:
     std::vector<std::unique_ptr<BaseAST>> stmt_;
 
-    std::vector<std::unique_ptr<BaseAST>> blocks_;
+//    std::vector<std::unique_ptr<BaseAST>> blocks_;
 
 //    std::unique_ptr<BaseAST> stmt_ = nullptr;
 
@@ -143,7 +143,7 @@ public:
 
     BlockAST() = default;
 
-    ~BlockAST() override = default;
+    ~BlockAST() override;
 
     void Dump(int tab_num) const override;
 
@@ -163,7 +163,7 @@ public:
 
     FuncTypeAST() = default;
 
-    ~FuncTypeAST() override = default;
+    ~FuncTypeAST() override;
 
     void Dump(int tab_num) const override;
 
@@ -185,7 +185,7 @@ public:
 
     FuncDefAST() = default;
 
-    ~FuncDefAST() override = default;
+    ~FuncDefAST() override;
 
     void Dump(int tab_num) const override;
 

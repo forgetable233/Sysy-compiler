@@ -164,6 +164,15 @@ llvm::Value *StmtAST::ErrorValue(const char *str) {
     return BaseAST::ErrorValue(str);
 }
 
+StmtAST::~StmtAST() {
+    if (!exp_) {
+        exp_.reset(nullptr);
+    }
+    if (!block_) {
+        block_.reset(nullptr);
+    }
+}
+
 void ExprAST::Dump(int tab_num) const {
     OutTab(tab_num);
     std::cout << "ExprAST: {" << std::endl;
@@ -229,6 +238,10 @@ llvm::Value *FuncTypeAST::CodeGen(IR &ir) {
     return nullptr;
 }
 
+FuncTypeAST::~FuncTypeAST() {
+
+}
+
 /**
  * 函数声明的AST
  * 目前只有INT类型的函数，没有进一步细化
@@ -254,6 +267,10 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
     return nullptr;
 }
 
+FuncDefAST::~FuncDefAST() {
+    block_.reset(nullptr);
+}
+
 llvm::Value *BlockAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     for (auto &item: this->stmt_) {
         ((StmtAST *) (&(*item)))->CodeGen(entry_block, ir);
@@ -268,6 +285,12 @@ llvm::Value *BlockAST::CodeGen(IR &ir) {
     return BaseAST::CodeGen(ir);
 }
 
+BlockAST::~BlockAST() {
+    for(auto &item : stmt_) {
+        item.reset(nullptr);
+    }
+}
+
 /**
  * 一个编译模块的代码生成
  * 以后可以增加函数的数量，目前只添加了一个
@@ -278,6 +301,10 @@ llvm::Value *CompUnitAST::CodeGen(IR &ir) {
     auto temp_func = (FuncDefAST *) (&(*func_def_));
     return temp_func->CodeGen(ir);
 //    return BaseAST::CodeGen(builder, module);
+}
+
+CompUnitAST::~CompUnitAST() {
+    func_def_.reset(nullptr);
 }
 
 llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
@@ -329,6 +356,15 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             }
     }
     return nullptr;
+}
+
+ExprAST::~ExprAST() {
+    if (!lExp_) {
+        lExp_.reset(nullptr);
+    }
+    if (!rExp_) {
+        rExp_.reset(nullptr);
+    }
 }
 
 llvm::Value *BaseAST::CodeGen(IR &ir) {
