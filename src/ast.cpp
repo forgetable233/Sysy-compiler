@@ -135,17 +135,22 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     auto builder = std::make_unique<llvm::IRBuilder<>>(entry_block);
     builder->SetInsertPoint(entry_block);
     llvm::Type *int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
-    llvm::GlobalVariable *var;
+    llvm::Value *value;
+//    llvm::GlobalVariable *var;
 //    llvm::AllocaInst *alloca_inst = builder->CreateAlloca(int_type, nullptr, this->ident_);
     auto exp = (ExprAST *) (&(*this->exp_));
     switch (type_) {
         case kDeclare:
 //            entry_block->getInstList().push_back(alloca_inst);
-            var = new llvm::GlobalVariable(*ir.module_,
-                                           int_type,
-                                           false,
-                                           llvm::GlobalVariable::ExternalLinkage,
-                                           nullptr, this->ident_);
+//            var = new llvm::GlobalVariable(*ir.module_,
+//                                           int_type,
+//                                           false,
+//                                           llvm::GlobalVariable::ExternalLinkage,
+//                                           nullptr, this->ident_);
+            value = builder->Insert(builder->CreateAlloca(int_type, nullptr, this->ident_));
+            value->setName(this->ident_);
+            ir.push_value(value,
+                          entry_block->getName().str());
 //            ir.module_->getGlobalList().push_back();
             break;
         case kExpression:
@@ -286,7 +291,7 @@ llvm::Value *BlockAST::CodeGen(IR &ir) {
 }
 
 BlockAST::~BlockAST() {
-    for(auto &item : stmt_) {
+    for (auto &item: stmt_) {
         item.reset(nullptr);
     }
 }
@@ -323,19 +328,35 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
         case kAtomNum:
             return llvm::ConstantFP::get(context, llvm::APFloat(strtod(num_.c_str(), nullptr)));
         case kAtomIdent:
-//            value = ir.module_->getNamedGlobal(this->ident_);
-            load_inst = builder->CreateLoad(ir.module_->getGlobalVariable(this->ident_), this->ident_);
-            return builder->Insert(load_inst);
-        case kAssign:
-            value = ir.module_->getNamedValue(ident_);
-            if (value != nullptr) {
-                r_exp = (ExprAST *) (&(*rExp_));
-                r_exp_value = r_exp->CodeGen(entry_block, ir);
-                return builder->CreateStore(value, r_exp_value, "store");
-            } else {
-                llvm::errs() << "Error variable " << ident_ << " not declared";
-                return nullptr;
+            value = ir.get_value(entry_block->getName(), this->ident_);
+            if (value == nullptr) {
+                value = ir.module_->getGlobalVariable(this->ident_);
+                if (!value) {
+                    llvm::errs() << "Error variable " << ident_ << " not declared";
+                    return nullptr;
+                }
             }
+//            load_inst = ;
+            return builder->CreateLoad(value, this->ident_);
+        case kAssign:
+            value = ir.get_value(entry_block->getName(), this->ident_);
+            if (value == nullptr) {
+                value = ir.module_->getGlobalVariable(this->ident_);
+                if (!value) {
+                    llvm::errs() << "Error variable " << ident_ << " not declared";
+                    return nullptr;
+                }
+            }
+            r_exp = (ExprAST *) (&(*rExp_));
+            r_exp_value = r_exp->CodeGen(entry_block, ir);
+            return builder->CreateStore(value, r_exp_value, "store");
+//            value = ir.module_->getNamedValue(ident_);
+//            if (value != nullptr) {
+//
+//            } else {
+//                llvm::errs() << "Error variable " << ident_ << " not declared";
+//                return nullptr;
+//            }
         default:
             l_exp = (ExprAST *) (&(*lExp_));
             r_exp = (ExprAST *) (&(*rExp_));

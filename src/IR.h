@@ -13,22 +13,28 @@
 #include <memory>
 #include <string>
 #include <map>
+#include <vector>
 
 /**
  * 以一个module为标准构建一个IR
  */
 class IR {
+private:
 
 public:
     std::unique_ptr<llvm::LLVMContext> context_;
 
     std::unique_ptr<llvm::Module> module_;
 
-    std::map<std::string, llvm::Value*> name_values_;
-
+    std::map<std::string , std::map<std::string , llvm::Value*>> name_values_;
+//    std::map<std::string, llvm::Value*> name_values_;
     IR();
 
     IR(std::string &name);
+
+    void push_value(llvm::Value *value, std::string block_name);
+
+    llvm::Value* get_value(std::string block_name, std::string value_name);
 
     ~IR();
 };
