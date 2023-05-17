@@ -42,6 +42,7 @@ using namespace std;
 // 终结符类型定义
 %token RETURN
 %token <str_val> IDENT INT VOID DOUBLE FLOAT ADD SUB MUL DIV ASS
+%token <str_val> IF WHILE
 %token <int_val> INT_CONST
 
 // 非终结符的类型定义
@@ -146,6 +147,18 @@ Stmt
     auto ast = new StmtAST();
     ast->type_ = kExpression;
     ast->exp_ = unique_ptr<BaseAST>($1);
+    $$ = ast;
+  } | IF '(' Expr ')' '{' Block '}' {
+    auto ast = new StmtAST();
+    ast->type_ = kIf;
+    ast->exp_ = unique_ptr<BaseAST>($3);
+    ast->block_ = unique_ptr<BaseAST>($6);
+    $$ = ast;
+  } | WHILE '(' Expr ')' '{' Block '}' {
+    auto ast = new StmtAST();
+    ast->type_ = kWhile;
+    ast->exp_ = unique_ptr<BaseAST>($3);
+    ast->block_ = unique_ptr<BaseAST>($6);
     $$ = ast;
   }
   ;

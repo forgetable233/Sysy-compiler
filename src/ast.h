@@ -31,7 +31,9 @@ enum ExpType {
 enum StmtType {
     kReturn,
     kDeclare,
-    kExpression
+    kExpression,
+    kIf,
+    kWhile
 };
 
 // 所有AST的基础类
@@ -88,6 +90,8 @@ public:
 
     std::unique_ptr<BaseAST> exp_ = nullptr;
 
+    std::unique_ptr<BaseAST> block_ = nullptr;
+
     StmtAST() = default;
 
     ~StmtAST() override = default;
@@ -127,6 +131,9 @@ public:
 class BlockAST : public BaseAST {
 public:
     std::vector<std::unique_ptr<BaseAST>> stmt_;
+
+    std::vector<std::unique_ptr<BaseAST>> blocks_;
+
 //    std::unique_ptr<BaseAST> stmt_ = nullptr;
 
 //    std::unique_ptr<BaseAST> block_ = nullptr;

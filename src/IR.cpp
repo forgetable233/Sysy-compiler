@@ -15,6 +15,6 @@ IR::IR(std::string &name) {
 }
 
 IR::~IR() {
-    module_.reset();
-    context_.reset();
+//    module_.reset();
+//    context_.reset();
 }

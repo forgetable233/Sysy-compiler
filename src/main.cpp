@@ -38,8 +38,8 @@ int main(int argc, const char *argv[]) {
     auto ret = yyparse(ast);
     assert(!ret);
     ast->Dump(0);
-    ast->CodeGen(ir);
-    std::cout << std::endl <<  "finish CodeGen" << std::endl;
-    ir.module_->print(llvm::outs(), nullptr);
+//    ast->CodeGen(ir);
+//    std::cout << std::endl <<  "finish CodeGen" << std::endl;
+//    ir.module_->print(llvm::outs(), nullptr);
     return 0;
 }
