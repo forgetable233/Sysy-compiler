@@ -47,6 +47,14 @@ Hexadecimal   0[xX][0-9a-fA-F]+
 "*"             { return MUL; }
 "/"             { return DIV; }
 "="             { return ASS; }
+"=="            { return EQUAL; }
+"!="            { return NOT_EQUAL; }
+"&&"            { return AND; }
+"||"            { return OR; }
+">"             { return LARGER; }
+">="            { return LARGER_EQUAL; }
+"<"             { return LESS; }
+"<="            { return LESS_EQUAL; }
 
 {Identifier}    { yylval.str_val = new string(yytext); return IDENT; }
 

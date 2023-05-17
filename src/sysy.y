@@ -42,6 +42,7 @@ using namespace std;
 // 终结符类型定义
 %token RETURN
 %token <str_val> IDENT INT VOID DOUBLE FLOAT ADD SUB MUL DIV ASS
+%token <str_val> EQUAL NOT_EQUAL AND OR LESS LESS_EQUAL LARGER LARGER_EQUAL
 %token <str_val> IF WHILE
 %token <int_val> INT_CONST
 
@@ -50,6 +51,10 @@ using namespace std;
 %type <int_val> Number
 
 %left ASS
+%left OR
+%left AND
+%left EQUAL NOT_EQUAL
+%left LARGER LARGER_EQUAL LESS LESS_EQUAL
 %left ADD SUB
 %left MUL DIV
 // %type <str_val> Number
