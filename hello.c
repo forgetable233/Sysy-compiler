@@ -22,6 +22,11 @@ double test() {
     if (m) {
         int k;
     }
+
+    while (a) {
+        int m;
+        int p;
+    }
     return 0;
 //    return 0;
 }

@@ -147,57 +147,89 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     llvm::BasicBlock *true_block = nullptr;
     llvm::BasicBlock *false_block = nullptr;
     llvm::BasicBlock *merge_block = nullptr;
+
+    llvm::BasicBlock *loop_header = nullptr;
+    llvm::BasicBlock *loop_body = nullptr;
+    llvm::BasicBlock *loop_exit = nullptr;
+
+    llvm::Instruction *first_ins = &entry_block->front();
 //    llvm::GlobalVariable *var;
 //    llvm::AllocaInst *alloca_inst = builder->CreateAlloca(int_type, nullptr, this->ident_);
     auto exp = (ExprAST *) (&(*this->exp_));
     switch (type_) {
-            case kDeclare:
-    //            entry_block->getInstList().push_back(alloca_inst);
-    //            var = new llvm::GlobalVariable(*ir.module_,
-    //                                           int_type,
-    //                                           false,
-    //                                           llvm::GlobalVariable::ExternalLinkage,
-    //                                           nullptr, this->ident_);
-                value = ir.builder_->Insert(ir.builder_->CreateAlloca(int_type, nullptr, this->ident_));
-                value->setName(this->ident_);
-                ir.push_value(value,
-                              entry_block->getName().str());
-    //            ir.module_->getGlobalList().push_back();
-                break;
-            case kExpression:
-                exp->CodeGen(entry_block, ir);
-                break;
-            case kReturn:
-                ir.builder_->CreateRet(exp->CodeGen(entry_block, ir));
-                break;
-            case kIf:
-                value = ((ExprAST *) &(*this->exp_))->CodeGen(entry_block, ir);
-    //            std::cout << entry_block->getParent()->getName().str() << std::endl;
-                true_block = llvm::BasicBlock::Create(ir.module_->getContext(), "true_block", entry_block->getParent());
-                merge_block = llvm::BasicBlock::Create(ir.module_->getContext(), "merge_block", entry_block->getParent());
-                if (false_block_) {
-                    false_block = llvm::BasicBlock::Create(ir.module_->getContext(), "false_block", entry_block->getParent());
-                }
-                llvm::BranchInst::Create(true_block, false_block, value, entry_block);
+        case kDeclare:
+            //            entry_block->getInstList().push_back(alloca_inst);
+            //            var = new llvm::GlobalVariable(*ir.module_,
+            //                                           int_type,
+            //                                           false,
+            //                                           llvm::GlobalVariable::ExternalLinkage,
+            //                                           nullptr, this->ident_);
+            value = ir.builder_->Insert(ir.builder_->CreateAlloca(int_type, nullptr, this->ident_));
+            value->setName(this->ident_);
+            ir.push_value(value,
+                          entry_block->getName().str());
+            //            ir.module_->getGlobalList().push_back();
+            break;
+        case kExpression:
+            exp->CodeGen(entry_block, ir);
+            break;
+        case kReturn:
+            ir.builder_->CreateRet(exp->CodeGen(entry_block, ir));
+            break;
+        case kIf:
+            value = ((ExprAST *) &(*this->exp_))->CodeGen(entry_block, ir);
+            //            std::cout << entry_block->getParent()->getName().str() << std::endl;
+            true_block = llvm::BasicBlock::Create(ir.module_->getContext(), "true_block", entry_block->getParent());
+            merge_block = llvm::BasicBlock::Create(ir.module_->getContext(), "merge_block", entry_block->getParent());
+            if (false_block_) {
+                false_block = llvm::BasicBlock::Create(ir.module_->getContext(), "false_block",
+                                                       entry_block->getParent());
+            }
+            llvm::BranchInst::Create(true_block, false_block, value, entry_block);
 //                ir.builder_->CreateCondBr(value, true_block, false_block);
-                ((BlockAST*)&(*this->true_block_))->CodeGen(true_block, ir);
-                ir.builder_->SetInsertPoint(true_block);
+            ((BlockAST *) &(*this->true_block_))->CodeGen(true_block, ir);
+            ir.builder_->SetInsertPoint(true_block);
+            ir.builder_->CreateRetVoid();
+            llvm::BranchInst::Create(merge_block, true_block);
+            if (false_block_) {
+                ((BlockAST *) &(*this->false_block_))->CodeGen(false_block, ir);
+                ir.builder_->SetInsertPoint(false_block);
                 ir.builder_->CreateRetVoid();
-                llvm::BranchInst::Create(merge_block, true_block);
-                if (false_block_) {
-                    ((BlockAST*)&(*this->false_block_))->CodeGen(false_block, ir);
-                    ir.builder_->SetInsertPoint(false_block);
-                    ir.builder_->CreateRetVoid();
-                    llvm::BranchInst::Create(merge_block, false_block);
-                }
-                ir.builder_->SetInsertPoint(merge_block);
-                ir.builder_->CreateRetVoid();
+                llvm::BranchInst::Create(merge_block, false_block);
+            }
+            ir.builder_->SetInsertPoint(merge_block);
+            ir.builder_->CreateRetVoid();
+//            llvm::BranchInst::Create(entry_block, merge_block);
 //                entry_block = merge_block;
-                break;
-    //        case kWhile:
+            break;
+        case kWhile:
+//            first_ins = &entry_block->getInstList().front();
+//            llvm::BranchInst::Create(loop_header, first_ins);
+            /** 首先生成对应的loop_header **/
+            loop_header = llvm::BasicBlock::Create(ir.module_->getContext(), "loop_header", entry_block->getParent());
+            loop_body = llvm::BasicBlock::Create(ir.module_->getContext(), "loop_body", entry_block->getParent());
+            loop_exit = llvm::BasicBlock::Create(ir.module_->getContext(), "loop_exit", entry_block->getParent());
+            llvm::BranchInst::Create(loop_header, entry_block);
 
-            default:
-                std::cerr << "UNDEFINED TYPE" << std::endl;
+            // loop_header
+            ir.builder_->SetInsertPoint(loop_header);
+            value = ((ExprAST *) &(*this->exp_))->CodeGen(loop_header, ir);
+            llvm::BranchInst::Create(loop_body, loop_exit, value, loop_header);
+//            ir.builder_->CreateRetVoid();
+//            llvm::BranchInst::Create(entry_block, loop_header);
+
+            // loop_body
+            ((BlockAST *) &(*this->block_))->CodeGen(loop_body, ir);
+            ir.builder_->SetInsertPoint(loop_body);
+            ir.builder_->CreateRetVoid();
+            llvm::BranchInst::Create(loop_header, loop_body);
+
+            // loop_exit
+            ir.builder_->SetInsertPoint(loop_exit);
+            ir.builder_->CreateRetVoid();
+            break;
+        default:
+            std::cerr << "UNDEFINED TYPE" << std::endl;
     }
     return nullptr;
 }

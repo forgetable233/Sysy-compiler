@@ -43,7 +43,7 @@ using namespace std;
 %token RETURN
 %token <str_val> IDENT INT VOID DOUBLE FLOAT ADD SUB MUL DIV ASS
 %token <str_val> EQUAL NOT_EQUAL AND OR LESS LESS_EQUAL LARGER LARGER_EQUAL
-%token <str_val> IF WHILE ELSE
+%token <str_val> IF WHILE ELSE TRUE FALSE
 %token <int_val> INT_CONST
 
 // 非终结符的类型定义
