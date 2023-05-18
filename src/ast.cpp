@@ -195,7 +195,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                 llvm::BranchInst::Create(merge_block, false_block);
             }
             ir.builder_->SetInsertPoint(merge_block);
-            llvm::BranchInst(entry_block, merge_block);
+            llvm::BranchInst::Create(entry_block, merge_block);
             break;
         case kWhile:
 
