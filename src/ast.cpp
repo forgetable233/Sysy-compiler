@@ -186,47 +186,43 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                                                        entry_block->getParent());
             }
             llvm::BranchInst::Create(true_block, false_block, value, entry_block);
-//                ir.builder_->CreateCondBr(value, true_block, false_block);
             ((BlockAST *) &(*this->true_block_))->CodeGen(true_block, ir);
             ir.builder_->SetInsertPoint(true_block);
-            ir.builder_->CreateRetVoid();
             llvm::BranchInst::Create(merge_block, true_block);
             if (false_block_) {
                 ((BlockAST *) &(*this->false_block_))->CodeGen(false_block, ir);
                 ir.builder_->SetInsertPoint(false_block);
-                ir.builder_->CreateRetVoid();
                 llvm::BranchInst::Create(merge_block, false_block);
             }
             ir.builder_->SetInsertPoint(merge_block);
-            ir.builder_->CreateRetVoid();
-//            llvm::BranchInst::Create(entry_block, merge_block);
-//                entry_block = merge_block;
+            llvm::BranchInst(entry_block, merge_block);
             break;
         case kWhile:
-//            first_ins = &entry_block->getInstList().front();
-//            llvm::BranchInst::Create(loop_header, first_ins);
+
             /** 首先生成对应的loop_header **/
             loop_header = llvm::BasicBlock::Create(ir.module_->getContext(), "loop_header", entry_block->getParent());
             loop_body = llvm::BasicBlock::Create(ir.module_->getContext(), "loop_body", entry_block->getParent());
             loop_exit = llvm::BasicBlock::Create(ir.module_->getContext(), "loop_exit", entry_block->getParent());
             llvm::BranchInst::Create(loop_header, entry_block);
+//            first_ins = &entry_block->getInstList().front();
+//            llvm::BranchInst::Create(loop_header, first_ins);
 
             // loop_header
             ir.builder_->SetInsertPoint(loop_header);
-            value = ((ExprAST *) &(*this->exp_))->CodeGen(loop_header, ir);
+            value = ((ExprAST *) &(*this->exp_))->CodeGen(entry_block, ir);
             llvm::BranchInst::Create(loop_body, loop_exit, value, loop_header);
-//            ir.builder_->CreateRetVoid();
 //            llvm::BranchInst::Create(entry_block, loop_header);
 
             // loop_body
             ((BlockAST *) &(*this->block_))->CodeGen(loop_body, ir);
             ir.builder_->SetInsertPoint(loop_body);
-            ir.builder_->CreateRetVoid();
             llvm::BranchInst::Create(loop_header, loop_body);
 
             // loop_exit
             ir.builder_->SetInsertPoint(loop_exit);
-            ir.builder_->CreateRetVoid();
+//            first_ins = entry_block->front().getNextNode();
+//            llvm::outs() << first_ins->getOpcodeName() << "\n";
+            llvm::BranchInst::Create(entry_block, loop_exit);
             break;
         default:
             std::cerr << "UNDEFINED TYPE" << std::endl;
