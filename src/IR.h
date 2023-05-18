@@ -34,9 +34,9 @@ public:
 
     explicit IR(std::string &name);
 
-    void push_value(llvm::Value *value, std::string block_name);
+    void push_value(llvm::Value *value, const std::string& block_name, const std::string& value_name);
 
-    llvm::Value* get_value(std::string block_name, std::string value_name);
+    llvm::Value* get_value(std::string block_name, const std::string& value_name);
 
     ~IR();
 };

@@ -2,9 +2,9 @@
 // Created by dcr on 23-5-6.
 //
 
+// TODO CompUnit中支持多个函数，同时函数支持变量表
 #include "ast.h"
 
-// TODO 完成While与If的IR生成
 void OutTab(int num) {
     for (int i = 0; i < num; ++i) {
         std::cout << "    ";
@@ -167,7 +167,9 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             value = ir.builder_->Insert(ir.builder_->CreateAlloca(int_type, nullptr, this->ident_));
             value->setName(this->ident_);
             ir.push_value(value,
-                          entry_block->getName().str());
+                          entry_block->getName().str(),
+                          this->ident_);
+//            std::cout << value->getName().str() << ' ' << entry_block->getName().str() << std::endl;
             //            ir.module_->getGlobalList().push_back();
             break;
         case kExpression:
@@ -195,7 +197,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                 llvm::BranchInst::Create(merge_block, false_block);
             }
             ir.builder_->SetInsertPoint(merge_block);
-            llvm::BranchInst::Create(entry_block, merge_block);
+//            llvm::BranchInst::Create(entry_block, merge_block);
             break;
         case kWhile:
 
@@ -393,7 +395,13 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
         case kAtomNum:
             return llvm::ConstantFP::get(context, llvm::APFloat(strtod(num_.c_str(), nullptr)));
         case kAtomIdent:
-            value = ir.get_value(entry_block->getName(), this->ident_);
+            for(auto current_block = entry_block; current_block; current_block = current_block->getPrevNode()) {
+                value = ir.get_value(current_block->getName(), this->ident_);
+                if (value) {
+                    break;
+                }
+            }
+//            value = ir.get_value(entry_block->getName(), this->ident_);
             if (value == nullptr) {
                 value = ir.module_->getGlobalVariable(this->ident_);
                 if (!value) {
@@ -404,7 +412,13 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
 //            load_inst = ;
             return ir.builder_->CreateLoad(value, this->ident_);
         case kAssign:
-            value = ir.get_value(entry_block->getName(), this->ident_);
+            for(auto current_block = entry_block; current_block; current_block = current_block->getPrevNode()) {
+                value = ir.get_value(current_block->getName(), this->ident_);
+                if (value) {
+                    break;
+                }
+            }
+//            value = ir.get_value(entry_block->getName(), this->ident_);
             if (value == nullptr) {
                 value = ir.module_->getGlobalVariable(this->ident_);
                 if (!value) {
