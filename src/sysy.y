@@ -43,7 +43,7 @@ using namespace std;
 %token RETURN
 %token <str_val> IDENT INT VOID DOUBLE FLOAT ADD SUB MUL DIV ASS
 %token <str_val> EQUAL NOT_EQUAL AND OR LESS LESS_EQUAL LARGER LARGER_EQUAL
-%token <str_val> IF WHILE
+%token <str_val> IF WHILE ELSE
 %token <int_val> INT_CONST
 
 // 非终结符的类型定义
@@ -157,13 +157,20 @@ Stmt
     auto ast = new StmtAST();
     ast->type_ = kIf;
     ast->exp_ = unique_ptr<BaseAST>($3);
-    ast->block_ = unique_ptr<BaseAST>($6);
+    ast->true_block_ = unique_ptr<BaseAST>($6);
     $$ = ast;
   } | WHILE '(' Expr ')' '{' Block '}' {
     auto ast = new StmtAST();
     ast->type_ = kWhile;
     ast->exp_ = unique_ptr<BaseAST>($3);
     ast->block_ = unique_ptr<BaseAST>($6);
+    $$ = ast;
+  } | IF '(' Expr ')' '{' Block '}' ELSE '{' Block '}' {
+    auto ast = new StmtAST();
+    ast->type_ = kIf;
+    ast->exp_ = unique_ptr<BaseAST>($3);
+    ast->true_block_ = unique_ptr<BaseAST>($6);
+    ast->false_block_ = unique_ptr<BaseAST>($10);
     $$ = ast;
   }
   ;

@@ -51,7 +51,7 @@ llvm::Value *FuncDefAST::ErrorValue(const char *str) {
 void BlockAST::Dump(int tab_num) const {
     OutTab(tab_num);
     std::cout << "BlockAST: { " << std::endl;
-    for (int i = 0; i < stmt_.size() - 1; ++i) {
+    for (long unsigned int i = 0; i < stmt_.size() - 1; ++i) {
         stmt_[i]->Dump(tab_num + 1);
         std::cout << "," << std::endl;
     }
@@ -106,8 +106,14 @@ void StmtAST::Dump(int tab_num) const {
             this->exp_->Dump(tab_num + 1);
             std::cout << std::endl;
             OutTab(tab_num + 1);
-            std::cout << std::endl << "The Block is :" << std::endl;
-            this->block_->Dump(tab_num + 1);
+            std::cout << std::endl << "The true_block is :" << std::endl;
+            this->true_block_->Dump(tab_num + 1);
+
+            if (this->false_block_) {
+                OutTab(tab_num + 1);
+                std::cout << std::endl << "The false_block is :" << std::endl;
+                this->false_block_->Dump(tab_num + 1);
+            }
             break;
         case kWhile:
             OutTab(tab_num + 1);
@@ -133,35 +139,65 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
 }
 
 llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
-    auto builder = std::make_unique<llvm::IRBuilder<>>(entry_block);
-    builder->SetInsertPoint(entry_block);
+//    auto builder = std::make_unique<llvm::IRBuilder<>>(ir.module_->getContext());
+//    builder->SetInsertPoint(entry_block);
+    ir.builder_->SetInsertPoint(entry_block);
     llvm::Type *int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
     llvm::Value *value;
+    llvm::BasicBlock *true_block = nullptr;
+    llvm::BasicBlock *false_block = nullptr;
+    llvm::BasicBlock *merge_block = nullptr;
 //    llvm::GlobalVariable *var;
 //    llvm::AllocaInst *alloca_inst = builder->CreateAlloca(int_type, nullptr, this->ident_);
     auto exp = (ExprAST *) (&(*this->exp_));
     switch (type_) {
-        case kDeclare:
-//            entry_block->getInstList().push_back(alloca_inst);
-//            var = new llvm::GlobalVariable(*ir.module_,
-//                                           int_type,
-//                                           false,
-//                                           llvm::GlobalVariable::ExternalLinkage,
-//                                           nullptr, this->ident_);
-            value = builder->Insert(builder->CreateAlloca(int_type, nullptr, this->ident_));
-            value->setName(this->ident_);
-            ir.push_value(value,
-                          entry_block->getName().str());
-//            ir.module_->getGlobalList().push_back();
-            break;
-        case kExpression:
-            exp->CodeGen(entry_block, ir);
-            break;
-        case kReturn:
-            builder->CreateRet(exp->CodeGen(entry_block, ir));
-            break;
-        default:
-            std::cerr << "UNDEFINED TYPE" << std::endl;
+            case kDeclare:
+    //            entry_block->getInstList().push_back(alloca_inst);
+    //            var = new llvm::GlobalVariable(*ir.module_,
+    //                                           int_type,
+    //                                           false,
+    //                                           llvm::GlobalVariable::ExternalLinkage,
+    //                                           nullptr, this->ident_);
+                value = ir.builder_->Insert(ir.builder_->CreateAlloca(int_type, nullptr, this->ident_));
+                value->setName(this->ident_);
+                ir.push_value(value,
+                              entry_block->getName().str());
+    //            ir.module_->getGlobalList().push_back();
+                break;
+            case kExpression:
+                exp->CodeGen(entry_block, ir);
+                break;
+            case kReturn:
+                ir.builder_->CreateRet(exp->CodeGen(entry_block, ir));
+                break;
+            case kIf:
+                value = ((ExprAST *) &(*this->exp_))->CodeGen(entry_block, ir);
+    //            std::cout << entry_block->getParent()->getName().str() << std::endl;
+                true_block = llvm::BasicBlock::Create(ir.module_->getContext(), "true_block", entry_block->getParent());
+                merge_block = llvm::BasicBlock::Create(ir.module_->getContext(), "merge_block", entry_block->getParent());
+                if (false_block_) {
+                    false_block = llvm::BasicBlock::Create(ir.module_->getContext(), "false_block", entry_block->getParent());
+                }
+                llvm::BranchInst::Create(true_block, false_block, value, entry_block);
+//                ir.builder_->CreateCondBr(value, true_block, false_block);
+                ((BlockAST*)&(*this->true_block_))->CodeGen(true_block, ir);
+                ir.builder_->SetInsertPoint(true_block);
+                ir.builder_->CreateRetVoid();
+                llvm::BranchInst::Create(merge_block, true_block);
+                if (false_block_) {
+                    ((BlockAST*)&(*this->false_block_))->CodeGen(false_block, ir);
+                    ir.builder_->SetInsertPoint(false_block);
+                    ir.builder_->CreateRetVoid();
+                    llvm::BranchInst::Create(merge_block, false_block);
+                }
+                ir.builder_->SetInsertPoint(merge_block);
+                ir.builder_->CreateRetVoid();
+//                entry_block = merge_block;
+                break;
+    //        case kWhile:
+
+            default:
+                std::cerr << "UNDEFINED TYPE" << std::endl;
     }
     return nullptr;
 }
@@ -314,8 +350,8 @@ CompUnitAST::~CompUnitAST() {
 }
 
 llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
-    auto builder = std::make_unique<llvm::IRBuilder<>>(entry_block);
-    builder->SetInsertPoint(entry_block);
+//    auto builder = std::make_unique<llvm::IRBuilder<>>(ir.module_->getContext());
+    ir.builder_->SetInsertPoint(entry_block);
     llvm::LLVMContext &context = *ir.context_;
     llvm::Value *value;
 //    llvm::LoadInst *load_inst;
@@ -338,7 +374,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                 }
             }
 //            load_inst = ;
-            return builder->CreateLoad(value, this->ident_);
+            return ir.builder_->CreateLoad(value, this->ident_);
         case kAssign:
             value = ir.get_value(entry_block->getName(), this->ident_);
             if (value == nullptr) {
@@ -350,7 +386,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             }
             r_exp = (ExprAST *) (&(*rExp_));
             r_exp_value = r_exp->CodeGen(entry_block, ir);
-            return builder->CreateStore(value, r_exp_value, "store");
+            return ir.builder_->CreateStore(value, r_exp_value, "store");
 //            value = ir.module_->getNamedValue(ident_);
 //            if (value != nullptr) {
 //
@@ -365,13 +401,13 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             r_exp_value = r_exp->CodeGen(entry_block, ir);
             switch (type_) {
                 case kAdd:
-                    return builder->CreateFAdd(l_exp_value, r_exp_value, "add");
+                    return ir.builder_->CreateFAdd(l_exp_value, r_exp_value, "add");
                 case kSub:
-                    return builder->CreateFSub(l_exp_value, r_exp_value, "sub");
+                    return ir.builder_->CreateFSub(l_exp_value, r_exp_value, "sub");
                 case kMul:
-                    return builder->CreateFMul(l_exp_value, r_exp_value, "mul");
+                    return ir.builder_->CreateFMul(l_exp_value, r_exp_value, "mul");
                 case kDiv:
-                    return builder->CreateFDiv(l_exp_value, r_exp_value, "div");
+                    return ir.builder_->CreateFDiv(l_exp_value, r_exp_value, "div");
                 default:
                     throw std::runtime_error("invalid binary operator");
 //                    return ErrorValue("invalid binary operator");

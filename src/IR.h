@@ -22,6 +22,8 @@ class IR {
 private:
 
 public:
+    llvm::IRBuilder<> *builder_ = nullptr;
+
     std::unique_ptr<llvm::LLVMContext> context_;
 
     std::unique_ptr<llvm::Module> module_;
@@ -30,7 +32,7 @@ public:
 //    std::map<std::string, llvm::Value*> name_values_;
     IR();
 
-    IR(std::string &name);
+    explicit IR(std::string &name);
 
     void push_value(llvm::Value *value, std::string block_name);
 

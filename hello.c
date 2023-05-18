@@ -13,12 +13,14 @@ double test() {
         int f;
         e = 1;
         f = e + 1;
+    } else {
+        int w;
+        w = 1;
     }
-    while (b) {
-        int d;
-        int f;
-        d = 10;
-        f = d + 100;
+    int m;
+    m = 1;
+    if (m) {
+        int k;
     }
     return 0;
 //    return 0;

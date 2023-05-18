@@ -42,6 +42,7 @@ Hexadecimal   0[xX][0-9a-fA-F]+
 "double"        { return DOUBLE; }
 "void"          { return VOID; }
 "float"         { return FLOAT; }
+"else"          { return ELSE; }
 "+"             { return ADD; }
 "-"             { return SUB; }
 "*"             { return MUL; }

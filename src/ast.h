@@ -10,11 +10,25 @@
 #include <vector>
 #include <map>
 #include <llvm/IR/Value.h>
-#include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/GlobalIFunc.h>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
 #include <llvm/Support/raw_ostream.h>
+#include "llvm/ADT/APFloat.h"
+#include "llvm/ADT/STLExtras.h"
+#include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/LegacyPassManager.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/Verifier.h"
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/Transforms/InstCombine/InstCombine.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/Transforms/Scalar/GVN.h"
 
 #include "IR.h"
 
@@ -92,8 +106,9 @@ public:
     std::string ident_;
 
     std::unique_ptr<BaseAST> exp_ = nullptr;
-
     std::unique_ptr<BaseAST> block_ = nullptr;
+    std::unique_ptr<BaseAST> true_block_ = nullptr;
+    std::unique_ptr<BaseAST> false_block_ = nullptr;
 
     StmtAST() = default;
 

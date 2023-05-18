@@ -12,6 +12,7 @@ IR::IR() {
 IR::IR(std::string &name) {
     context_ = std::make_unique<llvm::LLVMContext>();
     module_ = std::make_unique<llvm::Module>(name, *context_);
+    builder_ = new llvm::IRBuilder<>(module_->getContext());
 }
 
 IR::~IR() {
