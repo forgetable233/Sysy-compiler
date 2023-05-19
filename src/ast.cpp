@@ -143,8 +143,14 @@ void StmtAST::Dump(int tab_num) const {
 }
 
 llvm::Value *StmtAST::CodeGen(IR &ir) {
-
-    return nullptr;
+    llvm::IntegerType *int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
+    llvm::GlobalVariable *var;
+    var = new llvm::GlobalVariable(*ir.module_,
+                                   int_type,
+                                   false,
+                                   llvm::GlobalVariable::ExternalLinkage,
+                                   nullptr, this->ident_);
+    return var;
 }
 
 llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
@@ -184,7 +190,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             exp->CodeGen(entry_block, ir);
             break;
         case kReturn:
-            ir.builder_->CreateRet(exp->CodeGen(entry_block, ir));
+            return ir.builder_->CreateRet(exp->CodeGen(entry_block, ir));
             break;
         case kIf:
             value = ((ExprAST *) &(*this->exp_))->CodeGen(entry_block, ir);
@@ -234,10 +240,10 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             break;
         case kStatic:
             var = new llvm::GlobalVariable(*ir.module_,
-                                             int_type,
-                                             false,
-                                             llvm::GlobalVariable::ExternalLinkage,
-                                             nullptr, this->ident_);
+                                           int_type,
+                                           false,
+                                           llvm::GlobalVariable::ExternalLinkage,
+                                           nullptr, this->ident_);
             return var;
         default:
             std::cerr << "UNDEFINED TYPE" << std::endl;

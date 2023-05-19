@@ -32,7 +32,6 @@
 
 #include "IR.h"
 
-// TODO AST中添加多个函数的定义以及函数的调用的声明
 // TODO 为函数添加参数模块
 
 enum ExpType {

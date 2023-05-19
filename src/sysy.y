@@ -104,6 +104,12 @@ FuncDef
     ast->ident_ = *unique_ptr<string>($2);
     ast->block_ = unique_ptr<BaseAST>($6);
     $$ = ast;
+  } | FuncType IDENT ';'{
+    auto ast = new StmtAST();
+    ast->type_ = kDeclare;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>($2);
+    $$ = ast;
   }
   ;
 
