@@ -29,14 +29,20 @@ public:
     std::unique_ptr<llvm::Module> module_;
 
     std::map<std::string , std::map<std::string , llvm::Value*>> name_values_;
-//    std::map<std::string, llvm::Value*> name_values_;
+
+    std::map<std::string, llvm::Value*> global_values_;
+
     IR();
 
     explicit IR(std::string &name);
 
     void push_value(llvm::Value *value, const std::string& block_name, const std::string& value_name);
 
-    llvm::Value* get_value(std::string block_name, const std::string& value_name);
+    void push_global_value(llvm::Value *value, const std::string &value_name);
+
+    llvm::Value* get_global_value(const std::string& value_name);
+
+    llvm::Value* get_value(const std::string& block_name, const std::string& value_name);
 
     ~IR();
 };

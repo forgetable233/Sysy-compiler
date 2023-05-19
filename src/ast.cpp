@@ -42,7 +42,7 @@ void FuncDefAST::Dump(int tab_num) const {
     if (type_ == kFunction) {
         block_->Dump(tab_num + 1);
         std::cout << std::endl;
-        for (auto &item : this->param_lists_) {
+        for (auto &item: this->param_lists_) {
             item->Dump(tab_num + 1);
             std::cout << std::endl;
         }
@@ -139,7 +139,7 @@ void StmtAST::Dump(int tab_num) const {
             this->block_->Dump(tab_num + 1);
             break;
         default:
-            std::cerr << "Error in Stmt Undefined type" << std::endl;
+            llvm::errs() << "Error in Stmt Undefined type \n";
     }
     std::cout << std::endl;
     OutTab(tab_num);
@@ -147,6 +147,11 @@ void StmtAST::Dump(int tab_num) const {
 }
 
 llvm::Value *StmtAST::CodeGen(IR &ir) {
+    llvm::Value *tamp_value = ir.get_global_value(this->ident_);
+    if (tamp_value) {
+        llvm::errs() << "The variable has been declared \n";
+        return nullptr;
+    }
     llvm::IntegerType *int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
     llvm::GlobalVariable *var;
     var = new llvm::GlobalVariable(*ir.module_,
@@ -154,6 +159,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                                    false,
                                    llvm::GlobalVariable::ExternalLinkage,
                                    nullptr, this->ident_);
+    ir.push_global_value(var, this->ident_);
     return var;
 }
 
@@ -177,19 +183,23 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     auto exp = (ExprAST *) (&(*this->exp_));
     switch (type_) {
         case kDeclare:
-            //            entry_block->getInstList().push_back(alloca_inst);
-            //            var = new llvm::GlobalVariable(*ir.module_,
-            //                                           int_type,
-            //                                           false,
-            //                                           llvm::GlobalVariable::ExternalLinkage,
-            //                                           nullptr, this->ident_);
+            if (ir.get_value(entry_block->getName().str(), this->ident_)) {
+                llvm::errs() << "The variable has been declared \n";
+                return nullptr;
+            }
+            for (auto &args: entry_block->getParent()->args()) {
+                std::cout << args.getName().str() << std::endl;
+                if (strcmp(this->ident_.c_str(), args.getName().str().c_str()) == 0) {
+                    llvm::errs() << "The variable has been declared \n";
+                    return nullptr;
+                }
+            }
             value = ir.builder_->Insert(ir.builder_->CreateAlloca(int_type, nullptr, this->ident_));
             value->setName(this->ident_);
             ir.push_value(value,
                           entry_block->getName().str(),
                           this->ident_);
             return value;
-            break;
         case kExpression:
             exp->CodeGen(entry_block, ir);
             break;
@@ -250,7 +260,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                                            nullptr, this->ident_);
             return var;
         default:
-            std::cerr << "UNDEFINED TYPE" << std::endl;
+            llvm::errs() << "UNDEFINED TYPE\n";
     }
     return nullptr;
 }
@@ -345,21 +355,38 @@ FuncTypeAST::~FuncTypeAST() {
  * @return
  */
 llvm::Value *FuncDefAST::CodeGen(IR &ir) {
+    unsigned long int param_size = param_lists_.size();
+    std::vector<llvm::Type *> param_types;
+    param_types.reserve(param_size);
+    for (int i = 0; i < param_size; ++i) {
+        StmtAST *stmt_ast_i = ((StmtAST*)&(*param_lists_[i]));
+        for (int j = i + 1; j < param_size; ++j) {
+            StmtAST *stmt_ast_j = ((StmtAST*)&(*param_lists_[j]));
+            if (std::strcmp(stmt_ast_i->ident_.c_str(), stmt_ast_j->ident_.c_str()) == 0) {
+                llvm::errs() << "The variable has been declared \n";
+                return nullptr;
+            }
+        }
+    }
+    for (int i = 0; i < param_size; ++i) {
+        param_types.emplace_back(llvm::IntegerType::get(ir.module_->getContext(), 32));
+    }
     llvm::IntegerType *return_type = llvm::IntegerType::get(ir.module_->getContext(), 32);
-    llvm::FunctionType *func_type = llvm::FunctionType::get(return_type, false);
+    llvm::FunctionType *func_type = llvm::FunctionType::get(return_type, param_types, false);
     llvm::Function *func = llvm::Function::Create(func_type,
                                                   llvm::GlobalValue::ExternalLinkage,
                                                   this->ident_,
                                                   *ir.module_);
+    int i = 0;
+    StmtAST *stmt_ast;
+    for (auto arg = func->arg_begin(); arg != func->arg_end(); arg++) {
+        stmt_ast = ((StmtAST *) &(*param_lists_[i++]));
+        arg->setName(stmt_ast->ident_);
+    }
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(ir.module_->getContext(), "begin", func);
     auto tar_block = (BlockAST *) (&(*block_));
     tar_block->CodeGen(entry, ir);
-
-//    ir.module_->getFunctionList().push_back(func);
-//    func->getBasicBlockList().push_back(entry);
-//    std::cout << "Enter func" << std::endl;
-//    std::cout << func->getBasicBlockList().size() << std::endl;
-    return nullptr;
+    return func;
 }
 
 FuncDefAST::~FuncDefAST() {

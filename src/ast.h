@@ -9,6 +9,8 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <string>
+#include <cstring>
 #include <llvm/IR/Value.h>
 #include <llvm/IR/GlobalIFunc.h>
 #include <llvm/Support/raw_ostream.h>

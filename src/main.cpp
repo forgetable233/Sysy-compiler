@@ -37,9 +37,15 @@ int main(int argc, const char *argv[]) {
 //    auto unit = (CompUnitAST*)(&(*ast));
     auto ret = yyparse(ast);
     assert(!ret);
-    ast->Dump(0);
+//    ast->Dump(0);
     ast->CodeGen(ir);
     std::cout << std::endl <<  "finish CodeGen" << std::endl;
     ir.module_->print(llvm::outs(), nullptr);
+    for (const auto& it : ir.name_values_) {
+        std::cout << it.first << std::endl;
+        for (const auto& it2 : it.second) {
+            std::cout << it2.first << std::endl;
+        }
+    }
     return 0;
 }

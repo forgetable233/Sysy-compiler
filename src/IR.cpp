@@ -27,11 +27,11 @@ void IR::push_value(llvm::Value *value, const std::string& block_name, const std
         tar_value.insert(std::pair<std::string, llvm::Value*>(value_name, value));
         name_values_.insert(std::pair<std::string, std::map<std::string, llvm::Value*>>(block_name, tar_value));
     } else {
-        tar_block->second.insert(std::pair<std::string, llvm::Value*>(value->getName(), value));
+        tar_block->second.insert(std::pair<std::string, llvm::Value*>(value_name, value));
     }
 }
 
-llvm::Value *IR::get_value(std::string block_name, const std::string& value_name) {
+llvm::Value *IR::get_value(const std::string& block_name, const std::string& value_name) {
     auto block = name_values_.find(block_name);
     if (block == name_values_.end()) {
         return nullptr;
@@ -42,3 +42,16 @@ llvm::Value *IR::get_value(std::string block_name, const std::string& value_name
     }
     return value->second;
 }
+
+void IR::push_global_value(llvm::Value *value, const std::string &value_name) {
+    global_values_.insert(std::pair<std::string, llvm::Value*>(value_name, value));
+}
+
+llvm::Value* IR::get_global_value(const std::string& value_name) {
+    auto tar_value = global_values_.find(value_name);
+    if (tar_value == global_values_.end()) {
+        return nullptr;
+    }
+    return tar_value->second;
+}
+
