@@ -42,6 +42,10 @@ void FuncDefAST::Dump(int tab_num) const {
     if (type_ == kFunction) {
         block_->Dump(tab_num + 1);
         std::cout << std::endl;
+        for (auto &item : this->param_lists_) {
+            item->Dump(tab_num + 1);
+            std::cout << std::endl;
+        }
     }
 
     OutTab(tab_num);

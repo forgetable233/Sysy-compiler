@@ -1,8 +1,8 @@
 %code requires {
   #include <memory>
   #include <string>
+  #include <vector>
   #include "../src/ast.h"
-  
 }
 
 %{
@@ -10,6 +10,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "../src/ast.h"
 
@@ -35,6 +36,7 @@ using namespace std;
   std::string *str_val;
   int int_val;
   BaseAST *ast_val;
+  std::vector<std::unique_ptr<BaseAST>> *ast_list;
 }
 
 // lexer 返回的所有 token 种类的声明
@@ -47,8 +49,9 @@ using namespace std;
 %token <int_val> INT_CONST
 
 // 非终结符的类型定义
-%type <ast_val> CompUnit FuncDef FuncType Block Stmt Expr
+%type <ast_val> CompUnit FuncDef Type Block Stmt Expr
 %type <int_val> Number
+%type <ast_list> ParamList
 
 %left ASS
 %left OR
@@ -86,6 +89,29 @@ CompUnit
   }
   ;
 
+ParamList
+: Type IDENT {
+    vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
+    auto ast = new StmtAST();
+    ast->type_ = kDeclare;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>($2);
+    ident_list->emplace_back(unique_ptr<BaseAST>(ast));
+    $$ = ident_list;
+} | Type IDENT ',' ParamList {
+    vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
+    auto ast = new StmtAST();
+    ast->type_ = kDeclare;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>($2);
+    ident_list->emplace_back(unique_ptr<BaseAST>(ast));
+    auto list = $4;
+    for (auto &item : *list) {
+    	ident_list->emplace_back(move(item));
+    }
+    $$ = ident_list;
+}
+
 // FuncDef ::= FuncType IDENT '(' ')' Block;
 // 我们这里可以直接写 '(' 和 ')', 因为之前在 lexer 里已经处理了单个字符的情况
 // 解析完成后, 把这些符号的结果收集起来, 然后拼成一个新的字符串, 作为结果返回
@@ -97,24 +123,35 @@ CompUnit
 // 虽然此处你看不出用 unique_ptr 和手动 delete 的区别, 但当我们定义了 AST 之后
 // 这种写法会省下很多内存管理的负担
 FuncDef
-  : FuncType IDENT '(' ')' '{' Block '}' {
+  : Type IDENT '(' ')' '{' Block '}' {
     auto ast = new FuncDefAST();
     ast->type_ = kFunction;
     ast->func_type_ = unique_ptr<BaseAST>($1);
     ast->ident_ = *unique_ptr<string>($2);
     ast->block_ = unique_ptr<BaseAST>($6);
     $$ = ast;
-  } | FuncType IDENT ';'{
+  } | Type IDENT ';'{
     auto ast = new StmtAST();
     ast->type_ = kDeclare;
     ast->key_word_ = *make_unique<string>("int");
     ast->ident_ = *unique_ptr<string>($2);
     $$ = ast;
+  } | Type IDENT '(' ParamList ')' '{' Block '}' {
+    auto ast = new FuncDefAST();
+    ast->type_ = kFunction;
+    ast->func_type_ = unique_ptr<BaseAST>($1);
+    ast->ident_ = *unique_ptr<string>($2);
+    ast->block_ = unique_ptr<BaseAST>($7);
+    auto list = $4;
+    for (auto &item : *list) {
+    	ast->param_lists_.emplace_back(move(item));
+    }
+    $$ = ast;
   }
   ;
 
 // 同上, 不再解释
-FuncType
+Type
   : INT {
     auto ast = new FuncTypeAST();
     ast->type_ = *make_unique<string>("int");

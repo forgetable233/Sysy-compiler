@@ -207,6 +207,8 @@ public:
 
     std::unique_ptr<BaseAST> block_;
 
+    std::vector<std::unique_ptr<BaseAST>> param_lists_;
+
     FuncDefAST() = default;
 
     ~FuncDefAST() override;

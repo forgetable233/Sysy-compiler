@@ -1,5 +1,4 @@
-int test() {
-    int a;
+int test(int p) {
     int b1;
     a = 1;
     if (a) {
@@ -15,7 +14,7 @@ int test() {
     }
     return 0;
 }
-int a;
+int test_func;
 
 int test2() {
     int a;
@@ -25,8 +24,8 @@ int test2() {
 
 int test3() {
     int b;
-    a = 1;
+    test_func = 1;
     b = 2;
-    b = a + 1;
-    return b + a * 3;
+    b = test_func + 1;
+    return b + test_func * 3;
 }

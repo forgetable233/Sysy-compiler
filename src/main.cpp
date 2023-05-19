@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <vector>
 #include <llvm/Support/raw_ostream.h>
 
 #include "ast.h"
@@ -26,7 +27,6 @@ int main(int argc, const char *argv[]) {
 //    auto input = argv[2];
     auto input = "../hello.c";
 //    auto output = argv[4];
-
     // 打开输入文件, 并且指定 lexer 在解析的时候读取这个文件
     yyin = fopen(input, "r");
     assert(yyin);
