@@ -28,8 +28,10 @@ void FuncDefAST::Dump(int tab_num) const {
     OutTab(tab_num);
     std::cout << "FuncDefAST: { " << std::endl;
 
-    func_type_->Dump(tab_num + 1);
-    std::cout << "," << std::endl;
+    if (type_ == kFunction) {
+        func_type_->Dump(tab_num + 1);
+        std::cout << "," << std::endl;
+    }
     OutTab(tab_num + 1);
     std::cout << "FuncName: " << ident_ << std::endl;
 //    OutTab(tab_num + 1);
@@ -37,9 +39,11 @@ void FuncDefAST::Dump(int tab_num) const {
     OutTab(tab_num + 1);
     std::cout << "}," << std::endl;
 //    std::cout << ", FuncName: { " << ident_ << " }, ";
-    block_->Dump(tab_num + 1);
+    if (type_ == kFunction) {
+        block_->Dump(tab_num + 1);
+        std::cout << std::endl;
+    }
 
-    std::cout << std::endl;
     OutTab(tab_num);
     std::cout << "}";
 }
@@ -68,8 +72,12 @@ llvm::Value *BlockAST::ErrorValue(const char *str) {
 void CompUnitAST::Dump(int tab_num) const {
     OutTab(tab_num);
     std::cout << "ComUnitAST: { " << std::endl;
-    func_def_->Dump(tab_num + 1);
-    std::cout << std::endl;
+    for (auto &item: this->func_stmt_defs_) {
+        item->Dump(tab_num + 1);
+        std::cout << "}," << std::endl;
+    }
+//    func_def_->Dump(tab_num + 1);
+//    std::cout << std::endl;
     OutTab(tab_num);
     std::cout << "}";
 }
@@ -135,6 +143,7 @@ void StmtAST::Dump(int tab_num) const {
 }
 
 llvm::Value *StmtAST::CodeGen(IR &ir) {
+
     return nullptr;
 }
 
@@ -152,8 +161,8 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     llvm::BasicBlock *loop_body = nullptr;
     llvm::BasicBlock *loop_exit = nullptr;
 
-    llvm::Instruction *first_ins = &entry_block->front();
-//    llvm::GlobalVariable *var;
+//    llvm::Instruction *first_ins = &entry_block->front();
+    llvm::GlobalVariable *var;
 //    llvm::AllocaInst *alloca_inst = builder->CreateAlloca(int_type, nullptr, this->ident_);
     auto exp = (ExprAST *) (&(*this->exp_));
     switch (type_) {
@@ -169,8 +178,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             ir.push_value(value,
                           entry_block->getName().str(),
                           this->ident_);
-//            std::cout << value->getName().str() << ' ' << entry_block->getName().str() << std::endl;
-            //            ir.module_->getGlobalList().push_back();
+            return value;
             break;
         case kExpression:
             exp->CodeGen(entry_block, ir);
@@ -206,8 +214,6 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             loop_body = llvm::BasicBlock::Create(ir.module_->getContext(), "loop_body", entry_block->getParent());
             loop_exit = llvm::BasicBlock::Create(ir.module_->getContext(), "loop_exit", entry_block->getParent());
             llvm::BranchInst::Create(loop_header, entry_block);
-//            first_ins = &entry_block->getInstList().front();
-//            llvm::BranchInst::Create(loop_header, first_ins);
 
             // loop_header
             ir.builder_->SetInsertPoint(loop_header);
@@ -226,6 +232,13 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
 //            llvm::outs() << first_ins->getOpcodeName() << "\n";
             llvm::BranchInst::Create(entry_block, loop_exit);
             break;
+        case kStatic:
+            var = new llvm::GlobalVariable(*ir.module_,
+                                             int_type,
+                                             false,
+                                             llvm::GlobalVariable::ExternalLinkage,
+                                             nullptr, this->ident_);
+            return var;
         default:
             std::cerr << "UNDEFINED TYPE" << std::endl;
     }
@@ -370,38 +383,39 @@ BlockAST::~BlockAST() {
  * @return
  */
 llvm::Value *CompUnitAST::CodeGen(IR &ir) {
-    auto temp_func = (FuncDefAST *) (&(*func_def_));
-    return temp_func->CodeGen(ir);
+    for (auto &item: this->func_stmt_defs_) {
+        item->CodeGen(ir);
+    }
+    return nullptr;
+//    auto temp_func = (FuncDefAST *) (&(*func_def_));
+//    return temp_func->CodeGen(ir);
 //    return BaseAST::CodeGen(builder, module);
 }
 
 CompUnitAST::~CompUnitAST() {
-    func_def_.reset(nullptr);
+    for (auto &item: func_stmt_defs_) {
+        item.reset(nullptr);
+    }
 }
 
 llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
-//    auto builder = std::make_unique<llvm::IRBuilder<>>(ir.module_->getContext());
     ir.builder_->SetInsertPoint(entry_block);
     llvm::LLVMContext &context = *ir.context_;
     llvm::Value *value;
-//    llvm::LoadInst *load_inst;
     ExprAST *l_exp;
     ExprAST *r_exp;
-//    auto l_exp = (ExprAST *) (&(*lExp_));
-//    auto r_exp = (ExprAST *) (&(*rExp_));
     llvm::Value *l_exp_value;
     llvm::Value *r_exp_value;
     switch (type_) {
         case kAtomNum:
             return llvm::ConstantFP::get(context, llvm::APFloat(strtod(num_.c_str(), nullptr)));
         case kAtomIdent:
-            for(auto current_block = entry_block; current_block; current_block = current_block->getPrevNode()) {
+            for (auto current_block = entry_block; current_block; current_block = current_block->getPrevNode()) {
                 value = ir.get_value(current_block->getName(), this->ident_);
                 if (value) {
                     break;
                 }
             }
-//            value = ir.get_value(entry_block->getName(), this->ident_);
             if (value == nullptr) {
                 value = ir.module_->getGlobalVariable(this->ident_);
                 if (!value) {
@@ -409,16 +423,14 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                     return nullptr;
                 }
             }
-//            load_inst = ;
             return ir.builder_->CreateLoad(value, this->ident_);
         case kAssign:
-            for(auto current_block = entry_block; current_block; current_block = current_block->getPrevNode()) {
+            for (auto current_block = entry_block; current_block; current_block = current_block->getPrevNode()) {
                 value = ir.get_value(current_block->getName(), this->ident_);
                 if (value) {
                     break;
                 }
             }
-//            value = ir.get_value(entry_block->getName(), this->ident_);
             if (value == nullptr) {
                 value = ir.module_->getGlobalVariable(this->ident_);
                 if (!value) {
@@ -429,13 +441,6 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             r_exp = (ExprAST *) (&(*rExp_));
             r_exp_value = r_exp->CodeGen(entry_block, ir);
             return ir.builder_->CreateStore(value, r_exp_value, "store");
-//            value = ir.module_->getNamedValue(ident_);
-//            if (value != nullptr) {
-//
-//            } else {
-//                llvm::errs() << "Error variable " << ident_ << " not declared";
-//                return nullptr;
-//            }
         default:
             l_exp = (ExprAST *) (&(*lExp_));
             r_exp = (ExprAST *) (&(*rExp_));

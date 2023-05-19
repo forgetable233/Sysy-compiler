@@ -45,6 +45,7 @@ Hexadecimal   0[xX][0-9a-fA-F]+
 "else"          { return ELSE; }
 "true"          { return TRUE; }
 "false"         { return FALSE; }
+"static"        { return STATIC; }
 "+"             { return ADD; }
 "-"             { return SUB; }
 "*"             { return MUL; }

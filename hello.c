@@ -1,4 +1,4 @@
-double test() {
+int test() {
     int a;
     int b1;
     a = 1;
@@ -14,5 +14,19 @@ double test() {
         }
     }
     return 0;
-//    return 0;
+}
+
+int test2() {
+    int a;
+    int b;
+    return 0;
+}
+
+int test3() {
+    int a;
+    int b;
+    a = 1;
+    b = 2;
+    b = a + 1;
+    return b + a * 3;
 }

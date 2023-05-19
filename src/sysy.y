@@ -41,13 +41,13 @@ using namespace std;
 // 新添加了ast_token
 // 终结符类型定义
 %token RETURN
-%token <str_val> IDENT INT VOID DOUBLE FLOAT ADD SUB MUL DIV ASS
+%token <str_val> IDENT INT VOID DOUBLE FLOAT ADD SUB MUL DIV ASS STATIC
 %token <str_val> EQUAL NOT_EQUAL AND OR LESS LESS_EQUAL LARGER LARGER_EQUAL
 %token <str_val> IF WHILE ELSE TRUE FALSE
 %token <int_val> INT_CONST
 
 // 非终结符的类型定义
-%type <ast_val> FuncDef FuncType Block Stmt Expr
+%type <ast_val> CompUnit FuncDef FuncType Block Stmt Expr
 %type <int_val> Number
 
 %left ASS
@@ -69,7 +69,19 @@ using namespace std;
 CompUnit
   : FuncDef {
     auto comp_unit = make_unique<CompUnitAST>();
-    comp_unit->func_def_ = unique_ptr<BaseAST>($1);
+    comp_unit->func_stmt_defs_.emplace_back(unique_ptr<BaseAST>($1));
+    $$ = ((BaseAST*)&(*comp_unit));
+    ast = move(comp_unit);
+  } | FuncDef CompUnit {
+    auto comp_unit = make_unique<CompUnitAST>();
+    comp_unit->func_stmt_defs_.emplace_back(unique_ptr<BaseAST>($1));
+
+    auto temp_unit = $2;
+    auto block = ((CompUnitAST*)&(*temp_unit));
+    for (auto &item : block->func_stmt_defs_) {
+    	comp_unit->func_stmt_defs_.emplace_back(move(item));
+    }
+    $$ = ((BaseAST*)&(*comp_unit));
     ast = move(comp_unit);
   }
   ;
@@ -87,6 +99,7 @@ CompUnit
 FuncDef
   : FuncType IDENT '(' ')' '{' Block '}' {
     auto ast = new FuncDefAST();
+    ast->type_ = kFunction;
     ast->func_type_ = unique_ptr<BaseAST>($1);
     ast->ident_ = *unique_ptr<string>($2);
     ast->block_ = unique_ptr<BaseAST>($6);
@@ -143,7 +156,6 @@ Stmt
     $$ = ast;
   } | INT IDENT ';' {
     auto ast = new StmtAST();
-    // ast->type_ = kDeclare;
     ast->type_ = kDeclare;
     ast->key_word_ = *make_unique<string>("int");
     ast->ident_ = *unique_ptr<string>($2);
@@ -172,6 +184,12 @@ Stmt
     ast->true_block_ = unique_ptr<BaseAST>($6);
     ast->false_block_ = unique_ptr<BaseAST>($10);
     $$ = ast;
+  } | STATIC INT IDENT ';' {
+     auto ast = new StmtAST();
+     ast->type_ = kStatic;
+     ast->key_word_ = *make_unique<string>("int");
+     ast->ident_ = *unique_ptr<string>($3);
+     $$ = ast;
   }
   ;
 

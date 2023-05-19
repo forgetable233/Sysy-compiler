@@ -50,7 +50,13 @@ enum StmtType {
     kDeclare,
     kExpression,
     kIf,
+    kStatic,
     kWhile
+};
+
+enum UnitTpye {
+    kFunction,
+    kIdent
 };
 
 // 所有AST的基础类
@@ -130,7 +136,9 @@ public:
  */
 class CompUnitAST : public BaseAST {
 public:
-    std::unique_ptr<BaseAST> func_def_;
+    std::vector<std::unique_ptr<BaseAST>> func_stmt_defs_;
+
+//    std::unique_ptr<BaseAST> func_def_;
 
     CompUnitAST() = default;
 
@@ -192,6 +200,8 @@ public:
  */
 class FuncDefAST : public BaseAST {
 public:
+    UnitTpye type_;
+
     std::string ident_;
 
     std::unique_ptr<BaseAST> func_type_;

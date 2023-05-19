@@ -14,3 +14,20 @@
 
 `StmtAST`：一个声明的定义，其可以为一句话，也可能包括一个`BlockAST`，取决于这个声明是不是`if` `while`等类型
 
+| Stmt {
+  auto comp_unit = make_unique<CompUnitAST>();
+  comp_unit->func_stmt_defs_.emplace_back(unique_ptr<BaseAST>($1));
+  $$ = ((BaseAST*)&(*comp_unit));
+  ast = move(comp_unit);
+} | Stmt CompUnit {
+  auto comp_unit = make_unique<CompUnitAST>();
+  comp_unit->func_stmt_defs_.emplace_back(unique_ptr<BaseAST>($1));
+
+  auto temp_unit = $2;
+  auto block = ((CompUnitAST*)&(*temp_unit));
+  for (auto &item : block->func_stmt_defs_) {
+        comp_unit->func_stmt_defs_.emplace_back(move(item));
+  }
+  ast = move(comp_unit);
+  $$ = ((BaseAST*)&(*comp_unit));
+}
