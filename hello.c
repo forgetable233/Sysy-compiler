@@ -1,5 +1,6 @@
-int test(int a, int p, int a) {
+int test(int a) {
     int b;
+    int a;
     return 0;
 }
 

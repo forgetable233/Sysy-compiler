@@ -139,7 +139,7 @@ void StmtAST::Dump(int tab_num) const {
             this->block_->Dump(tab_num + 1);
             break;
         default:
-            llvm::errs() << "Error in Stmt Undefined type \n";
+            llvm::report_fatal_error("Undefined type");
     }
     std::cout << std::endl;
     OutTab(tab_num);
@@ -149,7 +149,7 @@ void StmtAST::Dump(int tab_num) const {
 llvm::Value *StmtAST::CodeGen(IR &ir) {
     llvm::Value *tamp_value = ir.get_global_value(this->ident_);
     if (tamp_value) {
-        llvm::errs() << "The variable has been declared \n";
+        llvm::report_fatal_error("The variable has been declared");
         return nullptr;
     }
     llvm::IntegerType *int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
@@ -184,13 +184,13 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     switch (type_) {
         case kDeclare:
             if (ir.get_value(entry_block->getName().str(), this->ident_)) {
-                llvm::errs() << "The variable has been declared \n";
+                llvm::report_fatal_error("The variable has been declared");
                 return nullptr;
             }
             for (auto &args: entry_block->getParent()->args()) {
                 std::cout << args.getName().str() << std::endl;
                 if (strcmp(this->ident_.c_str(), args.getName().str().c_str()) == 0) {
-                    llvm::errs() << "The variable has been declared \n";
+                    llvm::report_fatal_error("The variable has been declared");
                     return nullptr;
                 }
             }
@@ -260,7 +260,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                                            nullptr, this->ident_);
             return var;
         default:
-            llvm::errs() << "UNDEFINED TYPE\n";
+            llvm::report_fatal_error("The variable has been declared");
     }
     return nullptr;
 }
@@ -363,7 +363,7 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
         for (int j = i + 1; j < param_size; ++j) {
             StmtAST *stmt_ast_j = ((StmtAST*)&(*param_lists_[j]));
             if (std::strcmp(stmt_ast_i->ident_.c_str(), stmt_ast_j->ident_.c_str()) == 0) {
-                llvm::errs() << "The variable has been declared \n";
+                llvm::report_fatal_error("The variable has been declared");
                 return nullptr;
             }
         }
