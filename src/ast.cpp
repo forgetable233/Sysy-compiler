@@ -149,8 +149,7 @@ void StmtAST::Dump(int tab_num) const {
 llvm::Value *StmtAST::CodeGen(IR &ir) {
     llvm::Value *tamp_value = ir.get_global_value(this->ident_);
     if (tamp_value) {
-        llvm::report_fatal_error("The variable has been declared");
-        return nullptr;
+        llvm::report_fatal_error("The variable has been declared in global declare");
     }
     llvm::IntegerType *int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
     llvm::GlobalVariable *var;
@@ -363,13 +362,15 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
         for (int j = i + 1; j < param_size; ++j) {
             StmtAST *stmt_ast_j = ((StmtAST*)&(*param_lists_[j]));
             if (std::strcmp(stmt_ast_i->ident_.c_str(), stmt_ast_j->ident_.c_str()) == 0) {
-                llvm::report_fatal_error("The variable has been declared");
-                return nullptr;
+                llvm::report_fatal_error("The variable has been declared in function params");
             }
         }
     }
     for (int i = 0; i < param_size; ++i) {
         param_types.emplace_back(llvm::IntegerType::get(ir.module_->getContext(), 32));
+    }
+    if (ir.get_global_value(this->ident_)) {
+        llvm::report_fatal_error("The function has been used in functions or params");
     }
     llvm::IntegerType *return_type = llvm::IntegerType::get(ir.module_->getContext(), 32);
     llvm::FunctionType *func_type = llvm::FunctionType::get(return_type, param_types, false);
@@ -384,6 +385,7 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
         arg->setName(stmt_ast->ident_);
     }
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(ir.module_->getContext(), "begin", func);
+    ir.push_global_value(func, this->ident_);
     auto tar_block = (BlockAST *) (&(*block_));
     tar_block->CodeGen(entry, ir);
     return func;

@@ -1,6 +1,5 @@
 int test(int a) {
     int b;
-    int a;
     return 0;
 }
 
@@ -12,6 +11,4 @@ int test1(int k) {
 int test(int m) {
     return 0;
 }
-
-int test;
 
