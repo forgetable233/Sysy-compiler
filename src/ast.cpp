@@ -258,6 +258,23 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                                            llvm::GlobalVariable::ExternalLinkage,
                                            nullptr, this->ident_);
             return var;
+        case kDeclareAssign:
+            if (ir.get_value(entry_block->getName().str(), this->ident_)) {
+                llvm::report_fatal_error("The variable has been declared");
+                return nullptr;
+            }
+            for (auto &args: entry_block->getParent()->args()) {
+                std::cout << args.getName().str() << std::endl;
+                if (strcmp(this->ident_.c_str(), args.getName().str().c_str()) == 0) {
+                    llvm::report_fatal_error("The variable has been declared");
+                    return nullptr;
+                }
+            }
+            value = ir.builder_->Insert(ir.builder_->CreateAlloca(int_type, nullptr, this->ident_));
+            value->setName(this->ident_);
+            ir.builder_->CreateStore(value, exp->CodeGen(entry_block, ir));
+            ir.push_value(value, entry_block->getName().str(), this->ident_);
+            return value;
         default:
             llvm::report_fatal_error("The variable has been declared");
     }
@@ -458,8 +475,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             if (value == nullptr) {
                 value = ir.module_->getGlobalVariable(this->ident_);
                 if (!value) {
-                    llvm::errs() << "Error variable " << ident_ << " not declared";
-                    return nullptr;
+                    llvm::report_fatal_error("The variable has not been declared");
                 }
             }
             return ir.builder_->CreateLoad(value, this->ident_);

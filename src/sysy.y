@@ -203,7 +203,15 @@ Stmt
     ast->key_word_ = *make_unique<string>("int");
     ast->ident_ = *unique_ptr<string>($2);
     $$ = ast;
-  } | Expr ';' {
+  } | INT IDENT ASS Expr ';' {
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareAssign;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>($2);
+    ast->exp_ = unique_ptr<BaseAST>($4);
+    $$ = ast;
+  }
+  | Expr ';' {
     auto ast = new StmtAST();
     ast->type_ = kExpression;
     ast->exp_ = unique_ptr<BaseAST>($1);

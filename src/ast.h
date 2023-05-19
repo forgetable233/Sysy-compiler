@@ -35,8 +35,6 @@
 
 #include "IR.h"
 
-// TODO 为函数添加参数模块
-
 enum ExpType {
     kAdd,
     kSub,
@@ -50,6 +48,7 @@ enum ExpType {
 enum StmtType {
     kReturn,
     kDeclare,
+    kDeclareAssign,
     kExpression,
     kIf,
     kStatic,

@@ -5,10 +5,10 @@ int test(int a) {
 
 int test1(int k) {
     int m;
+    m = 1;
+    int s = 1 + 2 * m;
+    s = m = 2;
     return 1;
 }
 
-int test(int m) {
-    return 0;
-}
 
