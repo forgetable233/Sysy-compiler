@@ -241,6 +241,13 @@ Stmt
      ast->key_word_ = *make_unique<string>("int");
      ast->ident_ = *unique_ptr<string>($3);
      $$ = ast;
+  } | INT IDENT '[' Number ']' ';' {
+     auto ast = new StmtAST();
+     ast->type_ = kDeclareArray;
+     ast->key_word_ = *make_unique<string>("int");
+     ast->ident_ = *unique_ptr<string>($2);
+     ast->array_size_ = $4;
+     $$ = ast;
   }
   ;
 
@@ -291,6 +298,8 @@ Expr
 Number
   : INT_CONST {
     $$ = $1;
+  } | SUB INT_CONST {
+    $$ = -$2;
   }
   ;
 

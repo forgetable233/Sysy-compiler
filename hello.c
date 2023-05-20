@@ -1,5 +1,6 @@
 int test(int a) {
     int b;
+    int c[12];
     return 0;
 }
 

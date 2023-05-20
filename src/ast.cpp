@@ -2,7 +2,9 @@
 // Created by dcr on 23-5-6.
 //
 
-// TODO CompUnit中支持多个函数，同时函数支持变量表
+// TODO 支持函数调用
+// TODO 实现数组，以及数组的调用
+// TODO 编译过程中能够抛出错误
 #include "ast.h"
 
 void OutTab(int num) {
@@ -100,6 +102,14 @@ void StmtAST::Dump(int tab_num) const {
             OutTab(tab_num + 1);
             std::cout << "Ident: " << this->ident_;
             break;
+        case kDeclareArray:
+            OutTab(tab_num + 1);
+            std::cout << "Type: " << this->key_word_ << ',' << std::endl;
+            OutTab(tab_num + 1);
+            std::cout << "Ident: " << this->ident_ << ',' << std::endl;
+            OutTab(tab_num + 1);
+            std::cout << "Size: " << this->array_size_;
+            break;
         case kExpression:
             OutTab(tab_num + 1);
             std::cout << "Type: " << this->key_word_ << ',' << std::endl;
@@ -138,8 +148,10 @@ void StmtAST::Dump(int tab_num) const {
             std::cout << std::endl << "The Block is :" << std::endl;
             this->block_->Dump(tab_num + 1);
             break;
+        case kDeclareAssign:
+            break;
         default:
-            llvm::report_fatal_error("Undefined type");
+            llvm::report_fatal_error("Undefined type in Stmt Dump");
     }
     std::cout << std::endl;
     OutTab(tab_num);
@@ -167,6 +179,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
 //    builder->SetInsertPoint(entry_block);
     ir.builder_->SetInsertPoint(entry_block);
     llvm::Type *int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
+    llvm::ConstantInt *array_size;
     llvm::Value *value;
     llvm::BasicBlock *true_block = nullptr;
     llvm::BasicBlock *false_block = nullptr;
@@ -184,13 +197,10 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
         case kDeclare:
             if (ir.get_value(entry_block->getName().str(), this->ident_)) {
                 llvm::report_fatal_error("The variable has been declared");
-                return nullptr;
             }
             for (auto &args: entry_block->getParent()->args()) {
-                std::cout << args.getName().str() << std::endl;
                 if (strcmp(this->ident_.c_str(), args.getName().str().c_str()) == 0) {
                     llvm::report_fatal_error("The variable has been declared");
-                    return nullptr;
                 }
             }
             value = ir.builder_->Insert(ir.builder_->CreateAlloca(int_type, nullptr, this->ident_));
@@ -199,6 +209,29 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                           entry_block->getName().str(),
                           this->ident_);
             return value;
+        case kDeclareArray:
+            if (this->array_size_ <= 0) {
+                llvm::report_fatal_error("The size of the array must be positive");
+            }
+            if (ir.get_value(entry_block->getName().str(), this->ident_)) {
+                llvm::report_fatal_error("The name of this array has been declared" + this->ident_);
+            }
+            for (auto &arg: entry_block->getParent()->args()) {
+                if (strcmp(this->ident_.c_str(), arg.getName().str().c_str()) == 0) {
+                    llvm::report_fatal_error("The name of this array has been declared" + this->ident_);
+                }
+            }
+            int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
+            array_size = llvm::ConstantInt::get(ir.module_->getContext(), llvm::APInt(32, this->array_size_));
+            value = ir.builder_->Insert(
+                    ir.builder_->CreateAlloca(llvm::ArrayType::get(int_type, this->array_size_),
+                                              array_size,
+                                              this->ident_));
+            value->setName(this->ident_);
+            ir.push_value(value,
+                          entry_block->getName().str(),
+                          this->ident_);
+            break;
         case kExpression:
             exp->CodeGen(entry_block, ir);
             break;
@@ -276,7 +309,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             ir.push_value(value, entry_block->getName().str(), this->ident_);
             return value;
         default:
-            llvm::report_fatal_error("The variable has been declared");
+            llvm::report_fatal_error("Undefined type in stmt CodeGen");
     }
     return nullptr;
 }
@@ -375,9 +408,9 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
     std::vector<llvm::Type *> param_types;
     param_types.reserve(param_size);
     for (int i = 0; i < param_size; ++i) {
-        StmtAST *stmt_ast_i = ((StmtAST*)&(*param_lists_[i]));
+        StmtAST *stmt_ast_i = ((StmtAST *) &(*param_lists_[i]));
         for (int j = i + 1; j < param_size; ++j) {
-            StmtAST *stmt_ast_j = ((StmtAST*)&(*param_lists_[j]));
+            StmtAST *stmt_ast_j = ((StmtAST *) &(*param_lists_[j]));
             if (std::strcmp(stmt_ast_i->ident_.c_str(), stmt_ast_j->ident_.c_str()) == 0) {
                 llvm::report_fatal_error("The variable has been declared in function params");
             }

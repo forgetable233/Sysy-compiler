@@ -49,6 +49,7 @@ enum StmtType {
     kReturn,
     kDeclare,
     kDeclareAssign,
+    kDeclareArray,
     kExpression,
     kIf,
     kStatic,
@@ -116,6 +117,8 @@ public:
     std::unique_ptr<BaseAST> block_ = nullptr;
     std::unique_ptr<BaseAST> true_block_ = nullptr;
     std::unique_ptr<BaseAST> false_block_ = nullptr;
+
+    int array_size_ = 0;
 
     StmtAST() = default;
 
