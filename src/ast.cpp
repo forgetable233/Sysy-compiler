@@ -208,11 +208,8 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
 }
 
 llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
-//    auto builder = std::make_unique<llvm::IRBuilder<>>(ir.module_->getContext());
-//    builder->SetInsertPoint(entry_block);
     ir.builder_->SetInsertPoint(entry_block);
     llvm::Type *int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
-    llvm::ConstantInt *array_size;
     llvm::Value *value;
     llvm::BasicBlock *true_block = nullptr;
     llvm::BasicBlock *false_block = nullptr;
@@ -222,9 +219,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     llvm::BasicBlock *loop_body = nullptr;
     llvm::BasicBlock *loop_exit = nullptr;
 
-//    llvm::Instruction *first_ins = &entry_block->front();
     llvm::GlobalVariable *var;
-//    llvm::AllocaInst *alloca_inst = builder->CreateAlloca(int_type, nullptr, this->ident_);
     auto exp = (ExprAST *) (&(*this->exp_));
     switch (type_) {
         case kDeclare:
@@ -236,8 +231,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                     llvm::report_fatal_error("The variable has been declared");
                 }
             }
-            value = ir.builder_->Insert(ir.builder_->CreateAlloca(int_type, nullptr, this->ident_));
-            value->setName(this->ident_);
+            value = ir.builder_->CreateAlloca(int_type, nullptr, this->ident_);
             ir.push_value(value,
                           entry_block->getName().str(),
                           this->ident_);
@@ -255,12 +249,9 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                 }
             }
             int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
-            array_size = llvm::ConstantInt::get(ir.module_->getContext(), llvm::APInt(32, this->array_size_));
-            value = ir.builder_->Insert(
-                    ir.builder_->CreateAlloca(llvm::ArrayType::get(int_type, this->array_size_),
-                                              array_size,
-                                              this->ident_));
-            value->setName(this->ident_);
+            value = ir.builder_->CreateAlloca(llvm::ArrayType::get(int_type, this->array_size_),
+                                              nullptr,
+                                              this->ident_);
             ir.push_value(value,
                           entry_block->getName().str(),
                           this->ident_);
@@ -542,6 +533,9 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             for (auto arg = entry_block->getParent()->arg_begin(); arg != entry_block->getParent()->arg_end(); ++arg) {
                 if (strcmp(this->ident_.c_str(), arg->getName().str().c_str()) == 0) {
                     value = &*arg;
+                    if (value->getType()->isArrayTy()) {
+                        llvm::report_fatal_error("The input is a array");
+                    }
                     return value;
                 }
             }
@@ -551,7 +545,10 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             if (!value) {
                 llvm::report_fatal_error("The variable has not been declared");
             }
-            llvm::outs() << value->getName() << "\n";
+            value->getType()->print(llvm::outs(), true);
+            if (llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType())) {
+                llvm::report_fatal_error("The input is a array\n");
+            }
             return ir.builder_->CreateLoad(value, this->ident_);
         case kAssign:
             for (auto current_block = entry_block; current_block; current_block = current_block->getPrevNode()) {
@@ -560,12 +557,24 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                     break;
                 }
             }
+            for (auto arg = entry_block->getParent()->arg_begin(); arg != entry_block->getParent()->arg_end(); ++arg) {
+                if (strcmp(this->ident_.c_str(), arg->getName().str().c_str()) == 0) {
+                    value = &*arg;
+                    if (value->getType()->isArrayTy()) {
+                        llvm::report_fatal_error("The input is a array");
+                    }
+                    return value;
+                }
+            }
             if (value == nullptr) {
                 value = ir.module_->getGlobalVariable(this->ident_);
                 if (!value) {
                     llvm::errs() << "Error variable " << ident_ << " not declared";
                     return nullptr;
                 }
+            }
+            if (llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType())) {
+                llvm::report_fatal_error("The left is a array");
             }
             r_exp = (ExprAST *) (&(*rExp_));
             r_exp_value = r_exp->CodeGen(entry_block, ir);
