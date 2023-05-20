@@ -42,7 +42,9 @@ enum ExpType {
     kDiv,
     kAtomIdent,
     kAtomNum,
-    kAssign
+    kAtomArray,
+    kAssign,
+    kAssignArray
 };
 
 enum StmtType {
@@ -84,6 +86,10 @@ public:
     std::string ident_;
 
     std::string num_;
+
+    int array_offset_ = 0;
+
+    std::vector<std::unique_ptr<BaseAST>> param_lists_;
 
     std::unique_ptr<BaseAST> lExp_ = nullptr;
 

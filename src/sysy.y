@@ -224,8 +224,7 @@ Stmt
     ast->ident_ = *unique_ptr<string>($2);
     ast->exp_ = unique_ptr<BaseAST>($4);
     $$ = ast;
-  }
-  | Expr ';' {
+  } | Expr ';' {
     auto ast = new StmtAST();
     ast->type_ = kExpression;
     ast->exp_ = unique_ptr<BaseAST>($1);
@@ -305,6 +304,14 @@ Expr
     auto ast = new ExprAST();
     ast->type_ = kAtomNum;
     ast->num_ = *make_unique<string>(to_string($1));
+    $$ = ast;
+  } | IDENT '(' ParamList ')' {
+
+  } | IDENT '[' Number ']' {
+    auto ast = new ExprAST();
+    ast->type_ = kAtomArray;
+    ast->ident_ = *unique_ptr<string>($1);
+    ast->array_offset_ = $3;
     $$ = ast;
   }
   ;

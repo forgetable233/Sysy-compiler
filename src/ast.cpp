@@ -514,15 +514,16 @@ CompUnitAST::~CompUnitAST() {
 llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     ir.builder_->SetInsertPoint(entry_block);
     llvm::LLVMContext &context = *ir.context_;
+    llvm::Value *indices;
     llvm::Value *value;
     ExprAST *l_exp;
     ExprAST *r_exp;
     llvm::Value *l_exp_value;
     llvm::Value *r_exp_value;
+    int array_size = 0;
     switch (type_) {
         case kAtomNum:
             return llvm::ConstantFP::get(context, llvm::APFloat(strtod(num_.c_str(), nullptr)));
-            // TODO 这里调用函数中的声明有问题
         case kAtomIdent:
             for (auto current_block = entry_block; current_block; current_block = current_block->getPrevNode()) {
                 value = ir.get_value(current_block->getName(), this->ident_);
@@ -533,7 +534,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             for (auto arg = entry_block->getParent()->arg_begin(); arg != entry_block->getParent()->arg_end(); ++arg) {
                 if (strcmp(this->ident_.c_str(), arg->getName().str().c_str()) == 0) {
                     value = &*arg;
-                    if (value->getType()->isArrayTy()) {
+                    if (llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType())) {
                         llvm::report_fatal_error("The input is a array");
                     }
                     return value;
@@ -545,11 +546,47 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             if (!value) {
                 llvm::report_fatal_error("The variable has not been declared");
             }
-            value->getType()->print(llvm::outs(), true);
             if (llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType())) {
                 llvm::report_fatal_error("The input is a array\n");
             }
+
+
             return ir.builder_->CreateLoad(value, this->ident_);
+        case kAtomArray:
+            if (this->array_offset_ < 0) {
+                llvm::report_fatal_error("The offset must be positive");
+            }
+            for (auto current_block = entry_block; current_block; current_block = current_block->getPrevNode()) {
+                value = ir.get_value(current_block->getName(), this->ident_);
+                if (value) {
+                    break;
+                }
+            }
+            for (auto arg = entry_block->getParent()->arg_begin(); arg != entry_block->getParent()->arg_end(); ++arg) {
+                if (strcmp(this->ident_.c_str(), arg->getName().str().c_str()) == 0) {
+                    value = &*arg;
+                    if (!llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType())) {
+                        llvm::report_fatal_error("The input is not a array");
+                    }
+                    return value;
+                }
+            }
+            if (value == nullptr) {
+                value = ir.module_->getGlobalVariable(this->ident_);
+            }
+            if (!value) {
+                llvm::report_fatal_error("The variable has not been declared");
+            }
+            if (!llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType())) {
+                llvm::report_fatal_error("The input is not a array\n");
+            }
+
+            array_size = llvm::cast<llvm::ArrayType>(value->getType()->getPointerElementType())->getNumElements();
+            if (this->array_offset_ >= array_size) {
+                llvm::report_fatal_error("Out of range!!!");
+            }
+            indices = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()), this->array_offset_);
+            return ir.builder_->CreateLoad(ir.builder_->CreateGEP(value, indices));
         case kAssign:
             for (auto current_block = entry_block; current_block; current_block = current_block->getPrevNode()) {
                 value = ir.get_value(current_block->getName(), this->ident_);
@@ -594,8 +631,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                 case kDiv:
                     return ir.builder_->CreateFDiv(l_exp_value, r_exp_value, "div");
                 default:
-                    throw std::runtime_error("invalid binary operator");
-//                    return ErrorValue("invalid binary operator");
+                    llvm::report_fatal_error("invalid binary operator");
             }
     }
 //    return nullptr;
