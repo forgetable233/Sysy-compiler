@@ -154,6 +154,13 @@ FuncDef
     ast->ident_ = *unique_ptr<string>($2);
     ast->array_size_ = $4;
     $$ = ast;
+  } | Type IDENT ASS Number ';' {
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareAssign;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>($2);
+    ast->array_size_ = $4;
+    $$ = ast;
   }
   ;
 

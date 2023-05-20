@@ -149,6 +149,12 @@ void StmtAST::Dump(int tab_num) const {
             this->block_->Dump(tab_num + 1);
             break;
         case kDeclareAssign:
+            OutTab(tab_num + 1);
+            std::cout << "Type: " << this->key_word_ << ',' << std::endl;
+            OutTab(tab_num + 1);
+            std::cout << "Ident: " << this->ident_;
+            OutTab(tab_num + 1);
+            std::cout << "The initial number is " << this->array_size_ << std::endl;
             break;
         default:
             llvm::report_fatal_error("Undefined type in Stmt Dump");
@@ -172,10 +178,18 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                                            int_type,
                                            false,
                                            llvm::GlobalVariable::ExternalLinkage,
-                                           nullptr, this->ident_);
+                                           nullptr,
+                                           this->ident_);
             ir.push_global_value(var, this->ident_);
             return var;
         case kDeclareAssign:
+            var = new llvm::GlobalVariable(*ir.module_,
+                                           int_type,
+                                           false,
+                                           llvm::GlobalVariable::ExternalLinkage,
+                                           llvm::ConstantInt::get(int_type, this->array_size_),
+                                           this->ident_);
+            ir.push_global_value(var, this->ident_);
             break;
         case kDeclareArray:
             if (this->array_size_ <= 0) {
@@ -316,7 +330,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                 return nullptr;
             }
             for (auto &args: entry_block->getParent()->args()) {
-                std::cout << args.getName().str() << std::endl;
+//                std::cout << args.getName().str() << std::endl;
                 if (strcmp(this->ident_.c_str(), args.getName().str().c_str()) == 0) {
                     llvm::report_fatal_error("The variable has been declared");
                     return nullptr;
@@ -517,6 +531,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     switch (type_) {
         case kAtomNum:
             return llvm::ConstantFP::get(context, llvm::APFloat(strtod(num_.c_str(), nullptr)));
+            // TODO 这里调用函数中的声明有问题
         case kAtomIdent:
             for (auto current_block = entry_block; current_block; current_block = current_block->getPrevNode()) {
                 value = ir.get_value(current_block->getName(), this->ident_);
@@ -524,12 +539,19 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                     break;
                 }
             }
-            if (value == nullptr) {
-                value = ir.module_->getGlobalVariable(this->ident_);
-                if (!value) {
-                    llvm::report_fatal_error("The variable has not been declared");
+            for (auto arg = entry_block->getParent()->arg_begin(); arg != entry_block->getParent()->arg_end(); ++arg) {
+                if (strcmp(this->ident_.c_str(), arg->getName().str().c_str()) == 0) {
+                    value = &*arg;
+                    return value;
                 }
             }
+            if (value == nullptr) {
+                value = ir.module_->getGlobalVariable(this->ident_);
+            }
+            if (!value) {
+                llvm::report_fatal_error("The variable has not been declared");
+            }
+            llvm::outs() << value->getName() << "\n";
             return ir.builder_->CreateLoad(value, this->ident_);
         case kAssign:
             for (auto current_block = entry_block; current_block; current_block = current_block->getPrevNode()) {
