@@ -147,6 +147,13 @@ FuncDef
     	ast->param_lists_.emplace_back(move(item));
     }
     $$ = ast;
+  } | Type IDENT '[' Number ']' ';' {
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArray;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>($2);
+    ast->array_size_ = $4;
+    $$ = ast;
   }
   ;
 

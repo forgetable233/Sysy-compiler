@@ -159,19 +159,38 @@ void StmtAST::Dump(int tab_num) const {
 }
 
 llvm::Value *StmtAST::CodeGen(IR &ir) {
+    llvm::Value *value;
+    llvm::IntegerType *int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
+    llvm::GlobalVariable *var;
     llvm::Value *tamp_value = ir.get_global_value(this->ident_);
     if (tamp_value) {
         llvm::report_fatal_error("The variable has been declared in global declare");
     }
-    llvm::IntegerType *int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
-    llvm::GlobalVariable *var;
-    var = new llvm::GlobalVariable(*ir.module_,
-                                   int_type,
-                                   false,
-                                   llvm::GlobalVariable::ExternalLinkage,
-                                   nullptr, this->ident_);
-    ir.push_global_value(var, this->ident_);
-    return var;
+    switch (type_) {
+        case kDeclare:
+            var = new llvm::GlobalVariable(*ir.module_,
+                                           int_type,
+                                           false,
+                                           llvm::GlobalVariable::ExternalLinkage,
+                                           nullptr, this->ident_);
+            ir.push_global_value(var, this->ident_);
+            return var;
+        case kDeclareAssign:
+            break;
+        case kDeclareArray:
+            if (this->array_size_ <= 0) {
+                llvm::report_fatal_error("The size of the value must be positive");
+            }
+            var = new llvm::GlobalVariable(*ir.module_,
+                                           llvm::ArrayType::get(int_type, this->array_size_),
+                                           llvm::ConstantInt::get(int_type, llvm::APInt(32, this->array_size_)),
+                                           llvm::GlobalVariable::ExternalLinkage,
+                                           nullptr, this->ident_);
+            ir.push_global_value(var, this->ident_);
+            break;
+        default:
+            llvm::report_fatal_error("Undefined statement");
+    }
 }
 
 llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
