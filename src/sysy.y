@@ -303,15 +303,22 @@ Expr
   } | Number {
     auto ast = new ExprAST();
     ast->type_ = kAtomNum;
-    ast->num_ = *make_unique<string>(to_string($1));
+    ast->num_ = $1;
     $$ = ast;
   } | IDENT '(' ParamList ')' {
 
-  } | IDENT '[' Number ']' {
+  } | IDENT '[' Expr ']' {
     auto ast = new ExprAST();
     ast->type_ = kAtomArray;
     ast->ident_ = *unique_ptr<string>($1);
-    ast->array_offset_ = $3;
+    ast->array_offset_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | IDENT '[' Expr ']' ASS Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kAssignArray;
+    ast->array_offset_ = unique_ptr<BaseAST>($3);
+    ast->ident_ = *unique_ptr<string>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($6);
     $$ = ast;
   }
   ;

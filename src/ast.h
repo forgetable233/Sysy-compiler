@@ -85,9 +85,9 @@ public:
 
     std::string ident_;
 
-    std::string num_;
+    int num_;
 
-    int array_offset_ = 0;
+    std::unique_ptr<BaseAST> array_offset_ = nullptr;
 
     std::vector<std::unique_ptr<BaseAST>> param_lists_;
 

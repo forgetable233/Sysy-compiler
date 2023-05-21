@@ -18,6 +18,12 @@
 /**
  * 以一个module为标准构建一个IR
  */
+
+enum VariableType {
+    kAtom,
+    kArray
+};
+
 class IR {
 private:
 
@@ -28,21 +34,27 @@ public:
 
     std::unique_ptr<llvm::Module> module_;
 
-    std::map<std::string , std::map<std::string , llvm::Value*>> name_values_;
+    std::map<std::string, std::map<std::string, llvm::Value *>> name_values_;
 
-    std::map<std::string, llvm::Value*> global_values_;
+    std::map<std::string, llvm::Value *> global_values_;
 
     IR();
 
     explicit IR(std::string &name);
 
-    void push_value(llvm::Value *value, const std::string& block_name, const std::string& value_name);
+    void push_value(llvm::Value *value, const std::string &block_name, const std::string &value_name);
 
     void push_global_value(llvm::Value *value, const std::string &value_name);
 
-    llvm::Value* get_global_value(const std::string& value_name);
+    llvm::Value *get_global_value(const std::string &value_name);
 
-    llvm::Value* get_value(const std::string& block_name, const std::string& value_name);
+    llvm::Value *get_basic_block_value(const std::string &block_name, const std::string &value_name);
+
+    llvm::Value *
+    get_value_check_type(const std::string &value_name, llvm::BasicBlock *current_block, VariableType type);
+
+    llvm::Value *
+    get_value(const std::string &value_name, const llvm::BasicBlock *current_block);
 
     ~IR();
 };
