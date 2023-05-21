@@ -14,6 +14,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <llvm/Support/raw_os_ostream.h>
 
 /**
  * 以一个module为标准构建一个IR
@@ -54,7 +55,7 @@ public:
     get_value_check_type(const std::string &value_name, llvm::BasicBlock *current_block, VariableType type);
 
     llvm::Value *
-    get_value(const std::string &value_name, const llvm::BasicBlock *current_block);
+    get_value(const std::string &value_name, const llvm::BasicBlock *current_block, VariableType type);
 
     ~IR();
 };

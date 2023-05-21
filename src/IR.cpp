@@ -57,33 +57,42 @@ llvm::Value *IR::get_global_value(const std::string &value_name) {
 
 
 llvm::Value *
-IR::get_value(const std::string &value_name, const llvm::BasicBlock *current_block) {
+IR::get_value(const std::string &value_name, const llvm::BasicBlock *current_block, VariableType type) {
     llvm::Value *value = nullptr;
     if (current_block) {
         for (auto temp_block = current_block; temp_block; temp_block = current_block->getPrevNode()) {
             value = this->get_basic_block_value(temp_block->getName().str(), value_name);
             if (value) {
+                if (llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType()) && type == kAtom) {
+                    llvm::report_fatal_error("The type of the input variable dose not match\n");
+                }
                 return value;
             }
         }
         for (auto arg = current_block->getParent()->arg_begin(); arg != current_block->getParent()->arg_end(); ++arg) {
             if (strcmp(arg->getName().str().c_str(), value_name.c_str()) == 0) {
-                value = (llvm::Value * ) & (*arg);
+                value = (llvm::Value *) &(*arg);
+                if (llvm::dyn_cast<llvm::ArrayType>(arg->getType()) && type == kAtom) {
+                    llvm::report_fatal_error("The type of the input variable dose not match\n");
+                }
                 return value;
             }
         }
     }
-    return this->get_global_value(value_name);
+    value = this->get_global_value(value_name);
+    if (value) {
+        if (llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType()) && type == kAtom) {
+            llvm::report_fatal_error("The type of the input variable dose not match\n");
+        }
+    }
+    return value;
 }
 
 llvm::Value *
 IR::get_value_check_type(const std::string &value_name, llvm::BasicBlock *current_block, VariableType type) {
-    llvm::Value *value = this->get_value(value_name, current_block);
+    llvm::Value *value = this->get_value(value_name, current_block, type);
     if (!value) {
         llvm::report_fatal_error("The variable has not been declared\n");
-    }
-    if (llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType()) && type == kAtom) {
-        llvm::report_fatal_error("The type of the input variable dose not match\n");
     }
     return value;
 }

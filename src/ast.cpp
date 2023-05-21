@@ -236,7 +236,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     auto exp = (ExprAST *) (&(*this->exp_));
     switch (type_) {
         case kDeclare:
-            ir.get_value(this->ident_, entry_block);
+            ir.get_value(this->ident_, entry_block, kArray);
             value = ir.builder_->CreateAlloca(int_type, nullptr, this->ident_);
             ir.push_value(value,
                           entry_block->getName().str(),
@@ -246,7 +246,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             if (this->array_size_ <= 0) {
                 llvm::report_fatal_error("The size of the array must be positive");
             }
-            value = ir.get_value(this->ident_, entry_block);
+            ir.get_value(this->ident_, entry_block, kArray);
             int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
             value = ir.builder_->CreateAlloca(llvm::ArrayType::get(int_type, this->array_size_),
                                               nullptr,
@@ -307,7 +307,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                                            nullptr, this->ident_);
             return var;
         case kDeclareAssign:
-            ir.get_value(this->ident_, entry_block);
+            ir.get_value(this->ident_, entry_block, kArray);
             value = ir.builder_->Insert(ir.builder_->CreateAlloca(int_type, nullptr, this->ident_));
             value->setName(this->ident_);
             ir.builder_->CreateStore(value, exp->CodeGen(entry_block, ir));
@@ -411,7 +411,6 @@ FuncTypeAST::~FuncTypeAST() {
 llvm::Value *FuncDefAST::CodeGen(IR &ir) {
     unsigned long int param_size = param_lists_.size();
     std::vector<llvm::Type *> param_types;
-    param_types.reserve(param_size);
     for (int i = 0; i < param_size; ++i) {
         StmtAST *stmt_ast_i = ((StmtAST *) &(*param_lists_[i]));
         for (int j = i + 1; j < param_size; ++j) {
@@ -421,7 +420,8 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
             }
         }
     }
-    for (int i = 0; i < param_size; ++i) {
+    param_types.reserve(param_size);
+for (int i = 0; i < param_size; ++i) {
         param_types.emplace_back(llvm::IntegerType::get(ir.module_->getContext(), 32));
     }
     if (ir.get_global_value(this->ident_)) {
@@ -545,7 +545,6 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             r_exp_value = r_exp->CodeGen(entry_block, ir);
             return ir.builder_->CreateStore(value, r_exp_value, "store");
         case kAssignArray: {
-            value = ir.get_value_check_type(this->ident_, entry_block, kArray);
             auto offset = (ExprAST *) &(*array_offset_);
             llvm::Constant *const_0 = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()), 0);
             llvm::Constant *const_i = nullptr;
@@ -595,7 +594,6 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                     llvm::report_fatal_error("invalid binary operator");
             }
     }
-//    return nullptr;
 }
 
 ExprAST::~ExprAST() {
