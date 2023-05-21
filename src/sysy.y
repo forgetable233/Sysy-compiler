@@ -109,6 +109,28 @@ ParamList
     	ident_list->emplace_back(move(item));
     }
     $$ = ident_list;
+} | Type IDENT '[' Number ']' {
+    vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArray;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>($2);
+    ast->array_size_ = $4;
+    ident_list->emplace_back(unique_ptr<BaseAST>(ast));
+    $$ = ident_list;
+} | Type IDENT '[' Number ']' ',' ParamList {
+vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArray;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>($2);
+    ast->array_size_ = $4;
+    ident_list->emplace_back(unique_ptr<BaseAST>(ast));
+    auto list = $7;
+    for (auto &item : *list) {
+    	ident_list->emplace_back(move(item));
+    }
+    $$ = ident_list;
 }
 
 // FuncDef ::= FuncType IDENT '(' ')' Block;

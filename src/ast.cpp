@@ -236,7 +236,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     auto exp = (ExprAST *) (&(*this->exp_));
     switch (type_) {
         case kDeclare:
-            ir.get_value(this->ident_, entry_block, kArray);
+            ir.get_value(this->ident_, entry_block, kAtom, nullptr);
             value = ir.builder_->CreateAlloca(int_type, nullptr, this->ident_);
             ir.push_value(value,
                           entry_block->getName().str(),
@@ -246,7 +246,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             if (this->array_size_ <= 0) {
                 llvm::report_fatal_error("The size of the array must be positive");
             }
-            ir.get_value(this->ident_, entry_block, kArray);
+            ir.get_value(this->ident_, entry_block, kArray, nullptr);
             int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
             value = ir.builder_->CreateAlloca(llvm::ArrayType::get(int_type, this->array_size_),
                                               nullptr,
@@ -307,7 +307,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                                            nullptr, this->ident_);
             return var;
         case kDeclareAssign:
-            ir.get_value(this->ident_, entry_block, kArray);
+            ir.get_value(this->ident_, entry_block, kArray, nullptr);
             value = ir.builder_->Insert(ir.builder_->CreateAlloca(int_type, nullptr, this->ident_));
             value->setName(this->ident_);
             ir.builder_->CreateStore(value, exp->CodeGen(entry_block, ir));
@@ -421,8 +421,20 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
         }
     }
     param_types.reserve(param_size);
-for (int i = 0; i < param_size; ++i) {
-        param_types.emplace_back(llvm::IntegerType::get(ir.module_->getContext(), 32));
+    for (int i = 0; i < param_size; ++i) {
+        StmtAST *ast = ((StmtAST *) &(*this->param_lists_[i]));
+        if (ast->type_ == kDeclare) {
+            param_types.emplace_back(llvm::IntegerType::get(ir.module_->getContext(), 32));
+        } else if (ast->type_ == kDeclareArray) {
+            if (ast->array_size_ <= 0) {
+                llvm::report_fatal_error("The size of the array must be positive\n");
+            }
+            param_types.emplace_back(
+                    llvm::ArrayType::get(llvm::IntegerType::get(ir.module_->getContext(), 32),
+                                         ast->array_size_));
+        } else {
+            llvm::report_fatal_error("Undefined type\n");
+        }
     }
     if (ir.get_global_value(this->ident_)) {
         llvm::report_fatal_error("The function has been used in functions or params");
@@ -506,7 +518,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             return llvm::ConstantInt::get(context, llvm::APInt(num_, 32));
         case kAtomIdent:
             // TODO 这里不确定使用函数中的数据时是否会报错
-            value = ir.get_value_check_type(this->ident_, entry_block, kAtom);
+            value = ir.get_value_check_type(this->ident_, entry_block, kAtom, nullptr);
             return ir.builder_->CreateLoad(value, this->ident_);
         case kAtomArray: {
             // TODO 处理函数偏移量为变量的情况
@@ -515,14 +527,13 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             llvm::Constant *const_i = nullptr;
             llvm::Value *idx[2];
             idx[0] = const_0;
-            value = ir.get_value_check_type(this->ident_, entry_block, kArray);
+            value = ir.get_value_check_type(this->ident_, entry_block, kArray, &array_size);
             if (offset->type_ == kAtomNum) {
                 if (offset->num_ < 0) {
                     llvm::report_fatal_error("The offset must be positive");
                 }
-                array_size = llvm::cast<llvm::ArrayType>(value->getType()->getPointerElementType())->getNumElements();
                 if (offset->num_ >= array_size) {
-                    llvm::report_fatal_error("Out of range!!!");
+                    llvm::report_fatal_error("Out of range!!!" + this->ident_);
                 }
                 const_i = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()),
                                                  offset->num_);
@@ -540,7 +551,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             }
         }
         case kAssign:
-            value = ir.get_value_check_type(this->ident_, entry_block, kAtom);
+            value = ir.get_value_check_type(this->ident_, entry_block, kAtom, nullptr);
             r_exp = (ExprAST *) (&(*rExp_));
             r_exp_value = r_exp->CodeGen(entry_block, ir);
             return ir.builder_->CreateStore(value, r_exp_value, "store");
@@ -552,14 +563,13 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             r_exp = (ExprAST *) (&(*rExp_));
             r_exp_value = r_exp->CodeGen(entry_block, ir);
             idx[0] = const_0;
-            value = ir.get_value_check_type(this->ident_, entry_block, kArray);
+            value = ir.get_value_check_type(this->ident_, entry_block, kArray, &array_size);
             if (offset->type_ == kAtomNum) {
                 if (offset->num_ < 0) {
                     llvm::report_fatal_error("The offset must be positive");
                 }
-                array_size = llvm::cast<llvm::ArrayType>(value->getType()->getPointerElementType())->getNumElements();
                 if (offset->num_ >= array_size) {
-                    llvm::report_fatal_error("Out of range!!!");
+                    llvm::report_fatal_error("Out of range!!! " + this->ident_);
                 }
                 const_i = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()),
                                                  offset->num_);
