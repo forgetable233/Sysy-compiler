@@ -63,4 +63,4 @@ target_link_libraries(compiler ${llvm_libs} pthread dl)
 
 #add_executable(func func.cpp)
 
-#add_executable(test test.cpp)
+add_executable(test test.cpp)

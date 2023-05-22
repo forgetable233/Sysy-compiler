@@ -310,7 +310,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             ir.get_value(this->ident_, entry_block, kArray, nullptr);
             value = ir.builder_->Insert(ir.builder_->CreateAlloca(int_type, nullptr, this->ident_));
             value->setName(this->ident_);
-            ir.builder_->CreateStore(value, exp->CodeGen(entry_block, ir));
+            ir.builder_->CreateStore(exp->CodeGen(entry_block, ir), value);
             ir.push_value(value, entry_block->getName().str(), this->ident_);
             return value;
         default:
@@ -424,14 +424,14 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
     for (int i = 0; i < param_size; ++i) {
         StmtAST *ast = ((StmtAST *) &(*this->param_lists_[i]));
         if (ast->type_ == kDeclare) {
-            param_types.emplace_back(llvm::IntegerType::get(ir.module_->getContext(), 32));
+            param_types.emplace_back(ir.builder_->getInt32Ty());
         } else if (ast->type_ == kDeclareArray) {
             if (ast->array_size_ <= 0) {
                 llvm::report_fatal_error("The size of the array must be positive\n");
             }
-            param_types.emplace_back(
-                    llvm::ArrayType::get(llvm::IntegerType::get(ir.module_->getContext(), 32),
-                                         ast->array_size_));
+            llvm::IntegerType* int_type = ir.builder_->getInt32Ty();
+            llvm::ArrayType* array_type = llvm::ArrayType::get(int_type, ast->array_size_);
+            param_types.emplace_back(array_type->getPointerTo(0));
         } else {
             llvm::report_fatal_error("Undefined type\n");
         }
@@ -454,6 +454,7 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(ir.module_->getContext(), "begin", func);
     ir.push_global_value(func, this->ident_);
     auto tar_block = (BlockAST *) (&(*block_));
+    ir.builder_->SetInsertPoint(entry);
     tar_block->CodeGen(entry, ir);
     return func;
 }
@@ -463,6 +464,19 @@ FuncDefAST::~FuncDefAST() {
 }
 
 llvm::Value *BlockAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
+    ir.builder_->SetInsertPoint(entry_block);
+    auto args = entry_block->getParent()->arg_begin();
+    for (int i = 0; i < entry_block->getParent()->arg_size(); ++i, ++args) {
+        llvm::AllocaInst* alloc = nullptr;
+        if (args->getType()->isIntegerTy()) {
+            alloc = ir.builder_->CreateAlloca(args->getType(), nullptr);
+        } else {
+            llvm::IntegerType *int_type = llvm::IntegerType::get(ir.module_->getContext(), 32);
+            alloc = ir.builder_->CreateAlloca(llvm::PointerType::get(int_type, 0));
+        }
+        ir.push_value(alloc, entry_block->getName().str(), std::to_string(i));
+        ir.builder_->CreateStore(args, alloc);
+    }
     for (auto &item: this->stmt_) {
         ((StmtAST *) (&(*item)))->CodeGen(entry_block, ir);
     }
@@ -515,7 +529,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     int array_size = 0;
     switch (type_) {
         case kAtomNum:
-            return llvm::ConstantInt::get(context, llvm::APInt(num_, 32));
+            return llvm::ConstantInt::get(context, llvm::APInt(32, num_));
         case kAtomIdent:
             // TODO 这里不确定使用函数中的数据时是否会报错
             value = ir.get_value_check_type(this->ident_, entry_block, kAtom, nullptr);
@@ -532,9 +546,9 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                 if (offset->num_ < 0) {
                     llvm::report_fatal_error("The offset must be positive");
                 }
-                if (offset->num_ >= array_size) {
-                    llvm::report_fatal_error("Out of range!!!" + this->ident_);
-                }
+//                if (offset->num_ >= array_size) {
+//                    llvm::report_fatal_error("Out of range!!!" + this->ident_);
+//                }
                 const_i = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()),
                                                  offset->num_);
                 idx[1] = const_i;
@@ -543,10 +557,17 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             }
             auto *global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
             if (!global_value) {
-                llvm::Value *array_i = ir.builder_->CreateGEP(value, idx);
-                return ir.builder_->CreateLoad(array_i);
+                if (llvm::isa<llvm::PointerType>(value->getType())) {
+                    llvm::Value *array_i = ir.builder_->CreateGEP(value->getType()->getPointerElementType(), value, idx);
+                    return ir.builder_->CreateLoad(array_i);
+                } else {
+                    llvm::Value *array_i = ir.builder_->CreateGEP(value->getType(), value,
+                                                                  idx);
+                    return ir.builder_->CreateLoad(array_i);
+                }
             } else {
-                llvm::Value *global_i = ir.builder_->CreateGEP(global_value, idx);
+                llvm::Value *global_i = ir.builder_->CreateGEP(global_value->getType()->getPointerElementType(),
+                                                               global_value, idx);
                 return ir.builder_->CreateLoad(global_i);
             }
         }
@@ -554,7 +575,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             value = ir.get_value_check_type(this->ident_, entry_block, kAtom, nullptr);
             r_exp = (ExprAST *) (&(*rExp_));
             r_exp_value = r_exp->CodeGen(entry_block, ir);
-            return ir.builder_->CreateStore(value, r_exp_value, "store");
+            return ir.builder_->CreateStore(r_exp_value, value, "store");
         case kAssignArray: {
             auto offset = (ExprAST *) &(*array_offset_);
             llvm::Constant *const_0 = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()), 0);
@@ -568,9 +589,9 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                 if (offset->num_ < 0) {
                     llvm::report_fatal_error("The offset must be positive");
                 }
-                if (offset->num_ >= array_size) {
-                    llvm::report_fatal_error("Out of range!!! " + this->ident_);
-                }
+//                if (offset->num_ >= array_size) {
+//                    llvm::report_fatal_error("Out of range!!! " + this->ident_);
+//                }
                 const_i = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()),
                                                  offset->num_);
                 idx[1] = const_i;
@@ -579,11 +600,16 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             }
             auto *global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
             if (!global_value) {
-                llvm::Value *array_i = ir.builder_->CreateGEP(value, idx);
-                return ir.builder_->CreateStore(array_i, r_exp_value, "store");
+                llvm::Value *array_i;
+                if (llvm::isa<llvm::PointerType>(*value->getType())) {
+                    array_i = ir.builder_->CreateGEP(value->getType()->getPointerElementType(), value, idx);
+                } else {
+                    array_i = ir.builder_->CreateGEP(value->getType(), value, idx);
+                }
+                return ir.builder_->CreateStore(r_exp_value, array_i, "store");
             } else {
                 llvm::Value *global_i = ir.builder_->CreateGEP(global_value, idx);
-                return ir.builder_->CreateStore(global_i, r_exp_value, "store");
+                return ir.builder_->CreateStore( r_exp_value, global_i, "store");
             }
         }
         default:

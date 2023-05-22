@@ -32,6 +32,11 @@ void IR::push_value(llvm::Value *value, const std::string &block_name, const std
 }
 
 llvm::Value *IR::get_basic_block_value(const std::string &block_name, const std::string &value_name) {
+    for (const auto& item1 : name_values_) {
+        for (const auto& item2 : item1.second) {
+            llvm::outs() << item2.second << '\n';
+        }
+    }
     auto block = name_values_.find(block_name);
     if (block == name_values_.end()) {
         return nullptr;
@@ -75,17 +80,22 @@ IR::get_value(const std::string &value_name, const llvm::BasicBlock *current_blo
                 return value;
             }
         }
-        for (auto arg = current_block->getParent()->arg_begin(); arg != current_block->getParent()->arg_end(); ++arg) {
+        int i = 0;
+        for (auto arg = current_block->getParent()->arg_begin(); arg != current_block->getParent()->arg_end(); ++arg, ++i) {
             if (strcmp(arg->getName().str().c_str(), value_name.c_str()) == 0) {
-                value = (llvm::Value *) &(*arg);
                 if (llvm::dyn_cast<llvm::ArrayType>(arg->getType()) && type == kAtom) {
                     llvm::report_fatal_error("The type of the input variable dose not match\n");
                 }
-                if (type == kArray) {
-                    if (array_size) {
-                        *array_size = static_cast<int>(llvm::cast<llvm::ArrayType>(value->getType())->getNumElements());
-                    }
-                }
+                llvm::outs() << arg->getName().str() << "\n";
+                llvm::outs() << i << '\n';
+                llvm::outs() << current_block->getParent()->getName().str() << '\n';
+                value = this->get_basic_block_value(current_block->getParent()->getEntryBlock().getName().str(),
+                                                    std::to_string(i));
+//                if (type == kArray) {
+//                    if (array_size) {
+//                        *array_size = static_cast<int>(llvm::cast<llvm::ArrayType>(value->getType()->getPointerElementType())->getNumElements());
+//                    }
+//                }
                 return value;
             }
         }
@@ -109,7 +119,7 @@ IR::get_value_check_type(const std::string &value_name,
                          int *array_size) {
     llvm::Value *value = this->get_value(value_name, current_block, type, array_size);
     if (!value) {
-        llvm::report_fatal_error("The variable has not been declared\n");
+        llvm::report_fatal_error("The variable has not been declared in get_value_check_type function\n");
     }
     return value;
 }

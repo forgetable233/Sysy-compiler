@@ -4,35 +4,19 @@
 #include <iostream>
 #include <memory>
 #include <string>
+using namespace std;
 
-
-class base {
-public:
-    virtual void out() const = 0;
-};
-
-class next : public base {
-public:
-    next();
-
-    int a = 1;
-
-    void out() const override {
-        std::cout << "test ";
+void test(int a[3]) {
+    for (int i = 0; i < 3; ++i) {
+        a[i] = i;
     }
-};
-
-next::next() {
-
 }
 
 int main() {
-    base *test_1 = new next();
-    test_1->out();
-
-    next *test2 = (next *) test_1;
-    std::cout << test2->a ;
-
-
+    int a[3] = {0, 0, 0};
+    test(a);
+    for (int i = 0; i < 3; ++i) {
+        cout << a[i];
+    }
     return 0;
 }
