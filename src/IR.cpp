@@ -32,11 +32,11 @@ void IR::push_value(llvm::Value *value, const std::string &block_name, const std
 }
 
 llvm::Value *IR::get_basic_block_value(const std::string &block_name, const std::string &value_name) {
-    for (const auto& item1 : name_values_) {
-        for (const auto& item2 : item1.second) {
-            llvm::outs() << item2.second << '\n';
-        }
-    }
+//    for (const auto& item1 : name_values_) {
+//        for (const auto& item2 : item1.second) {
+//            llvm::outs() << item2.second << '\n';
+//        }
+//    }
     auto block = name_values_.find(block_name);
     if (block == name_values_.end()) {
         return nullptr;
@@ -86,9 +86,9 @@ IR::get_value(const std::string &value_name, const llvm::BasicBlock *current_blo
                 if (llvm::dyn_cast<llvm::ArrayType>(arg->getType()) && type == kAtom) {
                     llvm::report_fatal_error("The type of the input variable dose not match\n");
                 }
-                llvm::outs() << arg->getName().str() << "\n";
-                llvm::outs() << i << '\n';
-                llvm::outs() << current_block->getParent()->getName().str() << '\n';
+//                llvm::outs() << arg->getName().str() << "\n";
+//                llvm::outs() << i << '\n';
+//                llvm::outs() << current_block->getParent()->getName().str() << '\n';
                 value = this->get_basic_block_value(current_block->getParent()->getEntryBlock().getName().str(),
                                                     std::to_string(i));
 //                if (type == kArray) {
