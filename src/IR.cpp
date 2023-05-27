@@ -66,6 +66,7 @@ IR::get_value(const std::string &value_name, const llvm::BasicBlock *current_blo
               int *array_size) {
     llvm::Value *value = nullptr;
     if (current_block) {
+        // 先从各个block中寻找
         for (auto temp_block = current_block; temp_block; temp_block = current_block->getPrevNode()) {
             value = this->get_basic_block_value(temp_block->getName().str(), value_name);
             if (value) {
@@ -77,25 +78,20 @@ IR::get_value(const std::string &value_name, const llvm::BasicBlock *current_blo
                         *array_size = static_cast<int>(llvm::cast<llvm::ArrayType>(value->getType()->getPointerElementType())->getNumElements());
                     }
                 }
+                value->getType()->print(llvm::outs(), true);
+                llvm::outs() << '\n';
                 return value;
             }
         }
         int i = 0;
+        // 从函数列表中寻找
         for (auto arg = current_block->getParent()->arg_begin(); arg != current_block->getParent()->arg_end(); ++arg, ++i) {
             if (strcmp(arg->getName().str().c_str(), value_name.c_str()) == 0) {
                 if (llvm::dyn_cast<llvm::ArrayType>(arg->getType()) && type == kAtom) {
                     llvm::report_fatal_error("The type of the input variable dose not match\n");
                 }
-//                llvm::outs() << arg->getName().str() << "\n";
-//                llvm::outs() << i << '\n';
-//                llvm::outs() << current_block->getParent()->getName().str() << '\n';
-                value = this->get_basic_block_value(current_block->getParent()->getEntryBlock().getName().str(),
-                                                    std::to_string(i));
-//                if (type == kArray) {
-//                    if (array_size) {
-//                        *array_size = static_cast<int>(llvm::cast<llvm::ArrayType>(value->getType()->getPointerElementType())->getNumElements());
-//                    }
-//                }
+                value = (llvm::Value*)arg;
+                value->getType()->print(llvm::outs(), true);
                 return value;
             }
         }

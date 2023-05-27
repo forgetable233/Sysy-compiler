@@ -429,8 +429,8 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
             if (ast->array_size_ <= 0) {
                 llvm::report_fatal_error("The size of the array must be positive\n");
             }
-            llvm::IntegerType* int_type = ir.builder_->getInt32Ty();
-            llvm::ArrayType* array_type = llvm::ArrayType::get(int_type, ast->array_size_);
+            llvm::IntegerType *int_type = ir.builder_->getInt32Ty();
+            llvm::ArrayType *array_type = llvm::ArrayType::get(int_type, ast->array_size_);
             param_types.emplace_back(array_type->getPointerTo(0));
         } else {
             llvm::report_fatal_error("Undefined type\n");
@@ -466,17 +466,17 @@ FuncDefAST::~FuncDefAST() {
 llvm::Value *BlockAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     ir.builder_->SetInsertPoint(entry_block);
     auto args = entry_block->getParent()->arg_begin();
-    for (int i = 0; i < entry_block->getParent()->arg_size(); ++i, ++args) {
-        llvm::AllocaInst* alloc = nullptr;
-        if (args->getType()->isIntegerTy()) {
-            alloc = ir.builder_->CreateAlloca(args->getType(), nullptr);
-        } else {
-            llvm::IntegerType *int_type = llvm::IntegerType::get(ir.module_->getContext(), 32);
-            alloc = ir.builder_->CreateAlloca(llvm::PointerType::get(int_type, 0));
-        }
-        ir.push_value(alloc, entry_block->getName().str(), std::to_string(i));
-        ir.builder_->CreateStore(args, alloc);
-    }
+//    for (int i = 0; i < entry_block->getParent()->arg_size(); ++i, ++args) {
+//        llvm::AllocaInst *alloc = nullptr;
+//        if (args->getType()->isIntegerTy()) {
+//            alloc = ir.builder_->CreateAlloca(args->getType(), nullptr);
+//        } else {
+//            llvm::IntegerType *int_type = llvm::IntegerType::get(ir.module_->getContext(), 32);
+//            alloc = ir.builder_->CreateAlloca(llvm::PointerType::get(int_type, 0));
+//        }
+//        ir.push_value(alloc, entry_block->getName().str(), std::to_string(i));
+//        ir.builder_->CreateStore(args, alloc);
+//    }
     for (auto &item: this->stmt_) {
         ((StmtAST *) (&(*item)))->CodeGen(entry_block, ir);
     }
@@ -558,7 +558,8 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             auto *global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
             if (!global_value) {
                 if (llvm::isa<llvm::PointerType>(value->getType())) {
-                    llvm::Value *array_i = ir.builder_->CreateGEP(value->getType()->getPointerElementType(), value, idx);
+                    llvm::Value *array_i = ir.builder_->CreateGEP(value->getType()->getPointerElementType(), value,
+                                                                  idx);
                     return ir.builder_->CreateLoad(array_i);
                 } else {
                     llvm::Value *array_i = ir.builder_->CreateGEP(value->getType(), value,
@@ -589,9 +590,6 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                 if (offset->num_ < 0) {
                     llvm::report_fatal_error("The offset must be positive");
                 }
-//                if (offset->num_ >= array_size) {
-//                    llvm::report_fatal_error("Out of range!!! " + this->ident_);
-//                }
                 const_i = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()),
                                                  offset->num_);
                 idx[1] = const_i;
@@ -601,15 +599,11 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             auto *global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
             if (!global_value) {
                 llvm::Value *array_i;
-                if (llvm::isa<llvm::PointerType>(*value->getType())) {
-                    array_i = ir.builder_->CreateGEP(value->getType()->getPointerElementType(), value, idx);
-                } else {
-                    array_i = ir.builder_->CreateGEP(value->getType(), value, idx);
-                }
+                array_i = ir.builder_->CreateGEP(value, idx);
                 return ir.builder_->CreateStore(r_exp_value, array_i, "store");
             } else {
                 llvm::Value *global_i = ir.builder_->CreateGEP(global_value, idx);
-                return ir.builder_->CreateStore( r_exp_value, global_i, "store");
+                return ir.builder_->CreateStore(r_exp_value, global_i, "store");
             }
         }
         default:
