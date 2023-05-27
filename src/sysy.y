@@ -50,7 +50,7 @@ using namespace std;
 // 非终结符的类型定义
 %type <ast_val> CompUnit FuncDef Type Block Stmt Expr
 %type <int_val> Number
-%type <ast_list> ParamList
+%type <ast_list> ParamList Params
 
 %left ASS
 %left OR
@@ -87,6 +87,21 @@ CompUnit
     ast = move(comp_unit);
   }
   ;
+
+Params
+: Expr {
+    vector<unique_ptr<BaseAST>> *params = new vector<unique_ptr<BaseAST>>();
+    params->emplace_back(unique_ptr<BaseAST>($1));
+    $$ = params;
+} | Expr ',' Params {
+    vector<unique_ptr<BaseAST>> *params = new vector<unique_ptr<BaseAST>>();
+    params->emplace_back(unique_ptr<BaseAST>($1));
+    auto list = $3;
+    for (auto &item : *list) {
+        params->emplace_back(move(item));
+    }
+    $$ = params;
+}
 
 ParamList
 : Type IDENT {
@@ -283,19 +298,6 @@ Stmt
      ast->ident_ = *unique_ptr<string>($2);
      ast->array_size_ = $4;
      $$ = ast;
-  } | IDENT '(' ')' {
-    auto ast = new StmtAST();
-    ast->type_ = kFunction;
-    ast->ident_ = *unique_ptr<string>($1);
-    $$ = ast;
-  } | IDENT '(' ParamList ')' {
-    auto ast = new StmtAST();
-    ast->type_ = kFunction;
-    auto list = $3;
-    for(auto &item : *list) {
-    	ast->param_lists_.emplace_back(std::move(item));
-    }
-    $$ = ast;
   }
   ;
 
@@ -340,9 +342,9 @@ Expr
     ast->type_ = kAtomNum;
     ast->num_ = $1;
     $$ = ast;
-  } | IDENT '(' ParamList ')' {
+  } | IDENT '(' Params ')' {
     auto ast = new ExprAST();
-    ast->type_ = kFunctionUse;
+    ast->type_ = kFunction;
     ast->ident_ = *unique_ptr<string>($1);
     auto list = $3;
     for (auto &item : *list) {
@@ -351,7 +353,7 @@ Expr
     $$ = ast;
   } | IDENT '(' ')' {
     auto ast = new ExprAST();
-    ast->type_ = kFunctionUse;
+    ast->type_ = kFunction;
     ast->ident_ = *unique_ptr<string>($1);
     $$ = ast;
   } | IDENT '[' Expr ']' {

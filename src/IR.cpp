@@ -78,7 +78,7 @@ IR::get_value(const std::string &value_name, const llvm::BasicBlock *current_blo
                         *array_size = static_cast<int>(llvm::cast<llvm::ArrayType>(value->getType()->getPointerElementType())->getNumElements());
                     }
                 }
-                value->getType()->print(llvm::outs(), true);
+//                value->getType()->print(llvm::outs(), true);
                 llvm::outs() << '\n';
                 return value;
             }
@@ -91,7 +91,6 @@ IR::get_value(const std::string &value_name, const llvm::BasicBlock *current_blo
                     llvm::report_fatal_error("The type of the input variable dose not match\n");
                 }
                 value = (llvm::Value*)arg;
-                value->getType()->print(llvm::outs(), true);
                 return value;
             }
         }

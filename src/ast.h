@@ -45,7 +45,7 @@ enum ExpType {
     kAtomArray,
     kAssign,
     kAssignArray,
-    kFunctionUse
+    kFunction
 };
 
 enum StmtType {
@@ -56,8 +56,12 @@ enum StmtType {
     kExpression,
     kIf,
     kStatic,
-    kWhile,
-    kFunction
+    kWhile
+};
+
+enum ParamType {
+    ATOM,
+    ARRAY
 };
 
 enum UnitTpye {
@@ -126,7 +130,6 @@ public:
     std::unique_ptr<BaseAST> true_block_ = nullptr;
     std::unique_ptr<BaseAST> false_block_ = nullptr;
 
-    std::vector<std::unique_ptr<BaseAST>> param_lists_;
     int array_size_ = 0;
 
     StmtAST() = default;

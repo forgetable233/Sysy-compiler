@@ -44,7 +44,6 @@ void FuncDefAST::Dump(int tab_num) const {
         item->Dump(tab_num + 1);
         std::cout << std::endl;
     }
-
     OutTab(tab_num);
     std::cout << "}";
 }
@@ -206,7 +205,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                     llvm::ConstantArray::get(llvm::ArrayType::get(llvm::Type::getInt32Ty(ir.module_->getContext()),
                                                                   this->array_size_),
                                              const_array_elems));
-            var->setAlignment(4 * this->array_size_);
+//            var->setAlignment(4 * this->array_size_);
             ir.push_global_value(var, this->ident_);
             break;
         }
@@ -539,9 +538,6 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                 if (offset->num_ < 0) {
                     llvm::report_fatal_error("The offset must be positive");
                 }
-//                if (offset->num_ >= array_size) {
-//                    llvm::report_fatal_error("Out of range!!!" + this->ident_);
-//                }
                 const_i = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()),
                                                  offset->num_);
                 idx[1] = const_i;
@@ -598,6 +594,26 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                 llvm::Value *global_i = ir.builder_->CreateGEP(global_value, idx);
                 return ir.builder_->CreateStore(r_exp_value, global_i, "store");
             }
+        } case kFunction: {
+            // TODO 函数调用存在很多问题
+            llvm::outs() << this->ident_;
+            llvm::Function *func = ir.module_->getFunction(this->ident_);
+            if (!func) {
+                llvm::report_fatal_error("unable to find the target function");
+            }
+            std::vector<llvm::Value*> temp_args;
+            llvm::Type *type = func->getReturnType();
+            auto func_type = llvm::dyn_cast<llvm::FunctionType>(type);
+            if (!param_lists_.empty()) {
+                for (auto &item: param_lists_) {
+                    auto param = (ExprAST*)&(*item);
+                    temp_args.push_back(param->CodeGen(entry_block, ir));
+                }
+            }
+            llvm::ArrayRef<llvm::Value*> params(temp_args);
+//            llvm::CallInst *callInst = llvm::CallInst::Create(func_type, func, params);
+//            func_type->print(llvm::outs(), true);
+            return ir.builder_->CreateCall(func, params, "call");
         }
         default:
             l_exp = (ExprAST *) (&(*lExp_));
