@@ -119,7 +119,7 @@ ParamList
     ident_list->emplace_back(unique_ptr<BaseAST>(ast));
     $$ = ident_list;
 } | Type IDENT '[' Number ']' ',' ParamList {
-vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
+    vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
     auto ast = new StmtAST();
     ast->type_ = kDeclareArray;
     ast->key_word_ = *make_unique<string>("int");
@@ -132,6 +132,7 @@ vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
     }
     $$ = ident_list;
 }
+;
 
 // FuncDef ::= FuncType IDENT '(' ')' Block;
 // 我们这里可以直接写 '(' 和 ')', 因为之前在 lexer 里已经处理了单个字符的情况
@@ -146,7 +147,7 @@ vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
 FuncDef
   : Type IDENT '(' ')' '{' Block '}' {
     auto ast = new FuncDefAST();
-    ast->type_ = kFunction;
+//    ast->type_ = kFunction;
     ast->func_type_ = unique_ptr<BaseAST>($1);
     ast->ident_ = *unique_ptr<string>($2);
     ast->block_ = unique_ptr<BaseAST>($6);
@@ -159,7 +160,7 @@ FuncDef
     $$ = ast;
   } | Type IDENT '(' ParamList ')' '{' Block '}' {
     auto ast = new FuncDefAST();
-    ast->type_ = kFunction;
+//    ast->type_ = kFunction;
     ast->func_type_ = unique_ptr<BaseAST>($1);
     ast->ident_ = *unique_ptr<string>($2);
     ast->block_ = unique_ptr<BaseAST>($7);
@@ -282,6 +283,19 @@ Stmt
      ast->ident_ = *unique_ptr<string>($2);
      ast->array_size_ = $4;
      $$ = ast;
+  } | IDENT '(' ')' {
+    auto ast = new StmtAST();
+    ast->type_ = kFunction;
+    ast->ident_ = *unique_ptr<string>($1);
+    $$ = ast;
+  } | IDENT '(' ParamList ')' {
+    auto ast = new StmtAST();
+    ast->type_ = kFunction;
+    auto list = $3;
+    for(auto &item : *list) {
+    	ast->param_lists_.emplace_back(std::move(item));
+    }
+    $$ = ast;
   }
   ;
 
@@ -327,7 +341,19 @@ Expr
     ast->num_ = $1;
     $$ = ast;
   } | IDENT '(' ParamList ')' {
-
+    auto ast = new ExprAST();
+    ast->type_ = kFunctionUse;
+    ast->ident_ = *unique_ptr<string>($1);
+    auto list = $3;
+    for (auto &item : *list) {
+    	ast->param_lists_.emplace_back(std::move(item));
+    }
+    $$ = ast;
+  } | IDENT '(' ')' {
+    auto ast = new ExprAST();
+    ast->type_ = kFunctionUse;
+    ast->ident_ = *unique_ptr<string>($1);
+    $$ = ast;
   } | IDENT '[' Expr ']' {
     auto ast = new ExprAST();
     ast->type_ = kAtomArray;

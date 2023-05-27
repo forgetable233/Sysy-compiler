@@ -3,7 +3,6 @@
 //
 
 // TODO 支持函数调用
-// TODO 实现数组，以及数组的调用
 // TODO 编译过程中能够抛出错误
 #include "ast.h"
 
@@ -30,10 +29,8 @@ void FuncDefAST::Dump(int tab_num) const {
     OutTab(tab_num);
     std::cout << "FuncDefAST: { " << std::endl;
 
-    if (type_ == kFunction) {
-        func_type_->Dump(tab_num + 1);
-        std::cout << "," << std::endl;
-    }
+    func_type_->Dump(tab_num + 1);
+    std::cout << "," << std::endl;
     OutTab(tab_num + 1);
     std::cout << "FuncName: " << ident_ << std::endl;
 //    OutTab(tab_num + 1);
@@ -41,13 +38,11 @@ void FuncDefAST::Dump(int tab_num) const {
     OutTab(tab_num + 1);
     std::cout << "}," << std::endl;
 //    std::cout << ", FuncName: { " << ident_ << " }, ";
-    if (type_ == kFunction) {
-        block_->Dump(tab_num + 1);
+    block_->Dump(tab_num + 1);
+    std::cout << std::endl;
+    for (auto &item: this->param_lists_) {
+        item->Dump(tab_num + 1);
         std::cout << std::endl;
-        for (auto &item: this->param_lists_) {
-            item->Dump(tab_num + 1);
-            std::cout << std::endl;
-        }
     }
 
     OutTab(tab_num);
@@ -531,11 +526,9 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
         case kAtomNum:
             return llvm::ConstantInt::get(context, llvm::APInt(32, num_));
         case kAtomIdent:
-            // TODO 这里不确定使用函数中的数据时是否会报错
             value = ir.get_value_check_type(this->ident_, entry_block, kAtom, nullptr);
             return ir.builder_->CreateLoad(value, this->ident_);
         case kAtomArray: {
-            // TODO 处理函数偏移量为变量的情况
             auto offset = (ExprAST *) &(*array_offset_);
             llvm::Constant *const_0 = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()), 0);
             llvm::Constant *const_i = nullptr;
