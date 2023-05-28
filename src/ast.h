@@ -103,6 +103,10 @@ public:
 };
 
 class ExprAST : public BaseAST {
+private:
+    bool get_params(llvm::BasicBlock *entry_block, llvm::Function *func, IR &ir,
+                    std::vector<llvm::Value *> &temp_args);
+
 public:
     ExpType type_;
 

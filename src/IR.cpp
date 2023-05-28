@@ -62,62 +62,27 @@ llvm::Value *IR::get_global_value(const std::string &value_name) {
 
 
 llvm::Value *
-IR::get_value(const std::string &value_name,
-              const llvm::BasicBlock *current_block,
-              VariableType type,
-              int *array_size) {
+IR::get_value(const std::string &value_name, const llvm::BasicBlock *current_block) {
     llvm::Value *value = nullptr;
     if (current_block) {
         // 先从各个block中寻找
         for (auto temp_block = current_block; temp_block; temp_block = current_block->getPrevNode()) {
             value = this->get_basic_block_value(temp_block->getName().str(), value_name);
             if (value) {
-                if (llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType()) && type == kAtom) {
-                    llvm::report_fatal_error("The type of the input variable dose not match\n");
-                }
-                if (type == kArray) {
-                    if (array_size) {
-                        *array_size = static_cast<int>(llvm::cast<llvm::ArrayType>(value->getType()->getPointerElementType())->getNumElements());
-                    }
-                }
-//                value->getType()->print(llvm::outs(), true);
-                llvm::outs() << '\n';
                 return value;
             }
         }
         int i = 0;
         // 从函数列表中寻找
-        for (auto arg = current_block->getParent()->arg_begin(); arg != current_block->getParent()->arg_end(); ++arg, ++i) {
+        for (auto arg = current_block->getParent()->arg_begin();
+             arg != current_block->getParent()->arg_end(); ++arg, ++i) {
             if (strcmp(arg->getName().str().c_str(), value_name.c_str()) == 0) {
-                if (llvm::dyn_cast<llvm::ArrayType>(arg->getType()) && type == kAtom) {
-                    llvm::report_fatal_error("The type of the input variable dose not match\n");
-                }
-                value = (llvm::Value*)arg;
+                value = (llvm::Value *) arg;
                 return value;
             }
         }
     }
     value = this->get_global_value(value_name);
-    if (value) {
-        if (llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType()) && type == kAtom) {
-            llvm::report_fatal_error("The type of the input variable dose not match\n");
-        }
-        if (type == kArray) {
-            *array_size = static_cast<int>(llvm::cast<llvm::ArrayType>(value->getType()->getPointerElementType())->getNumElements());
-        }
-    }
-    return value;
-}
-
-llvm::Value *
-IR::get_value_check_type(const std::string &value_name,
-                         llvm::BasicBlock *current_block,
-                         VariableType type,
-                         int *array_size) {
-    llvm::Value *value = this->get_value(value_name, current_block, type, array_size);
-    if (!value) {
-        llvm::report_fatal_error("The variable has not been declared in get_value_check_type function\n");
-    }
     return value;
 }
 

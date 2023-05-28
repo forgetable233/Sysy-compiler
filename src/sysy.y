@@ -45,7 +45,7 @@ using namespace std;
 %token <str_val> IDENT INT VOID DOUBLE FLOAT ADD SUB MUL DIV ASS STATIC
 %token <str_val> EQUAL NOT_EQUAL AND OR LESS LESS_EQUAL LARGER LARGER_EQUAL
 %token <str_val> ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN NOT
-%token <str_val> IF WHILE ELSE TRUE FALSE
+%token <str_val> IF WHILE ELSE TRUE FALSE AT
 %token <int_val> INT_CONST
 
 // 非终结符的类型定义

@@ -229,18 +229,23 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     llvm::GlobalVariable *var;
     auto exp = (ExprAST *) (&(*this->exp_));
     switch (type_) {
-        case kDeclare:
-            ir.get_value(this->ident_, entry_block, kAtom, nullptr);
+        case kDeclare: {
+            if (ir.get_value(this->ident_, entry_block)) {
+                llvm::report_fatal_error("The param has been declared\n");
+            }
             value = ir.builder_->CreateAlloca(int_type, nullptr, this->ident_);
             ir.push_value(value,
                           entry_block->getName().str(),
                           this->ident_);
             return value;
+        }
         case kDeclareArray:
             if (this->array_size_ <= 0) {
                 llvm::report_fatal_error("The size of the array must be positive");
             }
-            ir.get_value(this->ident_, entry_block, kArray, nullptr);
+            if (ir.get_value(this->ident_, entry_block)) {
+                llvm::report_fatal_error("The param has been declared\n");
+            }
             int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
             value = ir.builder_->CreateAlloca(llvm::ArrayType::get(int_type, this->array_size_),
                                               nullptr,
@@ -301,7 +306,7 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                                            nullptr, this->ident_);
             return var;
         case kDeclareAssign:
-            ir.get_value(this->ident_, entry_block, kArray, nullptr);
+            ir.get_value(this->ident_, entry_block);
             value = ir.builder_->Insert(ir.builder_->CreateAlloca(int_type, nullptr, this->ident_));
             value->setName(this->ident_);
             ir.builder_->CreateStore(exp->CodeGen(entry_block, ir), value);
@@ -521,8 +526,18 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     switch (type_) {
         case kAtomNum:
             return llvm::ConstantInt::get(context, llvm::APInt(32, num_));
-        case kAtomIdent:{
-            value = ir.get_value_check_type(this->ident_, entry_block, kAtom, nullptr);
+        case kAtomIdent: {
+            value = ir.get_value(this->ident_, entry_block);
+            if (value->getType()->isPointerTy()) {
+                if (llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType())) {
+                    llvm::report_fatal_error("The type of the param does not match, requires ident but input array");
+                }
+            } else {
+                if (llvm::dyn_cast<llvm::ArrayType>(value->getType())) {
+                    llvm::report_fatal_error("The type of the param does not match, requires ident but input array");
+                }
+            }
+
             llvm::Value *tar_value = value;
             if (!llvm::dyn_cast<llvm::PointerType>(tar_value->getType())) {
                 llvm::PointerType *pointer_type =
@@ -537,7 +552,10 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             llvm::Constant *const_i = nullptr;
             llvm::Value *idx[2];
             idx[0] = const_0;
-            value = ir.get_value_check_type(this->ident_, entry_block, kArray, &array_size);
+            value = ir.get_value(this->ident_, entry_block);
+            if (!llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType())) {
+                llvm::report_fatal_error("The type of the param does not match, requires array but input ident");
+            }
             if (offset->type_ == kAtomNum) {
                 if (offset->num_ < 0) {
                     llvm::report_fatal_error("The offset must be positive");
@@ -566,7 +584,17 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             }
         }
         case kAssign:
-            value = ir.get_value_check_type(this->ident_, entry_block, kAtom, nullptr);
+            value = ir.get_value(this->ident_, entry_block);
+            if (value->getType()->isPointerTy()) {
+                if (llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType())) {
+                    llvm::report_fatal_error("The type of the param does not match, requires ident but input array")    ;
+                }
+            } else {
+                if (llvm::dyn_cast<llvm::ArrayType>(value->getType())) {
+                    llvm::report_fatal_error("The type of the param does not match, requires ident but input array")    ;
+                }
+            }
+
             r_exp = (ExprAST *) (&(*rExp_));
             r_exp_value = r_exp->CodeGen(entry_block, ir);
             return ir.builder_->CreateStore(r_exp_value, value, "store");
@@ -578,7 +606,10 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             r_exp = (ExprAST *) (&(*rExp_));
             r_exp_value = r_exp->CodeGen(entry_block, ir);
             idx[0] = const_0;
-            value = ir.get_value_check_type(this->ident_, entry_block, kArray, &array_size);
+            value = ir.get_value(this->ident_, entry_block);
+            if (!llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType())) {
+                llvm::report_fatal_error("The type of the param does not match, requires array but input ident");
+            }
             if (offset->type_ == kAtomNum) {
                 if (offset->num_ < 0) {
                     llvm::report_fatal_error("The offset must be positive");
@@ -598,26 +629,21 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                 llvm::Value *global_i = ir.builder_->CreateGEP(global_value, idx);
                 return ir.builder_->CreateStore(r_exp_value, global_i, "store");
             }
-        } case kFunction: {
+        }
+        case kFunction: {
             // TODO 函数调用添加参数数量检查，类型检查先没写
             llvm::Function *func = ir.module_->getFunction(this->ident_);
             if (!func) {
-                llvm::report_fatal_error("unable to find the target function");
+                llvm::report_fatal_error("unable to find the target function\n");
             }
-            if (param_lists_.size() != func->arg_size()) {
-                llvm::outs() << entry_block->getParent()->getName() << '\n';
-                llvm::report_fatal_error("The size of the params does not match");
+            std::vector<llvm::Value *> temp_args;
+            if (!get_params(entry_block, func, ir, temp_args)) {
+                llvm::report_fatal_error("param error\n");
             }
-            std::vector<llvm::Value*> temp_args;
-            if (!param_lists_.empty()) {
-                for (auto &item: param_lists_) {
-                    auto param = (ExprAST*)&(*item);
-                    temp_args.push_back(param->CodeGen(entry_block, ir));
-                }
-            }
-            llvm::ArrayRef<llvm::Value*> params(temp_args);
+            llvm::ArrayRef<llvm::Value *> params(temp_args);
             return ir.builder_->CreateCall(func, params, "call");
-        } case kNot: {
+        }
+        case kNot: {
             r_exp = (ExprAST *) (&(*rExp_));
             r_exp_value = r_exp->CodeGen(entry_block, ir);
             return ir.builder_->CreateNot(r_exp_value, "not");
@@ -653,9 +679,9 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                 case kLessEqual:
                     return ir.builder_->CreateICmpSLE(l_exp_value, r_exp_value, "less_equal");
                 default: {
-                    llvm::Value* op_result = nullptr;
+                    llvm::Value *op_result = nullptr;
                     switch (type_) {
-                        case kAddAssign:{
+                        case kAddAssign: {
                             op_result = ir.builder_->CreateAdd(l_exp_value, r_exp_value);
                             break;
                         }
@@ -667,7 +693,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                             op_result = ir.builder_->CreateMul(l_exp_value, r_exp_value);
                             break;
                         }
-                        case kDivAssign:{
+                        case kDivAssign: {
                             op_result = ir.builder_->CreateUDiv(l_exp_value, r_exp_value);
                             break;
                         }
@@ -675,7 +701,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                             llvm::report_fatal_error("undefined type");
                     }
                     if (!llvm::dyn_cast<llvm::PointerType>(l_exp_value->getType())) {
-                        llvm::IntegerType* type = llvm::IntegerType::getInt32Ty(ir.module_->getContext());
+                        llvm::IntegerType *type = llvm::IntegerType::getInt32Ty(ir.module_->getContext());
                         llvm::PointerType *pointer_type = llvm::PointerType::get(type, 0);
                         l_exp_value = ir.builder_->CreateIntToPtr(l_exp_value, pointer_type);
                     }
@@ -692,6 +718,47 @@ ExprAST::~ExprAST() {
     if (!rExp_) {
         rExp_.reset(nullptr);
     }
+}
+
+bool ExprAST::get_params(llvm::BasicBlock *entry_block,
+                         llvm::Function *func,
+                         IR &ir,
+                         std::vector<llvm::Value *> &temp_args) {
+    if (param_lists_.size() != func->arg_size()) {
+        return false;
+    }
+    auto arg = func->arg_begin();
+    int i = 0;
+    for (auto &item: param_lists_) {
+        auto param = (ExprAST *) &(*item);
+        if (arg->getType()->isPointerTy()) {
+            if (param->type_ == kAtomArray) {
+                return false;
+            }
+            if (param->type_ == kAtomIdent) {
+                llvm::Value *value = ir.get_value(this->ident_, entry_block);
+                if (value->getType()->isPointerTy()) {
+                    temp_args.push_back(value);
+                } else {
+                    return false;
+                }
+            } else {
+                temp_args.push_back(param->CodeGen(entry_block, ir));
+            }
+        } else {
+            if (param->type_ == kAtomIdent) {
+                llvm::Value* value = ir.get_value(this->ident_, entry_block);
+                if (value->getType()->isPointerTy()) {
+                    return false;
+                }
+                temp_args.push_back(value);
+            } else {
+                temp_args.push_back(param->CodeGen(entry_block, ir));
+            }
+        }
+        arg++;
+    }
+    return true;
 }
 
 llvm::Value *BaseAST::CodeGen(IR &ir) {

@@ -54,11 +54,7 @@ public:
     llvm::Value *get_basic_block_value(const std::string &block_name, const std::string &value_name);
 
     llvm::Value *
-    get_value_check_type(const std::string &value_name, llvm::BasicBlock *current_block, VariableType type,
-                         int *array_size);
-
-    llvm::Value *
-    get_value(const std::string &value_name, const llvm::BasicBlock *current_block, VariableType type, int *array_size);
+    get_value(const std::string &value_name, const llvm::BasicBlock *current_block);
 
     ~IR();
 };

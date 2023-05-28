@@ -65,6 +65,7 @@ Hexadecimal   0[xX][0-9a-fA-F]+
 "*="            { return MUL_ASSIGN; }
 "/="            { return DIV_ASSIGN; }
 "!"             { return NOT; }
+"&"             { return AT; }
 
 
 
