@@ -53,8 +53,8 @@ Hexadecimal   0[xX][0-9a-fA-F]+
 "/"             { return DIV; }
 "="             { return ASS; }
 "=="            { return EQUAL; }
-"!="            { return NOT_EQUAL; }
 "&&"            { return AND; }
+"!="            { return NOT_EQUAL; }
 "||"            { return OR; }
 ">"             { return LARGER; }
 ">="            { return LARGER_EQUAL; }
@@ -64,6 +64,7 @@ Hexadecimal   0[xX][0-9a-fA-F]+
 "-="            { return SUB_ASSIGN; }
 "*="            { return MUL_ASSIGN; }
 "/="            { return DIV_ASSIGN; }
+"!"             { return NOT; }
 
 
 

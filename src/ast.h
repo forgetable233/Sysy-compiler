@@ -53,7 +53,16 @@ enum ExpType {
     kLarger,
     kLargerEqual,
     kLess,
-    kLessEqual
+    kLessEqual,
+    kMulAssign,
+    kDivAssign,
+    kAddAssign,
+    kSubAssign,
+    kNot,
+    kAutoIncreaseLeft,
+    kAutoIncreaseRight,
+    kAutoDecreaseLeft,
+    kAutoDecreaseRight
 };
 
 enum StmtType {

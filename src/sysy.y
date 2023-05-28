@@ -44,7 +44,7 @@ using namespace std;
 %token RETURN
 %token <str_val> IDENT INT VOID DOUBLE FLOAT ADD SUB MUL DIV ASS STATIC
 %token <str_val> EQUAL NOT_EQUAL AND OR LESS LESS_EQUAL LARGER LARGER_EQUAL
-%token <str_val> ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN
+%token <str_val> ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN NOT
 %token <str_val> IF WHILE ELSE TRUE FALSE
 %token <int_val> INT_CONST
 
@@ -62,6 +62,8 @@ using namespace std;
 %left LARGER LARGER_EQUAL LESS LESS_EQUAL
 %left ADD SUB
 %left MUL DIV
+%right NOT
+%right AUTO_INCREASE AUTO_DECREASE
 // %type <str_val> Number
 
 %%
@@ -382,6 +384,35 @@ Expr
     ast->type_ = kLessEqual;
     ast->lExp_ = unique_ptr<BaseAST>($1);
     ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | Expr MUL_ASSIGN Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kMulAssign;
+    ast->lExp_ = unique_ptr<BaseAST>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | Expr DIV_ASSIGN Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kDivAssign;
+    ast->lExp_ = unique_ptr<BaseAST>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | Expr ADD_ASSIGN Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kAddAssign;
+    ast->lExp_ = unique_ptr<BaseAST>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | Expr SUB_ASSIGN Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kSubAssign;
+    ast->lExp_ = unique_ptr<BaseAST>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | NOT Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kNot;
+    ast->rExp_ = unique_ptr<BaseAST>($2);
     $$ = ast;
   } | IDENT {
     auto ast = new ExprAST();

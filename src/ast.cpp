@@ -617,6 +617,10 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             }
             llvm::ArrayRef<llvm::Value*> params(temp_args);
             return ir.builder_->CreateCall(func, params, "call");
+        } case kNot: {
+            r_exp = (ExprAST *) (&(*rExp_));
+            r_exp_value = r_exp->CodeGen(entry_block, ir);
+            return ir.builder_->CreateNot(r_exp_value, "not");
         }
         default:
             l_exp = (ExprAST *) (&(*lExp_));
@@ -629,7 +633,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                 case kSub:
                     return ir.builder_->CreateFSub(l_exp_value, r_exp_value, "sub");
                 case kMul:
-                    return ir.builder_->CreateFMul(l_exp_value, r_exp_value, "mul");
+                    return ir.builder_->CreateMul(l_exp_value, r_exp_value, "mul");
                 case kDiv:
                     return ir.builder_->CreateFDiv(l_exp_value, r_exp_value, "div");
                 case kEqual:
@@ -648,8 +652,35 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                     return ir.builder_->CreateICmpSLT(l_exp_value, r_exp_value, "less");
                 case kLessEqual:
                     return ir.builder_->CreateICmpSLE(l_exp_value, r_exp_value, "less_equal");
-                default:
-                    llvm::report_fatal_error("invalid binary operator");
+                default: {
+                    llvm::Value* op_result = nullptr;
+                    switch (type_) {
+                        case kAddAssign:{
+                            op_result = ir.builder_->CreateAdd(l_exp_value, r_exp_value);
+                            break;
+                        }
+                        case kSubAssign: {
+                            op_result = ir.builder_->CreateSub(l_exp_value, r_exp_value);
+                            break;
+                        }
+                        case kMulAssign: {
+                            op_result = ir.builder_->CreateMul(l_exp_value, r_exp_value);
+                            break;
+                        }
+                        case kDivAssign:{
+                            op_result = ir.builder_->CreateUDiv(l_exp_value, r_exp_value);
+                            break;
+                        }
+                        default:
+                            llvm::report_fatal_error("undefined type");
+                    }
+                    if (!llvm::dyn_cast<llvm::PointerType>(l_exp_value->getType())) {
+                        llvm::IntegerType* type = llvm::IntegerType::getInt32Ty(ir.module_->getContext());
+                        llvm::PointerType *pointer_type = llvm::PointerType::get(type, 0);
+                        l_exp_value = ir.builder_->CreateIntToPtr(l_exp_value, pointer_type);
+                    }
+                    return ir.builder_->CreateStore(op_result, l_exp_value, "store");
+                }
             }
     }
 }
