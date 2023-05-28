@@ -44,6 +44,7 @@ using namespace std;
 %token RETURN
 %token <str_val> IDENT INT VOID DOUBLE FLOAT ADD SUB MUL DIV ASS STATIC
 %token <str_val> EQUAL NOT_EQUAL AND OR LESS LESS_EQUAL LARGER LARGER_EQUAL
+%token <str_val> ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN
 %token <str_val> IF WHILE ELSE TRUE FALSE
 %token <int_val> INT_CONST
 
@@ -52,6 +53,8 @@ using namespace std;
 %type <int_val> Number
 %type <ast_list> ParamList Params
 
+%left MUL_ASSIGN DIV_ASSIGN
+%left ADD_ASSIGN SUB_ASSIGN
 %left ASS
 %left OR
 %left AND
@@ -329,6 +332,54 @@ Expr
   } | Expr DIV Expr {
     auto ast = new ExprAST();
     ast->type_ = kDiv;
+    ast->lExp_ = unique_ptr<BaseAST>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | Expr EQUAL Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kEqual;
+    ast->lExp_ = unique_ptr<BaseAST>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | Expr NOT_EQUAL Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kNotEqual;
+    ast->lExp_ = unique_ptr<BaseAST>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | Expr AND Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kAnd;
+    ast->lExp_ = unique_ptr<BaseAST>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | Expr OR Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kOr;
+    ast->lExp_ = unique_ptr<BaseAST>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | Expr LARGER Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kLarger;
+    ast->lExp_ = unique_ptr<BaseAST>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | Expr LARGER_EQUAL Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kLargerEqual;
+    ast->lExp_ = unique_ptr<BaseAST>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | Expr LESS Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kLess;
+    ast->lExp_ = unique_ptr<BaseAST>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | Expr LESS_EQUAL Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kLessEqual;
     ast->lExp_ = unique_ptr<BaseAST>($1);
     ast->rExp_ = unique_ptr<BaseAST>($3);
     $$ = ast;

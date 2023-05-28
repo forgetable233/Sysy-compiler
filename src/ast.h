@@ -45,7 +45,15 @@ enum ExpType {
     kAtomArray,
     kAssign,
     kAssignArray,
-    kFunction
+    kFunction,
+    kEqual,
+    kNotEqual,
+    kAnd,
+    kOr,
+    kLarger,
+    kLargerEqual,
+    kLess,
+    kLessEqual
 };
 
 enum StmtType {

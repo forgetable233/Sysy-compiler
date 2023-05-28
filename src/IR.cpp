@@ -62,7 +62,9 @@ llvm::Value *IR::get_global_value(const std::string &value_name) {
 
 
 llvm::Value *
-IR::get_value(const std::string &value_name, const llvm::BasicBlock *current_block, VariableType type,
+IR::get_value(const std::string &value_name,
+              const llvm::BasicBlock *current_block,
+              VariableType type,
               int *array_size) {
     llvm::Value *value = nullptr;
     if (current_block) {

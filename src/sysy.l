@@ -60,6 +60,12 @@ Hexadecimal   0[xX][0-9a-fA-F]+
 ">="            { return LARGER_EQUAL; }
 "<"             { return LESS; }
 "<="            { return LESS_EQUAL; }
+"+="            { return ADD_ASSIGN; }
+"-="            { return SUB_ASSIGN; }
+"*="            { return MUL_ASSIGN; }
+"/="            { return DIV_ASSIGN; }
+
+
 
 {Identifier}    { yylval.str_val = new string(yytext); return IDENT; }
 

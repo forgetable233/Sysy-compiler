@@ -29,6 +29,8 @@ class IR {
 private:
 
 public:
+    bool is_function_call = false;
+
     llvm::IRBuilder<> *builder_ = nullptr;
 
     std::unique_ptr<llvm::LLVMContext> context_;

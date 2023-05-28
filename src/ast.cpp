@@ -501,9 +501,6 @@ llvm::Value *CompUnitAST::CodeGen(IR &ir) {
         item->CodeGen(ir);
     }
     return nullptr;
-//    auto temp_func = (FuncDefAST *) (&(*func_def_));
-//    return temp_func->CodeGen(ir);
-//    return BaseAST::CodeGen(builder, module);
 }
 
 CompUnitAST::~CompUnitAST() {
@@ -524,9 +521,16 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     switch (type_) {
         case kAtomNum:
             return llvm::ConstantInt::get(context, llvm::APInt(32, num_));
-        case kAtomIdent:
+        case kAtomIdent:{
             value = ir.get_value_check_type(this->ident_, entry_block, kAtom, nullptr);
-            return ir.builder_->CreateLoad(value, this->ident_);
+            llvm::Value *tar_value = value;
+            if (!llvm::dyn_cast<llvm::PointerType>(tar_value->getType())) {
+                llvm::PointerType *pointer_type =
+                        llvm::PointerType::get(llvm::Type::getInt32Ty(ir.module_->getContext()), 0);
+                tar_value = ir.builder_->CreateIntToPtr(tar_value, pointer_type);
+            }
+            return ir.builder_->CreateLoad(tar_value, this->ident_);
+        }
         case kAtomArray: {
             auto offset = (ExprAST *) &(*array_offset_);
             llvm::Constant *const_0 = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()), 0);
@@ -595,15 +599,16 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                 return ir.builder_->CreateStore(r_exp_value, global_i, "store");
             }
         } case kFunction: {
-            // TODO 函数调用存在很多问题
-            llvm::outs() << this->ident_;
+            // TODO 函数调用添加参数数量检查，类型检查先没写
             llvm::Function *func = ir.module_->getFunction(this->ident_);
             if (!func) {
                 llvm::report_fatal_error("unable to find the target function");
             }
+            if (param_lists_.size() != func->arg_size()) {
+                llvm::outs() << entry_block->getParent()->getName() << '\n';
+                llvm::report_fatal_error("The size of the params does not match");
+            }
             std::vector<llvm::Value*> temp_args;
-            llvm::Type *type = func->getReturnType();
-            auto func_type = llvm::dyn_cast<llvm::FunctionType>(type);
             if (!param_lists_.empty()) {
                 for (auto &item: param_lists_) {
                     auto param = (ExprAST*)&(*item);
@@ -611,8 +616,6 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                 }
             }
             llvm::ArrayRef<llvm::Value*> params(temp_args);
-//            llvm::CallInst *callInst = llvm::CallInst::Create(func_type, func, params);
-//            func_type->print(llvm::outs(), true);
             return ir.builder_->CreateCall(func, params, "call");
         }
         default:
@@ -629,6 +632,22 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
                     return ir.builder_->CreateFMul(l_exp_value, r_exp_value, "mul");
                 case kDiv:
                     return ir.builder_->CreateFDiv(l_exp_value, r_exp_value, "div");
+                case kEqual:
+                    return ir.builder_->CreateICmpEQ(l_exp_value, r_exp_value, "equal");
+                case kNotEqual:
+                    return ir.builder_->CreateICmpNE(l_exp_value, r_exp_value, "not_equal");
+                case kAnd:
+                    return ir.builder_->CreateAnd(l_exp_value, r_exp_value, "and");
+                case kOr:
+                    return ir.builder_->CreateOr(l_exp_value, r_exp_value, "or");
+                case kLarger:
+                    return ir.builder_->CreateICmpSGT(l_exp_value, r_exp_value, "greater");
+                case kLargerEqual:
+                    return ir.builder_->CreateICmpSGE(l_exp_value, r_exp_value, "greater_equal");
+                case kLess:
+                    return ir.builder_->CreateICmpSLT(l_exp_value, r_exp_value, "less");
+                case kLessEqual:
+                    return ir.builder_->CreateICmpSLE(l_exp_value, r_exp_value, "less_equal");
                 default:
                     llvm::report_fatal_error("invalid binary operator");
             }
