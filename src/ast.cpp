@@ -528,16 +528,9 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             return llvm::ConstantInt::get(context, llvm::APInt(32, num_));
         case kAtomIdent: {
             value = ir.get_value(this->ident_, entry_block);
-            if (value->getType()->isPointerTy()) {
-                if (llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType())) {
-                    llvm::report_fatal_error("The type of the param does not match, requires ident but input array");
-                }
-            } else {
-                if (llvm::dyn_cast<llvm::ArrayType>(value->getType())) {
-                    llvm::report_fatal_error("The type of the param does not match, requires ident but input array");
-                }
+            if (BaseAST::is_array(value)) {
+                llvm::report_fatal_error("The type of the param does not match, requires ident but input array");
             }
-
             llvm::Value *tar_value = value;
             if (!llvm::dyn_cast<llvm::PointerType>(tar_value->getType())) {
                 llvm::PointerType *pointer_type =
@@ -553,7 +546,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             llvm::Value *idx[2];
             idx[0] = const_0;
             value = ir.get_value(this->ident_, entry_block);
-            if (!llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType())) {
+            if (!BaseAST::is_array(value)) {
                 llvm::report_fatal_error("The type of the param does not match, requires array but input ident");
             }
             if (offset->type_ == kAtomNum) {
@@ -585,16 +578,9 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
         }
         case kAssign:
             value = ir.get_value(this->ident_, entry_block);
-            if (value->getType()->isPointerTy()) {
-                if (llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType())) {
-                    llvm::report_fatal_error("The type of the param does not match, requires ident but input array")    ;
-                }
-            } else {
-                if (llvm::dyn_cast<llvm::ArrayType>(value->getType())) {
-                    llvm::report_fatal_error("The type of the param does not match, requires ident but input array")    ;
-                }
+            if (BaseAST::is_array(value)) {
+                llvm::report_fatal_error("The type of the param does not match, requires ident but input array")    ;
             }
-
             r_exp = (ExprAST *) (&(*rExp_));
             r_exp_value = r_exp->CodeGen(entry_block, ir);
             return ir.builder_->CreateStore(r_exp_value, value, "store");
@@ -607,7 +593,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             r_exp_value = r_exp->CodeGen(entry_block, ir);
             idx[0] = const_0;
             value = ir.get_value(this->ident_, entry_block);
-            if (!llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType())) {
+            if (!BaseAST::is_array(value)) {
                 llvm::report_fatal_error("The type of the param does not match, requires array but input ident");
             }
             if (offset->type_ == kAtomNum) {
@@ -768,4 +754,21 @@ llvm::Value *BaseAST::CodeGen(IR &ir) {
 
 llvm::Value *BaseAST::ErrorValue(const char *str) {
     return nullptr;
+}
+
+bool BaseAST::is_array(llvm::Value *value) {
+    if (value->getType()->isPointerTy()) {
+        if (llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType())) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        if (llvm::dyn_cast<llvm::ArrayType>(value->getType())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return false;
 }

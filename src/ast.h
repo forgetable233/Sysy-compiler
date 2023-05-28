@@ -91,6 +91,8 @@ class BaseAST {
 private:
 
 public:
+    static bool is_array(llvm::Value *value);
+
     BaseAST() = default;
 
     virtual ~BaseAST() = default;
