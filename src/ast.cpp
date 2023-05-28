@@ -634,6 +634,13 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             r_exp_value = r_exp->CodeGen(entry_block, ir);
             return ir.builder_->CreateNot(r_exp_value, "not");
         }
+        case kAt: {
+            r_exp = (ExprAST *) (&(*rExp_));
+            r_exp_value = r_exp->CodeGen(entry_block, ir);
+            llvm::IntegerType *type = llvm::IntegerType::getInt32Ty(ir.module_->getContext());
+            llvm::Value *ptr = ir.builder_->CreateIntToPtr(r_exp_value, type);
+            return ptr;
+        }
         default:
             l_exp = (ExprAST *) (&(*lExp_));
             r_exp = (ExprAST *) (&(*rExp_));

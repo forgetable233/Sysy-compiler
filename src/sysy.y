@@ -53,6 +53,7 @@ using namespace std;
 %type <int_val> Number
 %type <ast_list> ParamList Params
 
+%right AT
 %left MUL_ASSIGN DIV_ASSIGN
 %left ADD_ASSIGN SUB_ASSIGN
 %left ASS
@@ -450,6 +451,11 @@ Expr
     ast->array_offset_ = unique_ptr<BaseAST>($3);
     ast->ident_ = *unique_ptr<string>($1);
     ast->rExp_ = unique_ptr<BaseAST>($6);
+    $$ = ast;
+  } | AT Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kAt;
+    ast->rExp_ = unique_ptr<BaseAST>($2);
     $$ = ast;
   }
   ;
