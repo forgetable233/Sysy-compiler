@@ -343,6 +343,12 @@ llvm::Value *StmtAST::CodeGen(BasicBlock *entry_block, IR &ir) {
             ir.builder_->CreateStore(exp->CodeGen(entry_block, ir), value);
             ir.push_value(value, entry_block->current->getName().str(), this->ident_);
             return value;
+        case kBreak: {
+            break;
+        }
+        case kContinue: {
+
+        }
         default:
             llvm::report_fatal_error("Undefined type in stmt CodeGen");
     }
@@ -359,6 +365,25 @@ StmtAST::~StmtAST() {
     }
     if (!block_) {
         block_.reset(nullptr);
+    }
+}
+
+void StmtAST::BuildAstTree() {
+    if (exp_) {
+        exp_->SetParent(this);
+        exp_->BuildAstTree();
+    }
+    if (block_) {
+        block_->SetParent(this);
+        block_->BuildAstTree();
+    }
+    if (true_block_) {
+        true_block_->SetParent(this);
+        true_block_->BuildAstTree();
+    }
+    if (false_block_) {
+        false_block_->SetParent(this);
+        false_block_->BuildAstTree();
     }
 }
 
@@ -431,6 +456,10 @@ FuncTypeAST::~FuncTypeAST() {
 
 }
 
+void FuncTypeAST::BuildAstTree() {
+    BaseAST::BuildAstTree();
+}
+
 /**
  * 函数声明的AST
  * 目前只有INT类型的函数，没有进一步细化
@@ -495,6 +524,17 @@ FuncDefAST::~FuncDefAST() {
     block_.reset(nullptr);
 }
 
+void FuncDefAST::BuildAstTree() {
+    if (block_) {
+        block_->SetParent(this);
+        block_->BuildAstTree();
+    }
+    for (auto &param: param_lists_) {
+        param->SetParent(this);
+        param->BuildAstTree();
+    }
+}
+
 llvm::Value *BlockAST::CodeGen(BasicBlock *entry_block, IR &ir) {
     ir.builder_->SetInsertPoint(entry_block->current);
 //    llvm::outs() << '\n';
@@ -522,6 +562,13 @@ BlockAST::~BlockAST() {
     }
 }
 
+void BlockAST::BuildAstTree() {
+    for (auto &item : stmt_) {
+        item->SetParent(this);
+        item->BuildAstTree();
+    }
+}
+
 /**
  * 一个编译模块的代码生成
  * 以后可以增加函数的数量，目前只添加了一个
@@ -538,6 +585,13 @@ llvm::Value *CompUnitAST::CodeGen(IR &ir) {
 CompUnitAST::~CompUnitAST() {
     for (auto &item: func_stmt_defs_) {
         item.reset(nullptr);
+    }
+}
+
+void CompUnitAST::BuildAstTree() {
+    for (auto &func: func_stmt_defs_) {
+        func->SetParent(this);
+        func->BuildAstTree();
     }
 }
 
@@ -790,6 +844,25 @@ bool ExprAST::get_params(BasicBlock *entry_block,
     return true;
 }
 
+void ExprAST::BuildAstTree() {
+    if (array_offset_) {
+        array_offset_->SetParent(this);
+        array_offset_->BuildAstTree();
+    }
+    if (lExp_) {
+        lExp_->SetParent(this);
+        lExp_->BuildAstTree();
+    }
+    if (rExp_) {
+        rExp_->SetParent(this);
+        rExp_->BuildAstTree();
+    }
+    for (auto &item : param_lists_) {
+        item->SetParent(this);
+        item->BuildAstTree();
+    }
+}
+
 llvm::Value *BaseAST::CodeGen(IR &ir) {
 
     return nullptr;
@@ -814,4 +887,16 @@ bool BaseAST::is_array(llvm::Value *value) {
         }
     }
     return false;
+}
+
+BaseAST *BaseAST::GetParent() {
+    return parent_;
+}
+
+void BaseAST::SetParent(BaseAST *tar) {
+    parent_ = tar;
+}
+
+void BaseAST::BuildAstTree() {
+
 }

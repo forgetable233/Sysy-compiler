@@ -36,6 +36,9 @@
 
 #include "IR.h"
 
+class BlockAST;
+class CompUnitAST;
+
 enum ExpType {
     kAdd,
     kSub,
@@ -96,6 +99,8 @@ class BaseAST {
 private:
 
 public:
+    BaseAST *parent_ = nullptr;
+
     static bool is_array(llvm::Value *value);
 
     BaseAST() = default;
@@ -107,6 +112,12 @@ public:
     virtual llvm::Value *CodeGen(IR &ir);
 
     virtual llvm::Value *ErrorValue(const char *str);
+
+    void SetParent(BaseAST *tar);
+
+    BaseAST *GetParent();
+
+    virtual void BuildAstTree();
 };
 
 class ExprAST : public BaseAST {
@@ -140,6 +151,8 @@ public:
     llvm::Value *CodeGen(BasicBlock *entry_block, IR &ir);
 
     llvm::Value *ErrorValue(const char *str) override;
+
+    void BuildAstTree() override;
 };
 
 /**
@@ -170,8 +183,13 @@ public:
 
     llvm::Value *CodeGen(BasicBlock *entry_block, IR &ir);
 
+    void SetBlock(BlockAST *tar_block);
+
+    BlockAST* GetBlock();
 
     llvm::Value *ErrorValue(const char *str) override;
+
+    void BuildAstTree() override;
 };
 
 /**
@@ -193,6 +211,8 @@ public:
     llvm::Value *CodeGen(IR &ir) override;
 
     llvm::Value *ErrorValue(const char *str) override;
+
+    void BuildAstTree() override;
 };
 
 /**
@@ -200,6 +220,10 @@ public:
  */
 class BlockAST : public BaseAST {
 public:
+    BasicBlock *continue_block_ = nullptr;
+
+    BasicBlock *break_block_ = nullptr;
+
     std::vector<std::unique_ptr<BaseAST>> stmt_;
 
 //    std::vector<std::unique_ptr<BaseAST>> blocks_;
@@ -219,6 +243,8 @@ public:
     llvm::Value *CodeGen(BasicBlock *entry_block, IR &ir);
 
     llvm::Value *ErrorValue(const char *str) override;
+
+    void BuildAstTree() override;
 };
 
 /**
@@ -237,6 +263,8 @@ public:
     llvm::Value *CodeGen(IR &ir) override;
 
     llvm::Value *ErrorValue(const char *str) override;
+
+    void BuildAstTree() override;
 };
 
 /**
@@ -263,6 +291,8 @@ public:
     llvm::Value *CodeGen(IR &ir) override;
 
     llvm::Value *ErrorValue(const char *str) override;
+
+    void BuildAstTree() override;
 };
 
 #endif //COMPILER_AST_H
