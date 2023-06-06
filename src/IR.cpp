@@ -62,20 +62,12 @@ llvm::Value *IR::get_global_value(const std::string &value_name) {
 
 
 llvm::Value *
-IR::get_value(const std::string &value_name, const llvm::BasicBlock *current_block) {
+IR::get_value(const std::string &value_name, const BasicBlock *current_block) {
     llvm::Value *value = nullptr;
     if (current_block) {
         // 先从各个block中寻找
-        llvm::outs() << '\n';
-        value = this->get_basic_block_value(current_block->getName().str(), value_name);
-        llvm::outs() << current_block->getName() << '\n';
-        if (value) {
-            return value;
-        }
-        for (auto temp_block = llvm::pred_begin(current_block);
-             temp_block != llvm::pred_end(current_block);
-             ++temp_block) {
-            auto block = *temp_block;
+        for (auto temp = current_block; temp; temp = temp->pre) {
+            auto block = temp->current;
             llvm::outs() << block->getName() << '\n';
             value = this->get_basic_block_value(block->getName().str(), value_name);
             if (value) {
@@ -86,8 +78,8 @@ IR::get_value(const std::string &value_name, const llvm::BasicBlock *current_blo
         llvm::outs() << '\n';
 
         // 从函数列表中寻找
-        for (auto arg = current_block->getParent()->arg_begin();
-             arg != current_block->getParent()->arg_end(); ++arg, ++i) {
+        for (auto arg = current_block->current->getParent()->arg_begin();
+             arg != current_block->current->getParent()->arg_end(); ++arg, ++i) {
             if (strcmp(arg->getName().str().c_str(), value_name.c_str()) == 0) {
                 value = (llvm::Value *) arg;
                 return value;
@@ -96,9 +88,5 @@ IR::get_value(const std::string &value_name, const llvm::BasicBlock *current_blo
     }
     value = this->get_global_value(value_name);
     return value;
-}
-
-BasicBlock *IR::get_block(const std::string &block_name) {
-    return nullptr;
 }
 

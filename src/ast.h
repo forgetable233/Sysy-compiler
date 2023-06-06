@@ -111,7 +111,7 @@ public:
 
 class ExprAST : public BaseAST {
 private:
-    bool get_params(llvm::BasicBlock *entry_block, llvm::Function *func, IR &ir,
+    bool get_params(BasicBlock *entry_block, llvm::Function *func, IR &ir,
                     std::vector<llvm::Value *> &temp_args);
 
 public:
@@ -137,7 +137,7 @@ public:
 
     llvm::Value *CodeGen(IR &ir) override;
 
-    llvm::Value *CodeGen(llvm::BasicBlock *entry_block, IR &ir);
+    llvm::Value *CodeGen(BasicBlock *entry_block, IR &ir);
 
     llvm::Value *ErrorValue(const char *str) override;
 };
@@ -168,7 +168,7 @@ public:
 
     llvm::Value *CodeGen(IR &ir) override;
 
-    llvm::Value *CodeGen(llvm::BasicBlock *entry_block, IR &ir);
+    llvm::Value *CodeGen(BasicBlock *entry_block, IR &ir);
 
 
     llvm::Value *ErrorValue(const char *str) override;
@@ -216,7 +216,7 @@ public:
 
     llvm::Value *CodeGen(IR &ir) override;
 
-    llvm::Value *CodeGen(llvm::BasicBlock *entry_block, IR &ir);
+    llvm::Value *CodeGen(BasicBlock *entry_block, IR &ir);
 
     llvm::Value *ErrorValue(const char *str) override;
 };

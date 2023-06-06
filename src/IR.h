@@ -27,12 +27,17 @@ enum VariableType {
 };
 
 struct BasicBlock {
-    BasicBlock(llvm::BasicBlock *_pre, llvm::BasicBlock *_curr) {
+    BasicBlock(BasicBlock *_pre, llvm::BasicBlock *_curr) {
         pre = _pre;
         current = _curr;
     }
 
-    llvm::BasicBlock *pre;
+    BasicBlock() {
+        pre = nullptr;
+        current = nullptr;
+    }
+
+    BasicBlock *pre;
     llvm::BasicBlock *current;
 };
 
@@ -67,10 +72,7 @@ public:
     llvm::Value *get_basic_block_value(const std::string &block_name, const std::string &value_name);
 
     llvm::Value *
-    get_value(const std::string &value_name, const llvm::BasicBlock *current_block);
-
-    BasicBlock *
-    get_block(const std::string &block_name);
+    get_value(const std::string &value_name, const BasicBlock *current_block);
 
     ~IR();
 };
