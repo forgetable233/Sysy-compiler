@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <llvm/IR/BasicBlock.h>
 using namespace std;
 
 void test(int a[3]) {
@@ -13,10 +14,8 @@ void test(int a[3]) {
 }
 
 int main() {
-    int a[3] = {0, 0, 0};
-    test(a);
-    for (int i = 0; i < 3; ++i) {
-        cout << a[i];
-    }
+    llvm::LLVMContext *context = new llvm::LLVMContext();
+    llvm::BasicBlock *block = llvm::BasicBlock::Create(*context);
+    llvm::BasicBlock &test = *block;
     return 0;
 }

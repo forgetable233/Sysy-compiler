@@ -32,14 +32,9 @@ struct BasicBlock {
         current_ = _curr;
     }
 
-    BasicBlock() {
-        pre_ = nullptr;
-        current_ = nullptr;
-    }
+    BasicBlock *pre_ = nullptr;
 
-    BasicBlock *pre_;
-
-    llvm::BasicBlock *current_;
+    llvm::BasicBlock *current_ = nullptr;
 };
 
 class IR {
