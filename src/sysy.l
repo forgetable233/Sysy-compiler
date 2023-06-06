@@ -67,6 +67,13 @@ Hexadecimal   0[xX][0-9a-fA-F]+
 "!"             { return NOT; }
 "&"             { return AT; }
 
+"("			    { return L_PAREN; }
+")"			    { return R_PAREN; }
+"["             { return L_BRACK; }
+"]"             { return R_BRACK; }
+"{"             { return L_BRACE; }
+"}"             { return R_BRACE; }
+
 
 
 {Identifier}    { yylval.str_val = new string(yytext); return IDENT; }

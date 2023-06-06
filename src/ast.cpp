@@ -2,8 +2,8 @@
 // Created by dcr on 23-5-6.
 //
 
-// TODO 支持函数调用
 // TODO 编译过程中能够抛出错误
+// TODO 规约重复的情况
 #include "ast.h"
 
 void OutTab(int num) {

@@ -47,6 +47,7 @@ using namespace std;
 %token <str_val> ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN NOT
 %token <str_val> IF WHILE ELSE TRUE FALSE AT
 %token <int_val> INT_CONST
+%token <str_val> L_PAREN R_PAREN L_BRACK R_BRACK L_BRACE R_BRACE
 
 // 非终结符的类型定义
 %type <ast_val> CompUnit FuncDef Type Block Stmt Expr
@@ -130,7 +131,7 @@ ParamList
     	ident_list->emplace_back(move(item));
     }
     $$ = ident_list;
-} | Type IDENT '[' Number ']' {
+} | Type IDENT L_BRACK Number R_BRACK {
     vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
     auto ast = new StmtAST();
     ast->type_ = kDeclareArray;
@@ -139,7 +140,7 @@ ParamList
     ast->array_size_ = $4;
     ident_list->emplace_back(unique_ptr<BaseAST>(ast));
     $$ = ident_list;
-} | Type IDENT '[' Number ']' ',' ParamList {
+} | Type IDENT L_BRACK Number R_BRACK ',' ParamList {
     vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
     auto ast = new StmtAST();
     ast->type_ = kDeclareArray;
@@ -166,7 +167,7 @@ ParamList
 // 虽然此处你看不出用 unique_ptr 和手动 delete 的区别, 但当我们定义了 AST 之后
 // 这种写法会省下很多内存管理的负担
 FuncDef
-  : Type IDENT '(' ')' '{' Block '}' {
+  : Type IDENT L_PAREN R_PAREN L_BRACE Block R_BRACE {
     auto ast = new FuncDefAST();
 //    ast->type_ = kFunction;
     ast->func_type_ = unique_ptr<BaseAST>($1);
@@ -179,7 +180,7 @@ FuncDef
     ast->key_word_ = *make_unique<string>("int");
     ast->ident_ = *unique_ptr<string>($2);
     $$ = ast;
-  } | Type IDENT '(' ParamList ')' '{' Block '}' {
+  } | Type IDENT L_PAREN ParamList R_PAREN L_BRACE Block R_BRACE {
     auto ast = new FuncDefAST();
 //    ast->type_ = kFunction;
     ast->func_type_ = unique_ptr<BaseAST>($1);
@@ -190,7 +191,7 @@ FuncDef
     	ast->param_lists_.emplace_back(move(item));
     }
     $$ = ast;
-  } | Type IDENT '[' Number ']' ';' {
+  } | Type IDENT L_BRACK Number R_BRACK ';' {
     auto ast = new StmtAST();
     ast->type_ = kDeclareArray;
     ast->key_word_ = *make_unique<string>("int");
@@ -272,19 +273,19 @@ Stmt
     ast->type_ = kExpression;
     ast->exp_ = unique_ptr<BaseAST>($1);
     $$ = ast;
-  } | IF '(' Expr ')' '{' Block '}' {
+  } | IF L_PAREN Expr R_PAREN L_BRACE Block R_BRACE {
     auto ast = new StmtAST();
     ast->type_ = kIf;
     ast->exp_ = unique_ptr<BaseAST>($3);
     ast->true_block_ = unique_ptr<BaseAST>($6);
     $$ = ast;
-  } | WHILE '(' Expr ')' '{' Block '}' {
+  } | WHILE L_PAREN Expr R_PAREN L_BRACE Block R_BRACE {
     auto ast = new StmtAST();
     ast->type_ = kWhile;
     ast->exp_ = unique_ptr<BaseAST>($3);
     ast->block_ = unique_ptr<BaseAST>($6);
     $$ = ast;
-  } | IF '(' Expr ')' '{' Block '}' ELSE '{' Block '}' {
+  } | IF L_PAREN Expr R_PAREN L_BRACE Block R_BRACE ELSE L_BRACE Block R_BRACE {
     auto ast = new StmtAST();
     ast->type_ = kIf;
     ast->exp_ = unique_ptr<BaseAST>($3);
@@ -297,7 +298,7 @@ Stmt
      ast->key_word_ = *make_unique<string>("int");
      ast->ident_ = *unique_ptr<string>($3);
      $$ = ast;
-  } | INT IDENT '[' Number ']' ';' {
+  } | INT IDENT L_BRACK Number R_BRACK ';' {
      auto ast = new StmtAST();
      ast->type_ = kDeclareArray;
      ast->key_word_ = *make_unique<string>("int");
@@ -425,7 +426,7 @@ Expr
     ast->type_ = kAtomNum;
     ast->num_ = $1;
     $$ = ast;
-  } | IDENT '(' Params ')' {
+  } | IDENT L_PAREN Params R_PAREN {
     auto ast = new ExprAST();
     ast->type_ = kFunction;
     ast->ident_ = *unique_ptr<string>($1);
@@ -434,18 +435,18 @@ Expr
     	ast->param_lists_.emplace_back(std::move(item));
     }
     $$ = ast;
-  } | IDENT '(' ')' {
+  } | IDENT L_PAREN R_PAREN {
     auto ast = new ExprAST();
     ast->type_ = kFunction;
     ast->ident_ = *unique_ptr<string>($1);
     $$ = ast;
-  } | IDENT '[' Expr ']' {
+  } | IDENT L_BRACK Expr R_BRACK {
     auto ast = new ExprAST();
     ast->type_ = kAtomArray;
     ast->ident_ = *unique_ptr<string>($1);
     ast->array_offset_ = unique_ptr<BaseAST>($3);
     $$ = ast;
-  } | IDENT '[' Expr ']' ASS Expr {
+  } | IDENT L_BRACK Expr R_BRACK ASS Expr {
     auto ast = new ExprAST();
     ast->type_ = kAssignArray;
     ast->array_offset_ = unique_ptr<BaseAST>($3);
