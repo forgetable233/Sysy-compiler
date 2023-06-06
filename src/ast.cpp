@@ -2,8 +2,6 @@
 // Created by dcr on 23-5-6.
 //
 
-// TODO 编译过程中能够抛出错误
-// TODO 规约重复的情况
 #include "ast.h"
 
 void OutTab(int num) {
@@ -640,6 +638,10 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             llvm::IntegerType *type = llvm::IntegerType::getInt32Ty(ir.module_->getContext());
             llvm::Value *ptr = ir.builder_->CreateIntToPtr(r_exp_value, type);
             return ptr;
+        }
+        case kParen: {
+            ExprAST *ast = (ExprAST*)&(*this->lExp_);
+            return ast->CodeGen(entry_block, ir);
         }
         default:
             l_exp = (ExprAST *) (&(*lExp_));

@@ -42,7 +42,7 @@ using namespace std;
 // 新添加了ast_token
 // 终结符类型定义
 %token RETURN
-%token <str_val> IDENT INT VOID DOUBLE FLOAT ADD SUB MUL DIV ASS STATIC
+%token <str_val> IDENT INT VOID DOUBLE FLOAT ADD SUB MUL DIV ASS STATIC CONTINUE BREAK
 %token <str_val> EQUAL NOT_EQUAL AND OR LESS LESS_EQUAL LARGER LARGER_EQUAL
 %token <str_val> ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN NOT
 %token <str_val> IF WHILE ELSE TRUE FALSE AT
@@ -314,6 +314,11 @@ Expr
     ast->type_ = kAssign;
     ast->ident_ = *unique_ptr<string>($1);
     ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | L_PAREN Expr R_PAREN {
+    auto ast = new ExprAST();
+    ast->type_ = kParen;
+    ast->lExp_ = unique_ptr<BaseAST>($2);
     $$ = ast;
   } | Expr ADD Expr {
     auto ast = new ExprAST();

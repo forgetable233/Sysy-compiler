@@ -1,12 +1,10 @@
 // TODO 函数返回值有问题
 
-int test2(int a, int n[10]) {
-    return a + n[0];
-}
-
 int test(int f, int m[100]) {
-    int a[100];
-    int k = 1;
-    test2(0, &k);
-    return 0;
+    int a  = 1;
+    int b = 2;
+    int c = 3;
+    int d;
+    d = (a + b) * 3;
+    return d;
 }

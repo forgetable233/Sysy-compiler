@@ -36,6 +36,8 @@ Hexadecimal   0[xX][0-9a-fA-F]+
 {WhiteSpace}    { /* 忽略, 不做任何操作 */ }
 {LineComment}   { /* 忽略, 不做任何操作 */ }
 
+"continue"      { return CONTINUE; }
+"break"         { return BREAK; }
 "if"            { return IF; }
 "while"         { return WHILE; }
 "int"           { return INT; }

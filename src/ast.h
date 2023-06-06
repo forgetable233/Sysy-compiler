@@ -63,7 +63,8 @@ enum ExpType {
     kAutoIncreaseRight,
     kAutoDecreaseLeft,
     kAutoDecreaseRight,
-    kAt
+    kAt,
+    kParen
 };
 
 enum StmtType {
