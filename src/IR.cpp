@@ -65,20 +65,20 @@ IR::get_value(const std::string &value_name, const BasicBlock *current_block) {
     llvm::Value *value = nullptr;
     if (current_block) {
         // 先从各个block中寻找
-        for (auto temp = current_block; temp; temp = temp->pre) {
-            auto block = temp->current;
-            llvm::outs() << block->getName() << '\n';
+        for (auto temp = current_block; temp; temp = temp->pre_) {
+            auto block = temp->current_;
+//            llvm::outs() << block->getName() << '\n';
             value = this->get_basic_block_value(block->getName().str(), value_name);
             if (value) {
                 return value;
             }
         }
         int i = 0;
-        llvm::outs() << '\n';
+//        llvm::outs() << '\n';
 
         // 从函数列表中寻找
-        for (auto arg = current_block->current->getParent()->arg_begin();
-             arg != current_block->current->getParent()->arg_end(); ++arg, ++i) {
+        for (auto arg = current_block->current_->getParent()->arg_begin();
+             arg != current_block->current_->getParent()->arg_end(); ++arg, ++i) {
             if (strcmp(arg->getName().str().c_str(), value_name.c_str()) == 0) {
                 value = (llvm::Value *) arg;
                 return value;

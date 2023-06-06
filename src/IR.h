@@ -28,23 +28,27 @@ enum VariableType {
 
 struct BasicBlock {
     BasicBlock(BasicBlock *_pre, llvm::BasicBlock *_curr) {
-        pre = _pre;
-        current = _curr;
+        pre_ = _pre;
+        current_ = _curr;
     }
 
     BasicBlock() {
-        pre = nullptr;
-        current = nullptr;
+        pre_ = nullptr;
+        current_ = nullptr;
     }
 
-    BasicBlock *pre;
-    llvm::BasicBlock *current;
+    BasicBlock *pre_;
+
+    llvm::BasicBlock *current_;
 };
 
 class IR {
 private:
 
 public:
+    BasicBlock *continue_block_ = nullptr;
+    BasicBlock *break_block_ = nullptr;
+
     bool is_function_call = false;
 
     llvm::IRBuilder<> *builder_ = nullptr;

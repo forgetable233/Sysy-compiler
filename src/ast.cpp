@@ -213,7 +213,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
 }
 
 llvm::Value *StmtAST::CodeGen(BasicBlock *entry_block, IR &ir) {
-    ir.builder_->SetInsertPoint(entry_block->current);
+    ir.builder_->SetInsertPoint(entry_block->current_);
     llvm::Type *int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
     llvm::Value *value;
     llvm::BasicBlock *true_block = nullptr;
@@ -233,7 +233,7 @@ llvm::Value *StmtAST::CodeGen(BasicBlock *entry_block, IR &ir) {
             }
             value = ir.builder_->CreateAlloca(int_type, nullptr, this->ident_);
             ir.push_value(value,
-                          entry_block->current->getName().str(),
+                          entry_block->current_->getName().str(),
                           this->ident_);
             return value;
         }
@@ -249,7 +249,7 @@ llvm::Value *StmtAST::CodeGen(BasicBlock *entry_block, IR &ir) {
                                               nullptr,
                                               this->ident_);
             ir.push_value(value,
-                          entry_block->current->getName().str(),
+                          entry_block->current_->getName().str(),
                           this->ident_);
             break;
         case kExpression:
@@ -261,24 +261,24 @@ llvm::Value *StmtAST::CodeGen(BasicBlock *entry_block, IR &ir) {
             value = ((ExprAST *) &(*this->exp_))->CodeGen(entry_block, ir);
             true_block = llvm::BasicBlock::Create(ir.module_->getContext(),
                                                   "true_block",
-                                                  entry_block->current->getParent());
+                                                  entry_block->current_->getParent());
             false_block = llvm::BasicBlock::Create(ir.module_->getContext(),
                                                    "false_block",
-                                                   entry_block->current->getParent());
+                                                   entry_block->current_->getParent());
             auto _true = new BasicBlock(entry_block, true_block);
             auto _false = new BasicBlock(entry_block, false_block);
             if (false_block_) {
                 // 存在false block的情况
-                llvm::BranchInst::Create(true_block, false_block, value, entry_block->current);
+                llvm::BranchInst::Create(true_block, false_block, value, entry_block->current_);
 //                ir.builder_->CreateCondBr(value, true_block, false_block);
                 // true block
                 ((BlockAST *) &(*this->true_block_))->CodeGen(_true, ir);
                 ((BlockAST *) &(*this->false_block_))->CodeGen(_false, ir);
                 ir.builder_->SetInsertPoint(true_block);
-                ir.builder_->CreateBr(entry_block->current);
+                ir.builder_->CreateBr(entry_block->current_);
 
                 ir.builder_->SetInsertPoint(false_block);
-                ir.builder_->CreateBr(entry_block->current);
+                ir.builder_->CreateBr(entry_block->current_);
                 break;
             } else {
                 // 不存在false block的情况
@@ -286,7 +286,7 @@ llvm::Value *StmtAST::CodeGen(BasicBlock *entry_block, IR &ir) {
                 // true block
                 ((BlockAST *) &(*this->true_block_))->CodeGen(_false, ir);
                 ir.builder_->SetInsertPoint(true_block);
-                ir.builder_->CreateBr(entry_block->current);
+                ir.builder_->CreateBr(entry_block->current_);
                 break;
             }
 //            ((BlockAST *) &(*this->true_block_))->CodeGen(true_block, ir);
@@ -302,24 +302,31 @@ llvm::Value *StmtAST::CodeGen(BasicBlock *entry_block, IR &ir) {
         }
         case kWhile: {
             /** 首先生成对应的loop_header **/
-            auto current_block = entry_block->current;
+            auto current_block = entry_block->current_;
             loop_header = llvm::BasicBlock::Create(ir.module_->getContext(), "loop_header", current_block->getParent());
             loop_exit = llvm::BasicBlock::Create(ir.module_->getContext(), "loop_exit", current_block->getParent());
             loop_body = llvm::BasicBlock::Create(ir.module_->getContext(), "loop_body", current_block->getParent());
+
+            auto header = new BasicBlock(entry_block, loop_header);
+            auto body = new BasicBlock(entry_block, loop_body);
+
+            ir.continue_block_ = header;
+            ir.break_block_ = entry_block;
+
+            BasicBlock *temp_continue = ir.continue_block_;
+            BasicBlock *temp_break = ir.break_block_;
             // 首先进入header
             ir.builder_->CreateBr(loop_header);
 
             // loop_header
             ir.builder_->SetInsertPoint(loop_header);
             ir.builder_->CreateBr(current_block);
-            auto *header = new BasicBlock(entry_block, loop_header);
             value = ((ExprAST *) &(*this->exp_))->CodeGen(header, ir);
             ir.builder_->CreateCondBr(value, loop_body, loop_exit);
 
             // loop_body
             ir.builder_->SetInsertPoint(loop_body);
             auto block = (BlockAST *) &(*this->block_);
-            auto body = new BasicBlock(entry_block, loop_body);
             block->CodeGen(body, ir);
             ir.builder_->CreateBr(loop_header);
 
@@ -327,6 +334,9 @@ llvm::Value *StmtAST::CodeGen(BasicBlock *entry_block, IR &ir) {
             ir.builder_->SetInsertPoint(loop_exit);
             auto exit = new BasicBlock(entry_block, loop_exit);
             ir.builder_->CreateBr(current_block);
+
+            ir.continue_block_ = temp_continue;
+            ir.break_block_ = temp_break;
             break;
         }
         case kStatic:
@@ -341,13 +351,23 @@ llvm::Value *StmtAST::CodeGen(BasicBlock *entry_block, IR &ir) {
             value = ir.builder_->Insert(ir.builder_->CreateAlloca(int_type, nullptr, this->ident_));
             value->setName(this->ident_);
             ir.builder_->CreateStore(exp->CodeGen(entry_block, ir), value);
-            ir.push_value(value, entry_block->current->getName().str(), this->ident_);
+            ir.push_value(value, entry_block->current_->getName().str(), this->ident_);
             return value;
         case kBreak: {
+            if (!ir.break_block_) {
+                llvm::report_fatal_error("unable to ues break in this place");
+            }
+            ir.builder_->SetInsertPoint(entry_block->current_);
+            ir.builder_->CreateBr(ir.break_block_->current_);
             break;
         }
         case kContinue: {
-
+            if (!ir.continue_block_) {
+                llvm::report_fatal_error("unable to use continue in this place");
+            }
+            ir.builder_->SetInsertPoint(entry_block->current_);
+            ir.builder_->CreateBr(ir.continue_block_->current_);
+            break;
         }
         default:
             llvm::report_fatal_error("Undefined type in stmt CodeGen");
@@ -512,7 +532,7 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
     }
     BasicBlock current_block;
     llvm::BasicBlock *entry = llvm::BasicBlock::Create(ir.module_->getContext(), "begin", func);
-    current_block.current = entry;
+    current_block.current_ = entry;
     ir.push_global_value(func, this->ident_);
     auto tar_block = (BlockAST *) (&(*block_));
     ir.builder_->SetInsertPoint(entry);
@@ -536,13 +556,13 @@ void FuncDefAST::BuildAstTree() {
 }
 
 llvm::Value *BlockAST::CodeGen(BasicBlock *entry_block, IR &ir) {
-    ir.builder_->SetInsertPoint(entry_block->current);
+    ir.builder_->SetInsertPoint(entry_block->current_);
 //    llvm::outs() << '\n';
 //    for (auto it = llvm::pred_begin(entry_block); it != llvm::pred_end(entry_block); ++it) {
 //        llvm::outs() << (*it)->getName() << '\n';
 //    }
 //    llvm::outs() << '\n';
-    auto args = entry_block->current->getParent()->arg_begin();
+    auto args = entry_block->current_->getParent()->arg_begin();
     for (auto &item: this->stmt_) {
         ((StmtAST *) (&(*item)))->CodeGen(entry_block, ir);
     }
@@ -596,7 +616,7 @@ void CompUnitAST::BuildAstTree() {
 }
 
 llvm::Value *ExprAST::CodeGen(BasicBlock *entry_block, IR &ir) {
-    ir.builder_->SetInsertPoint(entry_block->current);
+    ir.builder_->SetInsertPoint(entry_block->current_);
     llvm::LLVMContext &context = *ir.context_;
     llvm::Value *value;
     ExprAST *l_exp;
@@ -610,7 +630,7 @@ llvm::Value *ExprAST::CodeGen(BasicBlock *entry_block, IR &ir) {
         case kAtomIdent: {
             value = ir.get_value(this->ident_, entry_block);
             if (!value) {
-                llvm::outs() << entry_block->current->getName() << '\n';
+                llvm::outs() << entry_block->current_->getName() << '\n';
                 llvm::outs() << this->ident_ << '\n';
                 llvm::report_fatal_error("unable to find the target variable");
             }
@@ -864,7 +884,6 @@ void ExprAST::BuildAstTree() {
 }
 
 llvm::Value *BaseAST::CodeGen(IR &ir) {
-
     return nullptr;
 }
 

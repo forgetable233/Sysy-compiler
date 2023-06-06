@@ -37,6 +37,7 @@
 #include "IR.h"
 
 class BlockAST;
+
 class CompUnitAST;
 
 enum ExpType {
@@ -183,10 +184,6 @@ public:
 
     llvm::Value *CodeGen(BasicBlock *entry_block, IR &ir);
 
-    void SetBlock(BlockAST *tar_block);
-
-    BlockAST* GetBlock();
-
     llvm::Value *ErrorValue(const char *str) override;
 
     void BuildAstTree() override;
@@ -220,17 +217,7 @@ public:
  */
 class BlockAST : public BaseAST {
 public:
-    BasicBlock *continue_block_ = nullptr;
-
-    BasicBlock *break_block_ = nullptr;
-
     std::vector<std::unique_ptr<BaseAST>> stmt_;
-
-//    std::vector<std::unique_ptr<BaseAST>> blocks_;
-
-//    std::unique_ptr<BaseAST> stmt_ = nullptr;
-
-//    std::unique_ptr<BaseAST> block_ = nullptr;
 
     BlockAST() = default;
 
