@@ -15,6 +15,7 @@
 #include <map>
 #include <vector>
 #include <llvm/Support/raw_os_ostream.h>
+#include <llvm/IR/CFG.h>
 
 /**
  * 以一个module为标准构建一个IR
@@ -23,6 +24,16 @@
 enum VariableType {
     kAtom,
     kArray
+};
+
+struct BasicBlock {
+    BasicBlock(llvm::BasicBlock *_pre, llvm::BasicBlock *_curr) {
+        pre = _pre;
+        current = _curr;
+    }
+
+    llvm::BasicBlock *pre;
+    llvm::BasicBlock *current;
 };
 
 class IR {
@@ -41,6 +52,8 @@ public:
 
     std::map<std::string, llvm::Value *> global_values_;
 
+    std::vector<BasicBlock> blocks_;
+
     IR();
 
     explicit IR(std::string &name);
@@ -55,6 +68,9 @@ public:
 
     llvm::Value *
     get_value(const std::string &value_name, const llvm::BasicBlock *current_block);
+
+    BasicBlock *
+    get_block(const std::string &block_name);
 
     ~IR();
 };

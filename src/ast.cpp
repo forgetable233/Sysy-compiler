@@ -257,45 +257,70 @@ llvm::Value *StmtAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             break;
         case kReturn:
             return ir.builder_->CreateRet(exp->CodeGen(entry_block, ir));
-        case kIf:
+        case kIf: {
             value = ((ExprAST *) &(*this->exp_))->CodeGen(entry_block, ir);
             true_block = llvm::BasicBlock::Create(ir.module_->getContext(), "true_block", entry_block->getParent());
-            merge_block = llvm::BasicBlock::Create(ir.module_->getContext(), "merge_block", entry_block->getParent());
+            false_block = llvm::BasicBlock::Create(ir.module_->getContext(),
+                                                   "false_block",
+                                                   entry_block->getParent());
             if (false_block_) {
-                false_block = llvm::BasicBlock::Create(ir.module_->getContext(), "false_block",
-                                                       entry_block->getParent());
-            }
-            llvm::BranchInst::Create(true_block, false_block, value, entry_block);
-            ((BlockAST *) &(*this->true_block_))->CodeGen(true_block, ir);
-            ir.builder_->SetInsertPoint(true_block);
-            llvm::BranchInst::Create(merge_block, true_block);
-            if (false_block_) {
-                ((BlockAST *) &(*this->false_block_))->CodeGen(false_block, ir);
+                // 存在false block的情况
+                llvm::BranchInst::Create(true_block, false_block, value, entry_block);
+//                ir.builder_->CreateCondBr(value, true_block, false_block);
+                // true block
+                ((BlockAST*)&(*this->true_block_))->CodeGen(true_block, ir);
+                ((BlockAST*)&(*this->false_block_))->CodeGen(false_block, ir);
+                ir.builder_->SetInsertPoint(true_block);
+                ir.builder_->CreateBr(entry_block);
+
                 ir.builder_->SetInsertPoint(false_block);
-                llvm::BranchInst::Create(merge_block, false_block);
+                ir.builder_->CreateBr(entry_block);
+                break;
+            } else {
+                // 不存在false block的情况
+                ir.builder_->CreateCondBr(value, true_block, nullptr);
+                // true block
+                ((BlockAST*)&(*this->true_block_))->CodeGen(true_block, ir);
+                ir.builder_->SetInsertPoint(true_block);
+                ir.builder_->CreateBr(entry_block);
+                break;
             }
-            ir.builder_->SetInsertPoint(merge_block);
-            break;
-        case kWhile:
+//            ((BlockAST *) &(*this->true_block_))->CodeGen(true_block, ir);
+//            ir.builder_->SetInsertPoint(true_block);
+//            llvm::BranchInst::Create(merge_block, true_block);
+//            if (false_block_) {
+//                ((BlockAST *) &(*this->false_block_))->CodeGen(false_block, ir);
+//                ir.builder_->SetInsertPoint(false_block);
+//                llvm::BranchInst::Create(merge_block, false_block);
+//            }
+//            ir.builder_->SetInsertPoint(merge_block);
+//            break;
+        }
+        case kWhile: {
             /** 首先生成对应的loop_header **/
             loop_header = llvm::BasicBlock::Create(ir.module_->getContext(), "loop_header", entry_block->getParent());
             loop_body = llvm::BasicBlock::Create(ir.module_->getContext(), "loop_body", entry_block->getParent());
             loop_exit = llvm::BasicBlock::Create(ir.module_->getContext(), "loop_exit", entry_block->getParent());
-            llvm::BranchInst::Create(loop_header, entry_block);
+            // 首先进入header
+            ir.builder_->CreateBr(loop_header);
 
             // loop_header
             ir.builder_->SetInsertPoint(loop_header);
-            value = ((ExprAST *) &(*this->exp_))->CodeGen(entry_block, ir);
-            llvm::BranchInst::Create(loop_body, loop_exit, value, loop_header);
+            ir.builder_->CreateBr(entry_block);
+            value = ((ExprAST *) &(*this->exp_))->CodeGen(loop_header, ir);
+            ir.builder_->CreateCondBr(value, loop_body, loop_exit);
+
             // loop_body
-            ((BlockAST *) &(*this->block_))->CodeGen(loop_body, ir);
             ir.builder_->SetInsertPoint(loop_body);
-            llvm::BranchInst::Create(loop_header, loop_body);
+            auto block = (BlockAST *) &(*this->block_);
+            block->CodeGen(loop_body, ir);
+            ir.builder_->CreateBr(loop_header);
 
             // loop_exit
             ir.builder_->SetInsertPoint(loop_exit);
-            llvm::BranchInst::Create(entry_block, loop_exit);
+            ir.builder_->CreateBr(entry_block);
             break;
+        }
         case kStatic:
             var = new llvm::GlobalVariable(*ir.module_,
                                            int_type,
@@ -462,18 +487,12 @@ FuncDefAST::~FuncDefAST() {
 
 llvm::Value *BlockAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
     ir.builder_->SetInsertPoint(entry_block);
-    auto args = entry_block->getParent()->arg_begin();
-//    for (int i = 0; i < entry_block->getParent()->arg_size(); ++i, ++args) {
-//        llvm::AllocaInst *alloc = nullptr;
-//        if (args->getType()->isIntegerTy()) {
-//            alloc = ir.builder_->CreateAlloca(args->getType(), nullptr);
-//        } else {
-//            llvm::IntegerType *int_type = llvm::IntegerType::get(ir.module_->getContext(), 32);
-//            alloc = ir.builder_->CreateAlloca(llvm::PointerType::get(int_type, 0));
-//        }
-//        ir.push_value(alloc, entry_block->getName().str(), std::to_string(i));
-//        ir.builder_->CreateStore(args, alloc);
+//    llvm::outs() << '\n';
+//    for (auto it = llvm::pred_begin(entry_block); it != llvm::pred_end(entry_block); ++it) {
+//        llvm::outs() << (*it)->getName() << '\n';
 //    }
+//    llvm::outs() << '\n';
+    auto args = entry_block->getParent()->arg_begin();
     for (auto &item: this->stmt_) {
         ((StmtAST *) (&(*item)))->CodeGen(entry_block, ir);
     }
@@ -526,6 +545,11 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             return llvm::ConstantInt::get(context, llvm::APInt(32, num_));
         case kAtomIdent: {
             value = ir.get_value(this->ident_, entry_block);
+            if (!value) {
+                llvm::outs() << entry_block->getName() << '\n';
+                llvm::outs() << this->ident_ << '\n';
+                llvm::report_fatal_error("unable to find the target variable");
+            }
             if (BaseAST::is_array(value)) {
                 llvm::report_fatal_error("The type of the param does not match, requires ident but input array");
             }
@@ -577,7 +601,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
         case kAssign:
             value = ir.get_value(this->ident_, entry_block);
             if (BaseAST::is_array(value)) {
-                llvm::report_fatal_error("The type of the param does not match, requires ident but input array")    ;
+                llvm::report_fatal_error("The type of the param does not match, requires ident but input array");
             }
             r_exp = (ExprAST *) (&(*rExp_));
             r_exp_value = r_exp->CodeGen(entry_block, ir);
@@ -640,7 +664,7 @@ llvm::Value *ExprAST::CodeGen(llvm::BasicBlock *entry_block, IR &ir) {
             return ptr;
         }
         case kParen: {
-            ExprAST *ast = (ExprAST*)&(*this->lExp_);
+            ExprAST *ast = (ExprAST *) &(*this->lExp_);
             return ast->CodeGen(entry_block, ir);
         }
         default:
@@ -742,7 +766,7 @@ bool ExprAST::get_params(llvm::BasicBlock *entry_block,
             }
         } else {
             if (param->type_ == kAtomIdent) {
-                llvm::Value* value = ir.get_value(this->ident_, entry_block);
+                llvm::Value *value = ir.get_value(this->ident_, entry_block);
                 if (value->getType()->isPointerTy()) {
                     return false;
                 }

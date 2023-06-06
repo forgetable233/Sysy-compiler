@@ -32,6 +32,7 @@
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Scalar/GVN.h>
 #include <llvm/Support/ErrorHandling.h>
+#include <llvm/IR/CFG.h>
 
 #include "IR.h"
 
@@ -75,7 +76,9 @@ enum StmtType {
     kExpression,
     kIf,
     kStatic,
-    kWhile
+    kWhile,
+    kContinue,
+    kBreak
 };
 
 enum ParamType {

@@ -66,13 +66,25 @@ IR::get_value(const std::string &value_name, const llvm::BasicBlock *current_blo
     llvm::Value *value = nullptr;
     if (current_block) {
         // 先从各个block中寻找
-        for (auto temp_block = current_block; temp_block; temp_block = current_block->getPrevNode()) {
-            value = this->get_basic_block_value(temp_block->getName().str(), value_name);
+        llvm::outs() << '\n';
+        value = this->get_basic_block_value(current_block->getName().str(), value_name);
+        llvm::outs() << current_block->getName() << '\n';
+        if (value) {
+            return value;
+        }
+        for (auto temp_block = llvm::pred_begin(current_block);
+             temp_block != llvm::pred_end(current_block);
+             ++temp_block) {
+            auto block = *temp_block;
+            llvm::outs() << block->getName() << '\n';
+            value = this->get_basic_block_value(block->getName().str(), value_name);
             if (value) {
                 return value;
             }
         }
         int i = 0;
+        llvm::outs() << '\n';
+
         // 从函数列表中寻找
         for (auto arg = current_block->getParent()->arg_begin();
              arg != current_block->getParent()->arg_end(); ++arg, ++i) {
@@ -84,5 +96,9 @@ IR::get_value(const std::string &value_name, const llvm::BasicBlock *current_blo
     }
     value = this->get_global_value(value_name);
     return value;
+}
+
+BasicBlock *IR::get_block(const std::string &block_name) {
+    return nullptr;
 }
 

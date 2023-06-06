@@ -285,7 +285,9 @@ Stmt
     ast->exp_ = unique_ptr<BaseAST>($3);
     ast->block_ = unique_ptr<BaseAST>($6);
     $$ = ast;
-  } | IF L_PAREN Expr R_PAREN L_BRACE Block R_BRACE ELSE L_BRACE Block R_BRACE {
+  } | IF L_PAREN Expr R_PAREN
+  L_BRACE Block R_BRACE
+  ELSE L_BRACE Block R_BRACE {
     auto ast = new StmtAST();
     ast->type_ = kIf;
     ast->exp_ = unique_ptr<BaseAST>($3);
@@ -304,6 +306,14 @@ Stmt
      ast->key_word_ = *make_unique<string>("int");
      ast->ident_ = *unique_ptr<string>($2);
      ast->array_size_ = $4;
+     $$ = ast;
+  } | CONTINUE ';' {
+     auto ast = new StmtAST();
+     ast->type_ = kContinue;
+     $$ = ast;
+  } | BREAK ';' {
+     auto ast = new StmtAST();
+     ast->type_ = kBreak;
      $$ = ast;
   }
   ;
