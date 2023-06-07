@@ -32,6 +32,11 @@ struct BasicBlock {
         current_ = _curr;
     }
 
+    BasicBlock() {
+        pre_ = nullptr;
+        current_ = nullptr;
+    }
+
     BasicBlock *pre_ = nullptr;
 
     llvm::BasicBlock *current_ = nullptr;
@@ -39,7 +44,7 @@ struct BasicBlock {
 
 class IR {
 private:
-
+    BasicBlock *current_block_ = nullptr;
 public:
     BasicBlock *continue_block_ = nullptr;
     BasicBlock *break_block_ = nullptr;
@@ -74,6 +79,10 @@ public:
     get_value(const std::string &value_name, const BasicBlock *current_block);
 
     ~IR();
+
+    void SetCurrentBlock(BasicBlock *current_block);
+
+    BasicBlock * GetCurrentBlock();
 };
 
 

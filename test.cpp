@@ -12,10 +12,3 @@ void test(int a[3]) {
         a[i] = i;
     }
 }
-
-int main() {
-    llvm::LLVMContext *context = new llvm::LLVMContext();
-    llvm::BasicBlock *block = llvm::BasicBlock::Create(*context);
-    llvm::BasicBlock &test = *block;
-    return 0;
-}

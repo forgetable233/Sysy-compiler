@@ -151,7 +151,7 @@ public:
 
     llvm::Value *CodeGen(IR &ir) override;
 
-    llvm::Value *CodeGen(BasicBlock *entry_block, IR &ir);
+//    llvm::Value *CodeGen(BasicBlock *entry_block, IR &ir);
 
     llvm::Value *ErrorValue(const char *str) override;
 
@@ -184,7 +184,7 @@ public:
 
     llvm::Value *CodeGen(IR &ir) override;
 
-    llvm::Value *CodeGen(BasicBlock *entry_block, IR &ir);
+//    llvm::Value *CodeGen(BasicBlock *entry_block, IR &ir);
 
     llvm::Value *ErrorValue(const char *str) override;
 
@@ -198,8 +198,6 @@ public:
 class CompUnitAST : public BaseAST {
 public:
     std::vector<std::unique_ptr<BaseAST>> func_stmt_defs_;
-
-//    std::unique_ptr<BaseAST> func_def_;
 
     CompUnitAST() = default;
 
@@ -229,7 +227,7 @@ public:
 
     llvm::Value *CodeGen(IR &ir) override;
 
-    llvm::Value *CodeGen(BasicBlock *entry_block, IR &ir);
+//    llvm::Value *CodeGen(BasicBlock *entry_block, IR &ir);
 
     llvm::Value *ErrorValue(const char *str) override;
 

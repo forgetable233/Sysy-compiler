@@ -32,11 +32,6 @@ void IR::push_value(llvm::Value *value, const std::string &block_name, const std
 }
 
 llvm::Value *IR::get_basic_block_value(const std::string &block_name, const std::string &value_name) {
-//    for (const auto& item1 : name_values_) {
-//        for (const auto& item2 : item1.second) {
-//            llvm::outs() << item2.second << '\n';
-//        }
-//    }
     auto block = name_values_.find(block_name);
     if (block == name_values_.end()) {
         return nullptr;
@@ -87,5 +82,14 @@ IR::get_value(const std::string &value_name, const BasicBlock *current_block) {
     }
     value = this->get_global_value(value_name);
     return value;
+}
+
+BasicBlock * IR::GetCurrentBlock() {
+    return current_block_;
+}
+
+void IR::SetCurrentBlock(BasicBlock *current_block) {
+    current_block_ = current_block;
+    builder_->SetInsertPoint(current_block->current_);
 }
 
