@@ -697,9 +697,9 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
             if (ast->array_size_ <= 0) {
                 llvm::report_fatal_error("The size of the array must be positive\n");
             }
-            llvm::IntegerType *int_type = ir.builder_->getInt32Ty();
-            llvm::ArrayType *array_type = llvm::ArrayType::get(int_type, ast->array_size_);
-            param_types.emplace_back(array_type->getPointerTo(0));
+            llvm::IntegerType *int_type = llvm::IntegerType::get(ir.module_->getContext(), 32);
+            llvm::PointerType *pointer = llvm::PointerType::get(int_type, 0);
+            param_types.emplace_back(pointer);
         } else {
             llvm::report_fatal_error("Undefined type\n");
         }
