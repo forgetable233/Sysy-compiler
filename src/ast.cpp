@@ -488,13 +488,17 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
         }
         case kAtomArray: {
             auto offset = (ExprAST *) &(*array_offset_);
-            llvm::Constant *const_0 = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()), 0);
-            llvm::Constant *const_i = nullptr;
+            llvm::Value *const_0 = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()), 0);
+            llvm::Value *const_i = nullptr;
             llvm::Value *idx[2];
             idx[0] = const_0;
             value = ir.get_value(this->ident_, current_block);
             if (!BaseAST::is_array(value)) {
                 llvm::report_fatal_error("The type of the param does not match, requires array but input ident");
+            }
+            if (value->getType()->getPointerElementType()->isPointerTy()) {
+                llvm::PointerType *pointerType = llvm::PointerType::getInt32PtrTy(ir.module_->getContext());
+                value = ir.builder_->CreateLoad(pointerType, value);
             }
             if (offset->type_ == kAtomNum) {
                 if (offset->num_ < 0) {
@@ -502,21 +506,20 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                 }
                 const_i = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()),
                                                  offset->num_);
-                idx[1] = const_i;
             } else {
-                idx[1] = offset->CodeGen(ir);
+                const_i = offset->CodeGen(ir);
             }
+            idx[1] = const_i;
+
             auto *global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
             if (!global_value) {
-                if (llvm::isa<llvm::PointerType>(value->getType())) {
-                    llvm::Value *array_i = ir.builder_->CreateGEP(value->getType()->getPointerElementType(), value,
-                                                                  idx);
-                    return ir.builder_->CreateLoad(array_i);
+                llvm::Value *array_i = nullptr;
+                if (value->getType()->isPointerTy()) {
+                    array_i = ir.builder_->CreateGEP(value, const_i);
                 } else {
-                    llvm::Value *array_i = ir.builder_->CreateGEP(value->getType(), value,
-                                                                  idx);
-                    return ir.builder_->CreateLoad(array_i);
+                    array_i = ir.builder_->CreateGEP(value, idx);
                 }
+                return ir.builder_->CreateLoad(array_i);
             } else {
                 llvm::Value *global_i = ir.builder_->CreateGEP(global_value->getType()->getPointerElementType(),
                                                                global_value, idx);
@@ -554,10 +557,10 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
             idx[0] = const_0;
             if (offset->type_ == kAtomNum) {
                 const_i = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()), offset->num_);
-                idx[1] = const_i;
             } else {
-                idx[1] = offset->CodeGen(ir);
+                const_i = offset->CodeGen(ir);
             }
+            idx[1] = const_i;
 
             r_exp = (ExprAST *) (&(*rExp_));
             r_exp_value = r_exp->CodeGen(ir);

@@ -5,19 +5,18 @@
 #include "IR.h"
 
 IR::IR() {
-    context_ = std::make_unique<llvm::LLVMContext>();
-    module_ = std::make_unique<llvm::Module>("default", *context_);
+    context_ = new llvm::LLVMContext();
+    module_ =  new llvm::Module("default", *context_);
 }
 
 IR::IR(std::string &name) {
-    context_ = std::make_unique<llvm::LLVMContext>();
-    module_ = std::make_unique<llvm::Module>(name, *context_);
+    context_ = new llvm::LLVMContext();
+    module_ =  new llvm::Module("default", *context_);
     builder_ = new llvm::IRBuilder<>(module_->getContext());
 }
 
 IR::~IR() {
-    context_.reset();
-    module_.reset();
+    delete builder_;
 }
 
 void IR::push_value(llvm::Value *value, const std::string &block_name, const std::string &value_name) {
