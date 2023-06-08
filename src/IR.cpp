@@ -82,7 +82,6 @@ IR::get_value(const std::string &value_name, const BasicBlock *current_block) {
              arg != current_block->current_->getParent()->arg_end(); ++arg, ++i) {
             if (strcmp(arg->getName().str().c_str(), value_name.c_str()) == 0) {
                 value = get_basic_block_value(current_block->current_->getName().str(), std::to_string(i));
-                value->getType()->print(llvm::outs());
                 llvm::outs() << "\n" << value->getName() << '\n';
                 return value;
             }
