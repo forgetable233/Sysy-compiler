@@ -64,11 +64,13 @@ llvm::Value *IR::get_global_value(const std::string &value_name) {
 llvm::Value *
 IR::get_value(const std::string &value_name, const BasicBlock *current_block) {
     llvm::Value *value = nullptr;
+    std::string block_name;
     if (current_block) {
         // 先从各个block中寻找
         for (auto temp = current_block; temp; temp = temp->pre_) {
-            auto block = temp->current_;
-            value = this->get_basic_block_value(block->getName().str(), value_name);
+            block_name = temp->current_->getParent()->getName().str();
+            block_name += temp->current_->getName().str();
+            value = this->get_basic_block_value(block_name, value_name);
             if (value) {
                 return value;
             }
@@ -80,9 +82,15 @@ IR::get_value(const std::string &value_name, const BasicBlock *current_block) {
         for (auto arg = current_block->current_->getParent()->arg_begin();
              arg != current_block->current_->getParent()->arg_end(); ++arg, ++i) {
             if (strcmp(arg->getName().str().c_str(), value_name.c_str()) == 0) {
-                value = get_basic_block_value(current_block->current_->getName().str(), std::to_string(i));
-                llvm::outs() << "\n" << value->getName() << '\n';
-                return value;
+                llvm::outs() << "begin to search in function params\n";
+                for (auto temp = current_block; temp; temp = temp->pre_) {
+                    block_name = temp->current_->getParent()->getName().str();
+                    block_name += temp->current_->getName().str();
+                    value = this->get_basic_block_value(block_name, std::to_string(i));
+                    if (value) {
+                        return value;
+                    }
+                }
             }
         }
     }

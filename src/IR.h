@@ -2,8 +2,8 @@
 // Created by dcr on 23-5-15.
 //
 
-#ifndef COMPILER_LLVM_H
-#define COMPILER_LLVM_H
+#ifndef COMPILER_IR_H
+#define COMPILER_IR_H
 
 #include <llvm/IR/Value.h>
 #include <llvm/IR/IRBuilder.h>
@@ -86,4 +86,4 @@ public:
 };
 
 
-#endif //COMPILER_LLVM_H
+#endif //COMPILER_IR_H
