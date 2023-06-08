@@ -556,6 +556,11 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
             auto *global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
             if (!global_value) {
                 llvm::Value *array_i;
+                if (llvm::dyn_cast<llvm::PointerType>(value->getType()->getPointerElementType())) {
+                    llvm::PointerType *pointerType = llvm::PointerType::getInt32PtrTy(ir.module_->getContext());
+                    value = ir.builder_->CreateLoad(pointerType, value);
+                }
+                value->getType()->print(llvm::outs(), true);
                 array_i = ir.builder_->CreateGEP(value, idx);
                 return ir.builder_->CreateStore(r_exp_value, array_i, "store");
             } else {
@@ -723,8 +728,35 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
     auto current_block = new BasicBlock(nullptr, entry);
     ir.push_global_value(func, this->ident_);
     ir.SetCurrentBlock(current_block);
+
+    this->AddParams(ir);
+
     block_->CodeGen(ir);
     return func;
+}
+
+void FuncDefAST::AddParams(IR &ir) {
+    auto current_block = ir.GetCurrentBlock();
+    int i = 0;
+    for (auto &item: current_block->current_->getParent()->args()) {
+        if (item.getType()->isIntegerTy()) {
+            llvm::IntegerType *integerType = llvm::IntegerType::get(ir.module_->getContext(), 32);
+            auto value = ir.builder_->CreateAlloca(integerType);
+            ir.push_value(value, current_block->current_->getName(), std::to_string(i));
+        } else {
+            llvm::IntegerType *integerType = llvm::IntegerType::get(ir.module_->getContext(), 32);
+            llvm::PointerType *pointerType = llvm::PointerType::get(integerType, 0);
+            auto value = ir.builder_->CreateAlloca(pointerType);
+            ir.push_value(value, current_block->current_->getName(), std::to_string(i));
+        }
+        i++;
+    }
+    i = 0;
+    for (auto &item: current_block->current_->getParent()->args()) {
+        auto value = ir.get_value(std::to_string(i), current_block);
+        ir.builder_->CreateStore(&item, value);
+        i++;
+    }
 }
 
 FuncDefAST::~FuncDefAST() {
@@ -880,6 +912,8 @@ bool BaseAST::is_array(llvm::Value *value) {
     if (value->getType()->isPointerTy()) {
         if (llvm::dyn_cast<llvm::ArrayType>(value->getType()->getPointerElementType())) {
             return true;
+        } else if (llvm::dyn_cast<llvm::PointerType>(value->getType()->getPointerElementType())) {
+            return true;
         } else {
             return false;
         }
@@ -890,7 +924,6 @@ bool BaseAST::is_array(llvm::Value *value) {
             return false;
         }
     }
-    return false;
 }
 
 BaseAST *BaseAST::GetParent() {

@@ -48,6 +48,13 @@ void IR::push_global_value(llvm::Value *value, const std::string &value_name) {
 }
 
 llvm::Value *IR::get_global_value(const std::string &value_name) {
+//    for (auto &item: name_values_) {
+//        for (auto &value: item.second) {
+//            value.second->getType()->print(llvm::outs(), true);
+//            llvm::outs() << '\n';
+//        }
+//    }
+
     auto tar_value = global_values_.find(value_name);
     if (tar_value == global_values_.end()) {
         return nullptr;
@@ -62,7 +69,6 @@ IR::get_value(const std::string &value_name, const BasicBlock *current_block) {
         // 先从各个block中寻找
         for (auto temp = current_block; temp; temp = temp->pre_) {
             auto block = temp->current_;
-//            llvm::outs() << block->getName() << '\n';
             value = this->get_basic_block_value(block->getName().str(), value_name);
             if (value) {
                 return value;
@@ -75,7 +81,9 @@ IR::get_value(const std::string &value_name, const BasicBlock *current_block) {
         for (auto arg = current_block->current_->getParent()->arg_begin();
              arg != current_block->current_->getParent()->arg_end(); ++arg, ++i) {
             if (strcmp(arg->getName().str().c_str(), value_name.c_str()) == 0) {
-                value = (llvm::Value *) arg;
+                value = get_basic_block_value(current_block->current_->getName().str(), std::to_string(i));
+                value->getType()->print(llvm::outs());
+                llvm::outs() << "\n" << value->getName() << '\n';
                 return value;
             }
         }
@@ -84,7 +92,7 @@ IR::get_value(const std::string &value_name, const BasicBlock *current_block) {
     return value;
 }
 
-BasicBlock * IR::GetCurrentBlock() {
+BasicBlock *IR::GetCurrentBlock() {
     return current_block_;
 }
 

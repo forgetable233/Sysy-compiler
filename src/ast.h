@@ -279,6 +279,8 @@ public:
 
     llvm::Value *ErrorValue(const char *str) override;
 
+    void AddParams(IR &ir);
+
     void BuildAstTree() override;
 };
 
