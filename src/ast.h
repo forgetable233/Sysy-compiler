@@ -124,6 +124,8 @@ public:
 
     static llvm::Value *GetOffsetPointer(llvm::Value *tar_pointer, BaseAST *offset, IR &ir);
 
+    static llvm::Value *GetOffsetPointer(llvm::Value *tar_pointer, int offset, IR &ir);
+
     static llvm::Value *GetOffset(BaseAST *offset, IR &ir);
 
     static llvm::Value *GetOffset(int tar, IR &ir);

@@ -13,12 +13,16 @@ define dso_local i32 @test2(i32 %0, i32* %1) #0 {
 }
 
 ; Function Attrs: noinline nounwind optnone uwtable
-define dso_local i32 @test() #0 {
-  %1 = alloca i32, align 4
-  %2 = alloca [100 x i32], align 16
-  %3 = getelementptr inbounds [100 x i32], [100 x i32]* %2, i64 0, i64 0
-  %4 = call i32 @test2(i32 1, i32* %3)
-  store i32 %4, i32* %1, align 4
+define dso_local i32 @test(i32 %0, i32* %1) #0 {
+  %3 = alloca i32, align 4
+  %4 = alloca i32*, align 8
+  %5 = alloca [100 x i32], align 16
+  store i32 %0, i32* %3, align 4
+  store i32* %1, i32** %4, align 8
+  %6 = load i32, i32* %3, align 4
+  %7 = getelementptr inbounds [100 x i32], [100 x i32]* %5, i64 0, i64 0
+  %8 = call i32 @test2(i32 %6, i32* %7)
+  store i32 %8, i32* %3, align 4
   ret i32 0
 }
 

@@ -82,7 +82,6 @@ IR::get_value(const std::string &value_name, const BasicBlock *current_block) {
         for (auto arg = current_block->current_->getParent()->arg_begin();
              arg != current_block->current_->getParent()->arg_end(); ++arg, ++i) {
             if (strcmp(arg->getName().str().c_str(), value_name.c_str()) == 0) {
-                llvm::outs() << "begin to search in function params\n";
                 for (auto temp = current_block; temp; temp = temp->pre_) {
                     block_name = temp->current_->getParent()->getName().str();
                     block_name += temp->current_->getName().str();

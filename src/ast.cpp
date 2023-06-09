@@ -482,17 +482,11 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                 llvm::outs() << this->ident_ << '\n';
                 llvm::report_fatal_error("unable to find the target variable");
             }
-            if (BaseAST::is_array(value)) {
-                llvm::outs() << value->getName() << '\n';
-                llvm::report_fatal_error("The type of the param does not match, requires ident but input array");
+            if (value->getType()->isPointerTy() && value->getType()->getPointerElementType()->isArrayTy()) {
+                auto temp_value = BaseAST::GetOffsetPointer(value, 0, ir);
+                return temp_value;
             }
-            llvm::Value *tar_value = value;
-            if (!llvm::dyn_cast<llvm::PointerType>(tar_value->getType())) {
-                llvm::PointerType *pointer_type =
-                        llvm::PointerType::get(llvm::Type::getInt32Ty(ir.module_->getContext()), 0);
-                tar_value = ir.builder_->CreateIntToPtr(tar_value, pointer_type);
-            }
-            return ir.builder_->CreateLoad(tar_value, this->ident_);
+            return ir.builder_->CreateLoad(value);
         }
         case kAtomArray: {
             auto offset = &(*array_offset_);
@@ -515,11 +509,6 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
         }
         case kAssign:
             value = ir.get_value(this->ident_, current_block);
-            value->getType()->print(llvm::outs(), true);
-            llvm::outs() << '\n' <<  value->getName().str() << '\n';
-            if (BaseAST::is_array(value)) {
-                llvm::report_fatal_error("The type of the param does not match, requires ident but input array");
-            }
             r_exp = (ExprAST *) (&(*rExp_));
             r_exp_value = r_exp->CodeGen(ir);
             return ir.builder_->CreateStore(r_exp_value, value, "store");
@@ -827,34 +816,13 @@ bool ExprAST::get_params(BasicBlock *entry_block,
         return false;
     }
     auto arg = func->arg_begin();
-    int i = 0;
     for (auto &item: param_lists_) {
-        auto param = (ExprAST *) &(*item);
-        if (arg->getType()->isPointerTy()) {
-            if (param->type_ == kAtomArray) {
-                return false;
-            }
-            if (param->type_ == kAtomIdent) {
-                llvm::Value *value = ir.get_value(this->ident_, entry_block);
-                if (value->getType()->isPointerTy()) {
-                    temp_args.push_back(value);
-                } else {
-                    return false;
-                }
-            } else {
-                temp_args.push_back(param->CodeGen(ir));
-            }
-        } else {
-            if (param->type_ == kAtomIdent) {
-                llvm::Value *value = ir.get_value(this->ident_, entry_block);
-                if (value->getType()->isPointerTy()) {
-                    return false;
-                }
-                temp_args.push_back(value);
-            } else {
-                temp_args.push_back(param->CodeGen(ir));
-            }
+        auto value = item->CodeGen(ir);
+        if ((arg->getType()->isPointerTy() && !value->getType()->isPointerTy()) ||
+                (arg->getType()->isIntegerTy() && !value->getType()->isIntegerTy())) {
+            return false;
         }
+        temp_args.emplace_back(value);
         arg++;
     }
     return true;
@@ -929,7 +897,7 @@ llvm::Value *BaseAST::GetOffsetPointer(llvm::Value *tar_pointer, BaseAST *offset
     const_0 = BaseAST::GetOffset(0, ir);
     const_i = BaseAST::GetOffset(offset, ir);
     llvm::Value *idx[] = {const_0, const_i};
-    if (tar_pointer->getType()->isArrayTy()) {
+    if (tar_pointer->getType()->getPointerElementType()->isArrayTy()) {
         array_i = ir.builder_->CreateGEP(tar_pointer, idx);
     } else {
         array_i = ir.builder_->CreateGEP(tar_pointer, const_i);
@@ -952,4 +920,25 @@ llvm::Value *BaseAST::GetOffset(BaseAST *offset, IR &ir) {
 llvm::Value *BaseAST::GetOffset(int tar, IR &ir) {
     llvm::IntegerType *integerType = llvm::IntegerType::getInt32Ty(ir.module_->getContext());
     return llvm::ConstantInt::get(integerType, tar);
+}
+
+llvm::Value *BaseAST::GetOffsetPointer(llvm::Value *tar_pointer, int offset, IR &ir) {
+    if (!tar_pointer->getType()->isPointerTy()) {
+        llvm::report_fatal_error("input type error");
+    }
+    llvm::Value *const_0 = nullptr;
+    llvm::Value *const_i = nullptr;
+    llvm::Value *array_i = nullptr;
+    llvm::IntegerType *integerType = llvm::IntegerType::getInt32Ty(ir.module_->getContext());
+
+    const_0 = BaseAST::GetOffset(0, ir);
+    const_i = BaseAST::GetOffset(offset, ir);
+    llvm::Value *idx[] = {const_0, const_i};
+    if (tar_pointer->getType()->getPointerElementType()->isArrayTy()) {
+        array_i = ir.builder_->CreateGEP(tar_pointer, idx);
+    } else {
+        array_i = ir.builder_->CreateGEP(tar_pointer, const_i);
+    }
+
+    return array_i;
 }
