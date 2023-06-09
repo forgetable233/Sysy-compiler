@@ -597,19 +597,19 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                     switch (type_) {
                         case kAddAssign: {
                             op_result = ir.builder_->CreateAdd(l_exp_value, r_exp_value);
-                            break;
+                            return ir.builder_->CreateStore(op_result, l_exp_value, "store");
                         }
                         case kSubAssign: {
                             op_result = ir.builder_->CreateSub(l_exp_value, r_exp_value);
-                            break;
+                            return ir.builder_->CreateStore(op_result, l_exp_value, "store");
                         }
                         case kMulAssign: {
                             op_result = ir.builder_->CreateMul(l_exp_value, r_exp_value);
-                            break;
+                            return ir.builder_->CreateStore(op_result, l_exp_value, "store");
                         }
                         case kDivAssign: {
                             op_result = ir.builder_->CreateUDiv(l_exp_value, r_exp_value);
-                            break;
+                            return ir.builder_->CreateStore(op_result, l_exp_value, "store");
                         }
                         default:
                             llvm::report_fatal_error("undefined type");
