@@ -174,7 +174,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                                                int_type,
                                                false,
                                                llvm::GlobalVariable::ExternalLinkage,
-                                               nullptr,
+                                               llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()), 32),
                                                this->ident_);
                 var->setInitializer(llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()), 0));
                 ir.push_global_value(var, this->ident_);
