@@ -181,6 +181,8 @@ public:
 
     std::string ident_;
 
+    bool isBlock = false;
+
     std::unique_ptr<BaseAST> exp_ = nullptr;
     std::unique_ptr<BaseAST> block_ = nullptr;
     std::unique_ptr<BaseAST> true_block_ = nullptr;

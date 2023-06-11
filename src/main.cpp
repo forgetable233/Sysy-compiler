@@ -55,9 +55,9 @@ int main(int argc, const char *argv[]) {
     // 下面为测试模块
     unique_ptr<BaseAST> ast;
     auto ret = yyparse(ast);
-    if (ret) {
-        return -1;
-    }
+//    if (ret) {
+//        return -1;
+//    }
     assert(!ret);
 //    ast->Dump(0);
     ast->BuildAstTree();
@@ -65,11 +65,11 @@ int main(int argc, const char *argv[]) {
     ast->CodeGen(ir);
     std::cout << std::endl <<  "finish CodeGen" << std::endl;
 
-    if (store_file(ir, input_file_name)) {
-        std::cout << "successfully store a file\n";
-    } else {
-        std::cerr << "unable to store the target file\n";
-    }
+//    if (store_file(ir, input_file_name)) {
+//        std::cout << "successfully store a file\n";
+//    } else {
+//        std::cerr << "unable to store the target file\n";
+//    }
     ir.module_->print(llvm::outs(), nullptr);
     return 0;
 }

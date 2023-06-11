@@ -278,6 +278,7 @@ Stmt
     ast->type_ = kIf;
     ast->exp_ = unique_ptr<BaseAST>($3);
     ast->true_block_ = unique_ptr<BaseAST>($6);
+    ast->isBlock = true;
     $$ = ast;
   } | WHILE L_PAREN Expr R_PAREN L_BRACE Block R_BRACE {
     auto ast = new StmtAST();
@@ -285,9 +286,7 @@ Stmt
     ast->exp_ = unique_ptr<BaseAST>($3);
     ast->block_ = unique_ptr<BaseAST>($6);
     $$ = ast;
-  } | IF L_PAREN Expr R_PAREN
-  L_BRACE Block R_BRACE
-  ELSE L_BRACE Block R_BRACE {
+  } | IF L_PAREN Expr R_PAREN L_BRACE Block R_BRACE ELSE L_BRACE Block R_BRACE {
     auto ast = new StmtAST();
     ast->type_ = kIf;
     ast->exp_ = unique_ptr<BaseAST>($3);
