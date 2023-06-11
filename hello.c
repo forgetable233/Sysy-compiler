@@ -1,7 +1,7 @@
 int main() {
     int a = 10;
-    if (a) {
-        a = 1;
-    }
+    int b = 0;
+    while (a)
+        b = 1;
     return a;
 }
