@@ -160,11 +160,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
     llvm::Value *value;
     llvm::IntegerType *int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
     llvm::GlobalVariable *var;
-    llvm::Value *tamp_value = ir.get_global_value(this->ident_);
     std::vector<llvm::Constant *> const_array_elems;
-    if (tamp_value) {
-        llvm::report_fatal_error("The variable has been declared in global declare");
-    }
     BasicBlock *current_block = ir.GetCurrentBlock();
     std::string block_name;
     switch (type_) {
@@ -180,9 +176,6 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 ir.push_global_value(var, this->ident_);
                 return var;
             } else {
-                if (ir.get_value(this->ident_, current_block)) {
-                    llvm::report_fatal_error("The param has been declared\n");
-                }
                 block_name = current_block->current_->getParent()->getName().str();
                 block_name += current_block->current_->getName().str();
                 value = ir.builder_->CreateAlloca(int_type, nullptr, this->ident_);
@@ -669,9 +662,6 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
         if (ast->type_ == kDeclare) {
             param_types.emplace_back(ir.builder_->getInt32Ty());
         } else if (ast->type_ == kDeclareArray) {
-            if (ast->array_size_ <= 0) {
-                llvm::report_fatal_error("The size of the array must be positive\n");
-            }
             llvm::IntegerType *int_type = llvm::IntegerType::get(ir.module_->getContext(), 32);
             llvm::PointerType *pointer = llvm::PointerType::get(int_type, 0);
             param_types.emplace_back(pointer);
