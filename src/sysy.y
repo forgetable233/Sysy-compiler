@@ -153,6 +153,28 @@ ParamList
     	ident_list->emplace_back(move(item));
     }
     $$ = ident_list;
+} | Type IDENT L_BRACK R_BRACK {
+    vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArray;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>($2);
+//    ast->array_size_ = $4;
+    ident_list->emplace_back(unique_ptr<BaseAST>(ast));
+    $$ = ident_list;
+} | Type IDENT L_BRACK R_BRACK ',' ParamList {
+    vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArray;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>($2);
+//    ast->array_size_ = $4;
+    ident_list->emplace_back(unique_ptr<BaseAST>(ast));
+    auto list = $6;
+    for (auto &item : *list) {
+    	ident_list->emplace_back(move(item));
+    }
+    $$ = ident_list;
 }
 ;
 
@@ -309,7 +331,6 @@ Stmt
     ast->type_ = kIf;
     ast->exp_ = unique_ptr<BaseAST>($3);
     ast->true_block_ = unique_ptr<BaseAST>($5);
-    ast->isBlock = true;
     $$ = ast;
   } | WHILE L_PAREN Expr R_PAREN Stmt {
     auto ast = new StmtAST();

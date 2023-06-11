@@ -11,6 +11,7 @@
 #include "ast.h"
 
 // TODO 完成多个变量的声明以及定义
+// TODO 重新组织param_list
 using namespace std;
 
 // 声明 lexer 的输入, 以及 parser 函数
@@ -41,16 +42,16 @@ int main(int argc, const char *argv[]) {
     std::string test_folder_name = "../function_test2020/";
     std::string ir_name = "top";
     IR ir(ir_name);
-//    auto input = argv[1];
-    auto input = "../tests/10_break.sy";
+    auto input = argv[1];
+//    auto input = "../tests/10_break.sy";
     std::string test_hello = "../hello.c";
     std::string file_path = input;
     std::string input_file_name(file_path, 9, file_path.length());
     std::cout << input_file_name;
     // 打开输入文件, 并且指定 lexer 在解析的时候读取这个文件
-//    yyin = fopen(file_path.c_str(), "r");
-    yyin = fopen(test_hello.c_str(), "r");
-    std::cout << test_hello << endl;
+    yyin = fopen(file_path.c_str(), "r");
+//    yyin = fopen(test_hello.c_str(), "r");
+//    std::cout << test_hello << endl;
     std::cout << "open succeed\n";
     assert(yyin);
 
@@ -58,9 +59,9 @@ int main(int argc, const char *argv[]) {
     // 下面为测试模块
     unique_ptr<BaseAST> ast;
     auto ret = yyparse(ast);
-//    if (ret) {
-//        return -1;
-//    }
+    if (ret) {
+        return -1;
+    }
     assert(!ret);
 //    ast->Dump(0);
     ast->BuildAstTree();
@@ -68,11 +69,11 @@ int main(int argc, const char *argv[]) {
     ast->CodeGen(ir);
     std::cout << std::endl <<  "finish CodeGen" << std::endl;
 
-//    if (store_file(ir, input_file_name)) {
-//        std::cout << "successfully store a file\n";
-//    } else {
-//        std::cerr << "unable to store the target file\n";
-//    }
-    ir.module_->print(llvm::outs(), nullptr);
+    if (store_file(ir, input_file_name)) {
+        std::cout << "successfully store a file\n";
+    } else {
+        std::cerr << "unable to store the target file\n";
+    }
+//    ir.module_->print(llvm::outs(), nullptr);
     return 0;
 }
