@@ -50,9 +50,9 @@ using namespace std;
 %token <str_val> L_PAREN R_PAREN L_BRACK R_BRACK L_BRACE R_BRACE
 
 // 非终结符的类型定义
-%type <ast_val> CompUnit FuncDef Type Block Stmt Expr Declare
+%type <ast_val> CompUnit FuncDef Type Block Stmt Expr Var
 %type <int_val> Number
-%type <ast_list> ParamList Params BlockItem
+%type <ast_list> ParamList Params BlockItem Declare VarDef InitVal
 
 %right AT
 %left MUL_ASSIGN DIV_ASSIGN
@@ -260,7 +260,10 @@ BlockItem
     $$ = item_list;
   } | Declare BlockItem {
     auto item_list = new vector<unique_ptr<BaseAST>>();
-    item_list->emplace_back(unique_ptr<BaseAST>($1));
+    auto declare_list = $1;
+    for (auto &item : *declare_list){
+    	item_list->emplace_back(std::move(item));
+    }
     auto list = $2;
     for (auto &item : *list) {
     	item_list->emplace_back(std::move(item));
@@ -269,27 +272,66 @@ BlockItem
   }
   ;
 
-Declare
-  : INT IDENT ';' {
+VarDef
+  : Var {
+    auto var_list = new vector<BaseAST>();
+    var_list->emplace_back(unique_ptr<BaseAST>($1));
+    $$ = var_list;
+  } Var ',' VarDef {
+    auto var_list = new vector<BaseAST>();
+    var_list.emplace_back(unique_ptr<BaseAST>($1));
+    auto temp_list = $2;
+    for (auto &item : *temp_list) {
+    	var_list->emplace_back(std::move(item));
+    }
+    $$ = var_list;
+  }
+  ;
+
+Var
+  : IDENT {
     auto ast = new StmtAST();
     ast->type_ = kDeclare;
     ast->key_word_ = *make_unique<string>("int");
-    ast->ident_ = *unique_ptr<string>($2);
+    ast->ident_ = *unique_ptr<string>($1);
     $$ = ast;
-  } | INT IDENT ASS Expr ';' {
+  } | IDENT ASS InitVal {
     auto ast = new StmtAST();
     ast->type_ = kDeclareAssign;
     ast->key_word_ = *make_unique<string>("int");
-    ast->ident_ = *unique_ptr<string>($2);
-    ast->exp_ = unique_ptr<BaseAST>($4);
+    ast->ident_ = *unique_ptr<string>($1);
+//    ast->exp_ = unique_ptr<BaseAST>($4);
     $$ = ast;
+  } | IDENT L_BRACK Number R_BRACK {
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArray;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>($2);
+//    ast->array_size_ = $4;
+    $$ = ast;
+  } | IDENT L_BRACK Number R_BRACK ASS InitVal {
+
+  }
+  ;
+
+InitVal
+  : Expr {
+
+  } | L_BRACE InitVal R_BRACE {
+
+  } | Expr ',' InitVal {
+
+  } | L_BRACE InitVal R_BRACE ',' InitVal {
+
+  }
+
+Declare
+  : INT VarDef  ';' {
+
+  } | INT IDENT ASS Expr ';' {
+
   } | INT IDENT L_BRACK Number R_BRACK ';' {
-     auto ast = new StmtAST();
-     ast->type_ = kDeclareArray;
-     ast->key_word_ = *make_unique<string>("int");
-     ast->ident_ = *unique_ptr<string>($2);
-     ast->array_size_ = $4;
-     $$ = ast;
+
   }
   ;
 
