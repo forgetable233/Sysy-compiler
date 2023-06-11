@@ -25,7 +25,7 @@ int main(int argc, const char *argv[]) {
 //    assert(argc == 5);
 //    auto mode = argv[1];
 //    auto input = argv[2];
-    auto input = "../hello.c";
+    auto input = argv[0];
 //    auto output = argv[4];
     // 打开输入文件, 并且指定 lexer 在解析的时候读取这个文件
     yyin = fopen(input, "r");
@@ -39,9 +39,10 @@ int main(int argc, const char *argv[]) {
     assert(!ret);
 //    ast->Dump(0);
     ast->BuildAstTree();
-
+    std::cout << "Finish AST Tree build\n";
     ast->CodeGen(ir);
     std::cout << std::endl <<  "finish CodeGen" << std::endl;
+
     ir.module_->print(llvm::outs(), nullptr);
     return 0;
 }
