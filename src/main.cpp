@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 #include <llvm/Support/raw_ostream.h>
+#include <iostream>
+#include <fstream>
 
 #include "ast.h"
 
@@ -19,23 +21,42 @@ using namespace std;
 extern FILE *yyin;
 extern int yyparse(unique_ptr<BaseAST> &ast);
 
+bool store_file(IR &ir, std::string &file_name) {
+    std::string file(file_name, 0, file_name.length() - 2);
+    file += "ll";
+    std::error_code EC;
+    llvm::raw_fd_ostream output(llvm::StringRef(file), EC);
+
+    if (EC) {
+        llvm::errs() << "unable to open the tar file: " << EC.message() << '\n';
+        return false;
+    }
+    ir.module_->print(output, nullptr);
+    output.flush();
+    output.close();
+    return true;
+}
+
 int main(int argc, const char *argv[]) {
+    std::string test_folder_name = "../function_test2020/";
     std::string ir_name = "top";
     IR ir(ir_name);
-//    assert(argc == 5);
-//    auto mode = argv[1];
-//    auto input = argv[2];
-    auto input = argv[0];
-//    auto output = argv[4];
+    auto input = argv[1];
+    std::string file_path = input;
+    std::string input_file_name(file_path, 21, file_path.length());
+    std::cout << input_file_name;
     // 打开输入文件, 并且指定 lexer 在解析的时候读取这个文件
-    yyin = fopen(input, "r");
+    yyin = fopen(file_path.c_str(), "r");
+    std::cout << "open succeed\n";
     assert(yyin);
 
     // 调用 parser 函数, parser 函数会进一步调用 lexer 解析输入文件的
     // 下面为测试模块
     unique_ptr<BaseAST> ast;
-//    auto unit = (CompUnitAST*)(&(*ast));
     auto ret = yyparse(ast);
+    if (ret) {
+        return -1;
+    }
     assert(!ret);
 //    ast->Dump(0);
     ast->BuildAstTree();
@@ -43,6 +64,11 @@ int main(int argc, const char *argv[]) {
     ast->CodeGen(ir);
     std::cout << std::endl <<  "finish CodeGen" << std::endl;
 
-    ir.module_->print(llvm::outs(), nullptr);
+    if (store_file(ir, input_file_name)) {
+        std::cout << "successfully store a file\n";
+    } else {
+        std::cerr << "unable to store the target file\n";
+    }
+//    ir.module_->print(llvm::outs(), nullptr);
     return 0;
 }
