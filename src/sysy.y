@@ -50,9 +50,9 @@ using namespace std;
 %token <str_val> L_PAREN R_PAREN L_BRACK R_BRACK L_BRACE R_BRACE
 
 // 非终结符的类型定义
-%type <ast_val> CompUnit FuncDef Type Block Stmt Expr
+%type <ast_val> CompUnit FuncDef Type Block Stmt Expr Declare
 %type <int_val> Number
-%type <ast_list> ParamList Params
+%type <ast_list> ParamList Params BlockItem
 
 %right AT
 %left MUL_ASSIGN DIV_ASSIGN
@@ -167,12 +167,12 @@ ParamList
 // 虽然此处你看不出用 unique_ptr 和手动 delete 的区别, 但当我们定义了 AST 之后
 // 这种写法会省下很多内存管理的负担
 FuncDef
-  : Type IDENT L_PAREN R_PAREN L_BRACE Block R_BRACE {
+  : Type IDENT L_PAREN R_PAREN Block {
     auto ast = new FuncDefAST();
 //    ast->type_ = kFunction;
     ast->func_type_ = unique_ptr<BaseAST>($1);
     ast->ident_ = *unique_ptr<string>($2);
-    ast->block_ = unique_ptr<BaseAST>($6);
+    ast->block_ = unique_ptr<BaseAST>($5);
     $$ = ast;
   } | Type IDENT ';'{
     auto ast = new StmtAST();
@@ -180,12 +180,12 @@ FuncDef
     ast->key_word_ = *make_unique<string>("int");
     ast->ident_ = *unique_ptr<string>($2);
     $$ = ast;
-  } | Type IDENT L_PAREN ParamList R_PAREN L_BRACE Block R_BRACE {
+  } | Type IDENT L_PAREN ParamList R_PAREN Block {
     auto ast = new FuncDefAST();
 //    ast->type_ = kFunction;
     ast->func_type_ = unique_ptr<BaseAST>($1);
     ast->ident_ = *unique_ptr<string>($2);
-    ast->block_ = unique_ptr<BaseAST>($7);
+    ast->block_ = unique_ptr<BaseAST>($6);
     auto list = $4;
     for (auto &item : *list) {
     	ast->param_lists_.emplace_back(move(item));
@@ -230,32 +230,47 @@ Type
   ;
 
 Block
-  : Stmt {
+  : L_BRACE BlockItem R_BRACE{
     auto ast = new BlockAST();
     // auto temp_stmt = ;
-    ast->stmt_.emplace_back(unique_ptr<BaseAST>($1));
-    $$ = ast;
-  } | Stmt Block {
-    auto ast = new BlockAST();
-    // auto temp_stmt = ;
-    ast->stmt_.emplace_back(unique_ptr<BaseAST>($1));
-
-    auto temp_block = $2;
-    auto block = (BlockAST*)temp_block;
-    for(auto &item : block->stmt_) {
-        ast->stmt_.emplace_back(move(item));
+    auto list = $2;
+    for (auto &item : *list) {
+    	ast->stmt_.emplace_back(std::move(item));
     }
     $$ = ast;
   }
   ;
 
-Stmt
-  : RETURN Expr ';' {
-    auto ast = new StmtAST();
-    ast->type_ = kReturn;
-    ast->exp_ = unique_ptr<BaseAST>($2);
-    $$ = ast;
-  } | INT IDENT ';' {
+BlockItem
+  : Stmt {
+    auto item_list = new vector<unique_ptr<BaseAST>>();
+    item_list->emplace_back(unique_ptr<BaseAST>($1));
+    $$ = item_list;
+  } | Declare {
+    auto item_list = new vector<unique_ptr<BaseAST>>();
+    item_list->emplace_back(unique_ptr<BaseAST>($1));
+    $$ = item_list;
+  } | Stmt BlockItem {
+    auto item_list = new vector<unique_ptr<BaseAST>>();
+    item_list->emplace_back(unique_ptr<BaseAST>($1));
+    auto list = $2;
+    for (auto &item : *list) {
+    	item_list->emplace_back(std::move(item));
+    }
+    $$ = item_list;
+  } | Declare BlockItem {
+    auto item_list = new vector<unique_ptr<BaseAST>>();
+    item_list->emplace_back(unique_ptr<BaseAST>($1));
+    auto list = $2;
+    for (auto &item : *list) {
+    	item_list->emplace_back(std::move(item));
+    }
+    $$ = item_list;
+  }
+  ;
+
+Declare
+  : INT IDENT ';' {
     auto ast = new StmtAST();
     ast->type_ = kDeclare;
     ast->key_word_ = *make_unique<string>("int");
@@ -268,43 +283,52 @@ Stmt
     ast->ident_ = *unique_ptr<string>($2);
     ast->exp_ = unique_ptr<BaseAST>($4);
     $$ = ast;
-  } | Expr ';' {
-    auto ast = new StmtAST();
-    ast->type_ = kExpression;
-    ast->exp_ = unique_ptr<BaseAST>($1);
-    $$ = ast;
-  } | IF L_PAREN Expr R_PAREN L_BRACE Block R_BRACE {
-    auto ast = new StmtAST();
-    ast->type_ = kIf;
-    ast->exp_ = unique_ptr<BaseAST>($3);
-    ast->true_block_ = unique_ptr<BaseAST>($6);
-    ast->isBlock = true;
-    $$ = ast;
-  } | WHILE L_PAREN Expr R_PAREN L_BRACE Block R_BRACE {
-    auto ast = new StmtAST();
-    ast->type_ = kWhile;
-    ast->exp_ = unique_ptr<BaseAST>($3);
-    ast->block_ = unique_ptr<BaseAST>($6);
-    $$ = ast;
-  } | IF L_PAREN Expr R_PAREN L_BRACE Block R_BRACE ELSE L_BRACE Block R_BRACE {
-    auto ast = new StmtAST();
-    ast->type_ = kIf;
-    ast->exp_ = unique_ptr<BaseAST>($3);
-    ast->true_block_ = unique_ptr<BaseAST>($6);
-    ast->false_block_ = unique_ptr<BaseAST>($10);
-    $$ = ast;
-  } | STATIC INT IDENT ';' {
-     auto ast = new StmtAST();
-     ast->type_ = kStatic;
-     ast->key_word_ = *make_unique<string>("int");
-     ast->ident_ = *unique_ptr<string>($3);
-     $$ = ast;
   } | INT IDENT L_BRACK Number R_BRACK ';' {
      auto ast = new StmtAST();
      ast->type_ = kDeclareArray;
      ast->key_word_ = *make_unique<string>("int");
      ast->ident_ = *unique_ptr<string>($2);
      ast->array_size_ = $4;
+     $$ = ast;
+  }
+  ;
+
+Stmt
+  : RETURN Expr ';' {
+    auto ast = new StmtAST();
+    ast->type_ = kReturn;
+    ast->exp_ = unique_ptr<BaseAST>($2);
+    $$ = ast;
+  } | Expr ';' {
+    auto ast = new StmtAST();
+    ast->type_ = kExpression;
+    ast->exp_ = unique_ptr<BaseAST>($1);
+    $$ = ast;
+  } | IF L_PAREN Expr R_PAREN Stmt {
+    auto ast = new StmtAST();
+    ast->type_ = kIf;
+    ast->exp_ = unique_ptr<BaseAST>($3);
+    ast->true_block_ = unique_ptr<BaseAST>($5);
+    ast->isBlock = true;
+    $$ = ast;
+  } | WHILE L_PAREN Expr R_PAREN Stmt {
+    auto ast = new StmtAST();
+    ast->type_ = kWhile;
+    ast->exp_ = unique_ptr<BaseAST>($3);
+    ast->block_ = unique_ptr<BaseAST>($5);
+    $$ = ast;
+  } | IF L_PAREN Expr R_PAREN Stmt ELSE Stmt {
+    auto ast = new StmtAST();
+    ast->type_ = kIf;
+    ast->exp_ = unique_ptr<BaseAST>($3);
+    ast->true_block_ = unique_ptr<BaseAST>($5);
+    ast->false_block_ = unique_ptr<BaseAST>($7);
+    $$ = ast;
+  } | STATIC INT IDENT ';' {
+     auto ast = new StmtAST();
+     ast->type_ = kStatic;
+     ast->key_word_ = *make_unique<string>("int");
+     ast->ident_ = *unique_ptr<string>($3);
      $$ = ast;
   } | CONTINUE ';' {
      auto ast = new StmtAST();
@@ -313,6 +337,10 @@ Stmt
   } | BREAK ';' {
      auto ast = new StmtAST();
      ast->type_ = kBreak;
+     $$ = ast;
+  } | Block {
+     auto ast = $1;
+
      $$ = ast;
   }
   ;

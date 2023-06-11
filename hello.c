@@ -1,5 +1,7 @@
-int a() {
-    int m;
-    m = 0;
-    return m;
+int main() {
+    int a = 10;
+    if (a) {
+        a = 1;
+    }
+    return a;
 }
