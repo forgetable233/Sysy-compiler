@@ -582,6 +582,8 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                     return ir.builder_->CreateICmpNE(l_exp_value, r_exp_value, "not_equal");
                 case kAnd:
                     return ir.builder_->CreateAnd(l_exp_value, r_exp_value, "and");
+                case kMod:
+                    return ir.builder_->CreateURem(l_exp_value, r_exp_value, "mod");
                 case kOr:
                     return ir.builder_->CreateOr(l_exp_value, r_exp_value, "or");
                 case kLarger:

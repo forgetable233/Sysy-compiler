@@ -68,6 +68,7 @@ Hexadecimal   0[xX][0-9a-fA-F]+
 "/="            { return DIV_ASSIGN; }
 "!"             { return NOT; }
 "&"             { return AT; }
+"%"             { return MOD; }
 
 "("			    { return L_PAREN; }
 ")"			    { return R_PAREN; }

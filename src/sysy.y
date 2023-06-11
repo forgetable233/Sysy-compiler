@@ -44,7 +44,7 @@ using namespace std;
 %token RETURN
 %token <str_val> IDENT INT VOID DOUBLE FLOAT ADD SUB MUL DIV ASS STATIC CONTINUE BREAK
 %token <str_val> EQUAL NOT_EQUAL AND OR LESS LESS_EQUAL LARGER LARGER_EQUAL
-%token <str_val> ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN NOT
+%token <str_val> ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN NOT MOD
 %token <str_val> IF WHILE ELSE TRUE FALSE AT
 %token <int_val> INT_CONST
 %token <str_val> L_PAREN R_PAREN L_BRACK R_BRACK L_BRACE R_BRACE
@@ -63,7 +63,7 @@ using namespace std;
 %left EQUAL NOT_EQUAL
 %left LARGER LARGER_EQUAL LESS LESS_EQUAL
 %left ADD SUB
-%left MUL DIV
+%left MUL DIV MOD
 %right NOT
 %right AUTO_INCREASE AUTO_DECREASE
 // %type <str_val> Number
@@ -351,6 +351,12 @@ Expr
   } | Expr DIV Expr {
     auto ast = new ExprAST();
     ast->type_ = kDiv;
+    ast->lExp_ = unique_ptr<BaseAST>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($3);
+    $$ = ast;
+  } | Expr MOD Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kMod ;
     ast->lExp_ = unique_ptr<BaseAST>($1);
     ast->rExp_ = unique_ptr<BaseAST>($3);
     $$ = ast;
