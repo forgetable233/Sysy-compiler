@@ -3,6 +3,7 @@
   #include <string>
   #include <vector>
   #include "../src/ast.h"
+  #inclue <iostream>
 }
 
 %{
@@ -42,7 +43,7 @@ using namespace std;
 // 新添加了ast_token
 // 终结符类型定义
 %token RETURN
-%token <str_val> IDENT INT VOID DOUBLE FLOAT ADD SUB MUL DIV ASS STATIC CONTINUE BREAK
+%token <str_val> IDENT INT VOID DOUBLE FLOAT ADD SUB MUL DIV ASS STATIC CONTINUE BREAK CONST
 %token <str_val> EQUAL NOT_EQUAL AND OR LESS LESS_EQUAL LARGER LARGER_EQUAL
 %token <str_val> ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN NOT MOD
 %token <str_val> IF WHILE ELSE TRUE FALSE AT
@@ -252,7 +253,7 @@ Type
   ;
 
 Block
-  : L_BRACE BlockItem R_BRACE{
+  : L_BRACE BlockItem R_BRACE {
     auto ast = new BlockAST();
     // auto temp_stmt = ;
     auto list = $2;
@@ -270,7 +271,10 @@ BlockItem
     $$ = item_list;
   } | Declare {
     auto item_list = new vector<unique_ptr<BaseAST>>();
-    item_list->emplace_back(unique_ptr<BaseAST>($1));
+    auto list = $1;
+    for (auto &item : *list) {
+    	item_list->emplace_back(std::move(item));
+    }
     $$ = item_list;
   } | Stmt BlockItem {
     auto item_list = new vector<unique_ptr<BaseAST>>();
@@ -296,16 +300,8 @@ BlockItem
 
 VarDef
   : Var {
-    auto var_list = new vector<BaseAST>();
+    auto var_list = new vector<unique_ptr<BaseAST>>();
     var_list->emplace_back(unique_ptr<BaseAST>($1));
-    $$ = var_list;
-  } Var ',' VarDef {
-    auto var_list = new vector<BaseAST>();
-    var_list.emplace_back(unique_ptr<BaseAST>($1));
-    auto temp_list = $2;
-    for (auto &item : *temp_list) {
-    	var_list->emplace_back(std::move(item));
-    }
     $$ = var_list;
   }
   ;
@@ -322,38 +318,76 @@ Var
     ast->type_ = kDeclareAssign;
     ast->key_word_ = *make_unique<string>("int");
     ast->ident_ = *unique_ptr<string>($1);
-//    ast->exp_ = unique_ptr<BaseAST>($4);
+    auto list = $3;
+    for (auto &item : *list) {
+    	ast->assign_list_.emplace_back(std::move(item));
+    }
     $$ = ast;
   } | IDENT L_BRACK Number R_BRACK {
     auto ast = new StmtAST();
     ast->type_ = kDeclareArray;
     ast->key_word_ = *make_unique<string>("int");
-    ast->ident_ = *unique_ptr<string>($2);
-//    ast->array_size_ = $4;
+    ast->ident_ = *unique_ptr<string>($1);
+    ast->array_size_ = $3;
     $$ = ast;
   } | IDENT L_BRACK Number R_BRACK ASS InitVal {
-
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArrayAssign;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>($1);
+    ast->array_size_ = $3;
+    auto list = $6;
+    for (auto &item : *list) {
+    	ast->assign_list_.emplace_back(std::move(item));
+    }
+    $$ = ast;
   }
   ;
 
 InitVal
   : Expr {
-
+    auto list = new vector<unique_ptr<BaseAST>>();
+    list->emplace_back(unique_ptr<BaseAST>($1));
+    $$ = list;
   } | L_BRACE InitVal R_BRACE {
-
+    auto list = new vector<unique_ptr<BaseAST>>();
+    auto temp_list = $2;
+    for (auto &item : *temp_list) {
+    	list->emplace_back(std::move(item));
+    }
+    $$ = list;
   } | Expr ',' InitVal {
-
+     auto list = new vector<unique_ptr<BaseAST>>();
+     list->emplace_back(unique_ptr<BaseAST>($1));
+     auto temp_list = $3;
+     for (auto &item : *temp_list) {
+     	list->emplace_back(std::move(item));
+     }
+     $$ = list;
   } | L_BRACE InitVal R_BRACE ',' InitVal {
-
+      auto list = new vector<unique_ptr<BaseAST>>();
+      auto list_1 = $2;
+      auto list_2 = $5;
+      for (auto &item : *list_1) {
+      	list->emplace_back(std::move(item));
+      }
+      for (auto &item : *list_2) {
+      	list->emplace_back(std::move(item));
+      }
+      $$ = list;
   }
+  ;
 
 Declare
   : INT VarDef  ';' {
-
-  } | INT IDENT ASS Expr ';' {
-
-  } | INT IDENT L_BRACK Number R_BRACK ';' {
-
+    auto list = $2;
+    $$ = list;
+  } | CONST INT VarDef ';' {
+    auto list = $3;
+    for (auto &item : *list) {
+	item->isConst = true;
+    }
+    $$ = list;
   }
   ;
 
@@ -403,7 +437,6 @@ Stmt
      $$ = ast;
   } | Block {
      auto ast = $1;
-
      $$ = ast;
   }
   ;

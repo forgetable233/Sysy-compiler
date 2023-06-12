@@ -106,6 +106,8 @@ class BaseAST {
 private:
 
 public:
+    bool isConst = false;
+
     BaseAST *parent_ = nullptr;
 
     static bool is_array(llvm::Value *value);
@@ -180,6 +182,8 @@ public:
     std::string key_word_;
 
     std::string ident_;
+
+    std::vector<std::unique_ptr<BaseAST>> assign_list_;
 
     bool hasNumber = false;
 

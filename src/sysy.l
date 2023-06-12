@@ -50,6 +50,7 @@ Hexadecimal   0[xX][0-9a-fA-F]+
 "true"          { return TRUE; }
 "false"         { return FALSE; }
 "static"        { return STATIC; }
+"const"         { return CONST; }
 "+"             { return ADD; }
 "-"             { return SUB; }
 "*"             { return MUL; }
