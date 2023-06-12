@@ -170,7 +170,8 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                                                int_type,
                                                false,
                                                llvm::GlobalVariable::ExternalLinkage,
-                                               llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()), 32),
+                                               llvm::ConstantInt::get(
+                                                       llvm::IntegerType::getInt32Ty(ir.module_->getContext()), 32),
                                                this->ident_);
                 var->setInitializer(llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()), 0));
                 ir.push_global_value(var, this->ident_);
@@ -187,11 +188,12 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
         }
         case kDeclareAssign:
             if (!current_block) {
+                auto exp = (ExprAST *) &(*this->assign_list_.begin());
                 var = new llvm::GlobalVariable(*ir.module_,
                                                int_type,
                                                false,
                                                llvm::GlobalVariable::ExternalLinkage,
-                                               llvm::ConstantInt::get(int_type, this->array_size_),
+                                               llvm::ConstantInt::get(int_type, exp->num_),
                                                this->ident_);
                 ir.push_global_value(var, this->ident_);
                 break;
@@ -811,7 +813,7 @@ bool ExprAST::get_params(BasicBlock *entry_block,
     for (auto &item: param_lists_) {
         auto value = item->CodeGen(ir);
         if ((arg->getType()->isPointerTy() && !value->getType()->isPointerTy()) ||
-                (arg->getType()->isIntegerTy() && !value->getType()->isIntegerTy())) {
+            (arg->getType()->isIntegerTy() && !value->getType()->isIntegerTy())) {
             return false;
         }
         temp_args.emplace_back(value);

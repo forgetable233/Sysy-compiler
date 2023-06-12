@@ -1,9 +1,10 @@
+%glr-parser
 %code requires {
   #include <memory>
   #include <string>
   #include <vector>
   #include "../src/ast.h"
-  #inclue <iostream>
+  #include <iostream>
 }
 
 %{
@@ -53,7 +54,7 @@ using namespace std;
 // 非终结符的类型定义
 %type <ast_val> CompUnit FuncDef Type Block Stmt Expr Var
 %type <int_val> Number
-%type <ast_list> ParamList Params BlockItem Declare VarDef InitVal
+%type <ast_list> ParamList Params BlockItem Declare VarDef InitVal InitValArray
 
 %right AT
 %left MUL_ASSIGN DIV_ASSIGN
@@ -71,11 +72,6 @@ using namespace std;
 
 %%
 
-// 开始符, CompUnit ::= FuncDef, 大括号后声明了解析完成后 parser 要做的事情，这个整体是按照EBNF范式的形式组织的
-// 之前我们定义了 FuncDef 会返回一个 str_val, 也就是字符串指针
-// 而 parser 一旦解析完 CompUnit, 就说明所有的 token 都被解析了, 即解析结束了
-// 此时我们应该把 FuncDef 返回的结果收集起来, 作为 AST 传给调用 parser 的函数
-// $1 指代规则里第一个符号的返回值, 也就是 FuncDef 的返回值
 CompUnit
   : FuncDef {
     auto comp_unit = make_unique<CompUnitAST>();
@@ -86,6 +82,27 @@ CompUnit
     auto comp_unit = make_unique<CompUnitAST>();
     comp_unit->func_stmt_defs_.emplace_back(unique_ptr<BaseAST>($1));
 
+    auto temp_unit = $2;
+    auto block = ((CompUnitAST*)&(*temp_unit));
+    for (auto &item : block->func_stmt_defs_) {
+    	comp_unit->func_stmt_defs_.emplace_back(move(item));
+    }
+    $$ = ((BaseAST*)&(*comp_unit));
+    ast = move(comp_unit);
+  } | Declare {
+    auto comp_unit = make_unique<CompUnitAST>();
+    auto list = $1;
+    for (auto &item : *list) {
+    	comp_unit->func_stmt_defs_.emplace_back(std::move(item));
+    }
+    $$ = ((BaseAST*)&(*comp_unit));
+    ast = move(comp_unit);
+  } | Declare CompUnit {
+    auto comp_unit = make_unique<CompUnitAST>();
+    auto list = $1;
+    for (auto &item : *list) {
+    	comp_unit->func_stmt_defs_.emplace_back(std::move(item));
+    }
     auto temp_unit = $2;
     auto block = ((CompUnitAST*)&(*temp_unit));
     for (auto &item : block->func_stmt_defs_) {
@@ -192,20 +209,12 @@ ParamList
 FuncDef
   : Type IDENT L_PAREN R_PAREN Block {
     auto ast = new FuncDefAST();
-//    ast->type_ = kFunction;
     ast->func_type_ = unique_ptr<BaseAST>($1);
     ast->ident_ = *unique_ptr<string>($2);
     ast->block_ = unique_ptr<BaseAST>($5);
     $$ = ast;
-  } | Type IDENT ';'{
-    auto ast = new StmtAST();
-    ast->type_ = kDeclare;
-    ast->key_word_ = *make_unique<string>("int");
-    ast->ident_ = *unique_ptr<string>($2);
-    $$ = ast;
   } | Type IDENT L_PAREN ParamList R_PAREN Block {
     auto ast = new FuncDefAST();
-//    ast->type_ = kFunction;
     ast->func_type_ = unique_ptr<BaseAST>($1);
     ast->ident_ = *unique_ptr<string>($2);
     ast->block_ = unique_ptr<BaseAST>($6);
@@ -217,13 +226,6 @@ FuncDef
   } | Type IDENT L_BRACK Number R_BRACK ';' {
     auto ast = new StmtAST();
     ast->type_ = kDeclareArray;
-    ast->key_word_ = *make_unique<string>("int");
-    ast->ident_ = *unique_ptr<string>($2);
-    ast->array_size_ = $4;
-    $$ = ast;
-  } | Type IDENT ASS Number ';' {
-    auto ast = new StmtAST();
-    ast->type_ = kDeclareAssign;
     ast->key_word_ = *make_unique<string>("int");
     ast->ident_ = *unique_ptr<string>($2);
     ast->array_size_ = $4;
@@ -303,6 +305,14 @@ VarDef
     auto var_list = new vector<unique_ptr<BaseAST>>();
     var_list->emplace_back(unique_ptr<BaseAST>($1));
     $$ = var_list;
+  } | Var ',' VarDef {
+    auto var_list = new vector<unique_ptr<BaseAST>>();
+    var_list->emplace_back(unique_ptr<BaseAST>($1));
+    auto temp_list = $3;
+    for (auto &item : *temp_list) {
+    	var_list->emplace_back(std::move(item));
+    }
+    $$ = var_list;
   }
   ;
 
@@ -349,40 +359,30 @@ InitVal
     auto list = new vector<unique_ptr<BaseAST>>();
     list->emplace_back(unique_ptr<BaseAST>($1));
     $$ = list;
-  } | L_BRACE InitVal R_BRACE {
+  } | L_BRACE InitValArray R_BRACE {
     auto list = new vector<unique_ptr<BaseAST>>();
-    auto temp_list = $2;
-    for (auto &item : *temp_list) {
+    auto array = $2;
+    for (auto &item : *array) {
     	list->emplace_back(std::move(item));
     }
     $$ = list;
-  } | Expr ',' InitVal {
-     auto list = new vector<unique_ptr<BaseAST>>();
-     list->emplace_back(unique_ptr<BaseAST>($1));
-     auto temp_list = $3;
-     for (auto &item : *temp_list) {
-     	list->emplace_back(std::move(item));
-     }
-     $$ = list;
-  } | L_BRACE InitVal R_BRACE ',' InitVal {
-      auto list = new vector<unique_ptr<BaseAST>>();
-      auto list_1 = $2;
-      auto list_2 = $5;
-      for (auto &item : *list_1) {
-      	list->emplace_back(std::move(item));
-      }
-      for (auto &item : *list_2) {
-      	list->emplace_back(std::move(item));
-      }
-      $$ = list;
   }
   ;
 
+InitValArray
+  :  Params {
+
+  } | L_BRACE InitValArray R_BRACE ',' InitValArray {
+
+  } | L_BRACE InitValArray R_BRACE {
+
+  }
+  ;
 Declare
-  : INT VarDef  ';' {
+  : Type VarDef  ';' {
     auto list = $2;
     $$ = list;
-  } | CONST INT VarDef ';' {
+  } | CONST Type VarDef ';' {
     auto list = $3;
     for (auto &item : *list) {
 	item->isConst = true;
