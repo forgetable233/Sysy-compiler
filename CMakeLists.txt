@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
+set(CMAKE_CXX_COMPILER g++)
 project(compiler)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -49,7 +50,7 @@ link_directories(src)
 link_directories(${CMAKE_CURRENT_BINARY_DIR})
 link_directories(${INC_DIR})
 
-file(GLOB_RECURSE C_SOURCES "src/*.c")
+#file(GLOB_RECURSE C_SOURCES "src/*.c")
 file(GLOB_RECURSE CXX_SOURCES "src/*.cpp")
 file(GLOB_RECURSE CC_SOURCES "src/*.cc")
 file(GLOB_RECURSE H_SOURCES "src/*.h")
@@ -57,6 +58,7 @@ set(SOURCES ${C_SOURCES} ${CXX_SOURCES} ${CC_SOURCES}
         ${FLEX_Lexer_OUTPUTS} ${BISON_Parser_OUTPUT_SOURCE} ${H_SOURCES})
 
 llvm_map_components_to_libnames(llvm_libs support core irreader)
+add_compile_options(-g -std=c++17)
 add_executable(minic ${SOURCES})
 set_target_properties(minic PROPERTIES C_STANDARD 11 CXX_STANDARD 17)
 target_link_libraries(minic ${llvm_libs} pthread dl)
