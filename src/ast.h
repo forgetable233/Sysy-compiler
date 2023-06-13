@@ -207,6 +207,8 @@ public:
     llvm::Value *ErrorValue(const char *str) override;
 
     void BuildAstTree() override;
+
+    void ResetAssignSize(int size);
 };
 
 /**

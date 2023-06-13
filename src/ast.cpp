@@ -193,7 +193,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                                                int_type,
                                                false,
                                                llvm::GlobalVariable::ExternalLinkage,
-                                               llvm::ConstantInt::get(int_type, assign->num_),
+                                               llvm::dyn_cast<llvm::Constant>(assign->CodeGen(ir)),
                                                this->ident_);
                 ir.push_global_value(var, this->ident_);
                 break;
@@ -272,6 +272,52 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                               this->ident_);
                 break;
             }
+        }
+        case kDeclareArrayAssign: {
+            if (!current_block) {
+
+            } else {
+                if (this->array_size2_ != 0) {
+                    // 2-dim array
+                    int size;
+                    if (array_size_ == 0) {
+                        size = ceil(static_cast<double>(assign_list_.size()) / array_size2_);
+                    } else {
+                        size = array_size_;
+                    }
+                    ResetAssignSize(size * array_size2_);
+                    int begin = (int) assign_list_.size() - size * array_size2_;
+                    value = ir.builder_->CreateAlloca(
+                            llvm::ArrayType::get(llvm::ArrayType::get(int_type, size), array_size2_),
+                            nullptr,
+                            ident_);
+                    for (int i = 0; i < size; ++i) {
+                        auto pointer_1 = BaseAST::GetOffsetPointer(value, i, ir);
+                        for (int j = 0; j < array_size2_; ++j) {
+                            auto pointer_2 = BaseAST::GetOffsetPointer(pointer_1, j, ir);
+                            auto assign_value = assign_list_[begin++]->CodeGen(ir);
+                            ir.builder_->CreateStore(assign_value, pointer_2);
+                        }
+                    }
+                } else {
+                    // 1-dim array
+                    int size;
+                    if (array_size_ != 0) {
+                        size = array_size_;
+                    } else {
+                        size = (int) assign_list_.size();
+                    }
+                    ResetAssignSize(size);
+                    int begin = (int) assign_list_.size() - size;
+                    value = ir.builder_->CreateAlloca(llvm::ArrayType::get(int_type, size), nullptr, ident_);
+                    for (int i = 0; i < size; ++i) {
+                        auto pointer = BaseAST::GetOffsetPointer(value, i, ir);
+                        auto assign_value = assign_list_[begin++]->CodeGen(ir);
+                        ir.builder_->CreateStore(assign_value, pointer);
+                    }
+                }
+            }
+            break;
         }
         case kExpression: {
             exp_->CodeGen(ir);
@@ -426,6 +472,18 @@ void StmtAST::BuildAstTree() {
     if (false_block_) {
         false_block_->SetParent(this);
         false_block_->BuildAstTree();
+    }
+}
+
+void StmtAST::ResetAssignSize(int size) {
+    if (size > assign_list_.size()) {
+        int dis = (int) assign_list_.size() - (size);
+        for (int i = 0; i < dis; ++i) {
+            auto temp_assign = new ExprAST();
+            temp_assign->type_ = kAtomNum;
+            temp_assign->num_ = 0;
+            assign_list_.emplace_back(std::unique_ptr<BaseAST>(temp_assign));
+        }
     }
 }
 
