@@ -189,11 +189,12 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
         case kDeclareAssign:
             if (!current_block) {
                 auto exp = (ExprAST *) &(*this->assign_list_.begin());
+                auto assign = (ExprAST*)&(*this->assign_list_.back());
                 var = new llvm::GlobalVariable(*ir.module_,
                                                int_type,
                                                false,
                                                llvm::GlobalVariable::ExternalLinkage,
-                                               llvm::ConstantInt::get(int_type, exp->num_),
+                                               llvm::ConstantInt::get(int_type, assign->num_),
                                                this->ident_);
                 ir.push_global_value(var, this->ident_);
                 break;
@@ -201,7 +202,8 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 ir.get_value(this->ident_, current_block);
                 value = ir.builder_->Insert(ir.builder_->CreateAlloca(int_type, nullptr, this->ident_));
                 value->setName(this->ident_);
-                ir.builder_->CreateStore(exp_->CodeGen(ir), value);
+                auto &assign = assign_list_.back();
+                ir.builder_->CreateStore(assign->CodeGen(ir), value);
                 block_name = current_block->current_->getParent()->getName().str();
                 block_name += current_block->current_->getName().str();
                 ir.push_value(value, block_name, this->ident_);

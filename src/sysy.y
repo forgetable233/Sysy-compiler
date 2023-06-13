@@ -359,14 +359,14 @@ InitVal
     auto list = new vector<unique_ptr<BaseAST>>();
     list->emplace_back(unique_ptr<BaseAST>($1));
     $$ = list;
-  } | L_BRACE InitValArray R_BRACE {
-    auto list = new vector<unique_ptr<BaseAST>>();
-    auto array = $2;
-    for (auto &item : *array) {
-    	list->emplace_back(std::move(item));
-    }
-    $$ = list;
-  }
+  }| L_BRACE InitValArray R_BRACE {
+     auto list = new vector<unique_ptr<BaseAST>>();
+     auto array = $2;
+     for (auto &item : *array) {
+           list->emplace_back(std::move(item));
+     }
+     $$ = list;
+   }
   ;
 
 InitValArray
@@ -378,6 +378,8 @@ InitValArray
 
   }
   ;
+
+
 Declare
   : Type VarDef  ';' {
     auto list = $2;
