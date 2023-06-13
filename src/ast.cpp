@@ -222,7 +222,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                                                    llvm::ArrayType::get(
                                                            llvm::ArrayType::get(int_type, this->array_size2_),
                                                            this->array_size_),
-                                                   true,
+                                                   false,
                                                    llvm::GlobalVariable::ExternalLinkage,
                                                    nullptr,
                                                    this->ident_);
@@ -230,7 +230,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 } else {
                     var = new llvm::GlobalVariable(*ir.module_,
                                                    llvm::ArrayType::get(int_type, this->array_size_),
-                                                   true,
+                                                   false,
                                                    llvm::GlobalVariable::ExternalLinkage,
                                                    nullptr,
                                                    this->ident_);
@@ -275,7 +275,51 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
         }
         case kDeclareArrayAssign: {
             if (!current_block) {
-
+                if (this->array_size2_ != 0) {
+                    // 2-dim
+                    int size;
+                    if (array_size_ == 0) {
+                        size = ceil((double) assign_list_.size() / array_size2_);
+                    } else {
+                        size = array_size_;
+                    }
+                    ResetAssignSize(size * array_size2_);
+                    std::vector<llvm::Constant *> list;
+                    for (int i = (int) assign_list_.size() - size * array_size2_; i < assign_list_.size(); ++i) {
+                        list.emplace_back(llvm::dyn_cast<llvm::Constant>(assign_list_[i]->CodeGen(ir)));
+                    }
+                    var = new llvm::GlobalVariable(*ir.module_,
+                                                   llvm::ArrayType::get(llvm::ArrayType::get(int_type, array_size2_),
+                                                                        size),
+                                                   false,
+                                                   llvm::GlobalVariable::ExternalLinkage,
+                                                   nullptr,
+                                                   ident_);
+                    llvm::Constant *array = llvm::ConstantArray::get(
+                            llvm::ArrayType::get(llvm::ArrayType::get(int_type, array_size2_), size), list);
+                    var->setInitializer(array);
+                } else {
+                    // 1-dim
+                    int size;
+                    if (array_size_ == 0) {
+                        size = (int) assign_list_.size();
+                    } else {
+                        size = array_size_;
+                    }
+                    ResetAssignSize(size);
+                    std::vector<llvm::Constant *> list;
+                    for (int i = (int) assign_list_.size() - size; i < assign_list_.size(); ++i) {
+                        list.emplace_back(llvm::dyn_cast<llvm::Constant>(assign_list_[i]->CodeGen(ir)));
+                    }
+                    var = new llvm::GlobalVariable(*ir.module_,
+                                                   llvm::ArrayType::get(int_type, size),
+                                                   false,
+                                                   llvm::GlobalVariable::ExternalLinkage,
+                                                   nullptr,
+                                                   ident_);
+                    var->setInitializer(llvm::ConstantArray::get(llvm::ArrayType::get(int_type, size), list));
+                }
+                ir.push_global_value(var, ident_);
             } else {
                 if (this->array_size2_ != 0) {
                     // 2-dim array
@@ -316,6 +360,9 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                         ir.builder_->CreateStore(assign_value, pointer);
                     }
                 }
+                block_name = current_block->current_->getParent()->getName().str();
+                block_name += current_block->current_->getName().str();
+                ir.push_value(value, block_name, ident_);
             }
             break;
         }
@@ -477,7 +524,7 @@ void StmtAST::BuildAstTree() {
 
 void StmtAST::ResetAssignSize(int size) {
     if (size > assign_list_.size()) {
-        int dis = (int) assign_list_.size() - (size);
+        int dis = (size) - (int) assign_list_.size();
         for (int i = 0; i < dis; ++i) {
             auto temp_assign = new ExprAST();
             temp_assign->type_ = kAtomNum;
