@@ -188,7 +188,6 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
         }
         case kDeclareAssign:
             if (!current_block) {
-                auto exp = (ExprAST *) &(*this->assign_list_.begin());
                 auto assign = (ExprAST*)&(*this->assign_list_.back());
                 var = new llvm::GlobalVariable(*ir.module_,
                                                int_type,

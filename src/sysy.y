@@ -351,6 +351,47 @@ Var
     	ast->assign_list_.emplace_back(std::move(item));
     }
     $$ = ast;
+  } | IDENT L_BRACK R_BRACK ASS InitVal {
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArrayAssign;
+    ast->ident_ = *unique_ptr<string>($1);
+    ast->key_word_ = *make_unique<string>("int");
+    auto list = $5;
+    for (auto &item : *list) {
+    	ast->assign_list_.emplace_back(std::move(item));
+    }
+    $$ = ast;
+  } | IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK {
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArray;
+    ast->ident_ = *unique_ptr<string>($1);
+    ast->key_word_ = *make_unique<string>("int");
+    ast->array_size_ = $3;
+    ast->array_size2_ = $6;
+    $$ = ast;
+  } | IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK ASS InitVal {
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArrayAssign;
+    ast->ident_ = *unique_ptr<string>($1);
+    ast->key_word_ = *make_unique<string>("int");
+    ast->array_size_ = $3;
+    ast->array_size2_ = $6;
+    auto list = $9;
+    for (auto &item : *list) {
+    	ast->assign_list_.emplace_back(std::move(item));
+    }
+    $$ = ast;
+  } | IDENT L_BRACK R_BRACK L_BRACK Number R_BRACK ASS InitVal {
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArrayAssign;
+    ast->ident_ = *unique_ptr<string>($1);
+    ast->key_word_ = *make_unique<string>("int");
+    ast->array_size2_ = $5;
+    auto list = $8;
+    for (auto &item : *list) {
+    	ast->assign_list_.emplace_back(std::move(item));
+    }
+    $$ = ast;
   }
   ;
 
@@ -371,10 +412,15 @@ InitVal
 
 InitValArray
   :  Params {
+    auto array = new vector<unique_ptr<BaseAST>>();
+    auto temp_param = $1;
+    for (auto &item : *temp_param) {
+    	array->emplace_back(std::move(item));
+    }
+    $$ = array;
+  } | L_BRACE Params R_BRACE ',' InitValArray {
 
-  } | L_BRACE InitValArray R_BRACE ',' InitValArray {
-
-  } | L_BRACE InitValArray R_BRACE {
+  } | L_BRACE Params R_BRACE {
 
   }
   ;
