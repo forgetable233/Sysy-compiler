@@ -650,6 +650,15 @@ Expr
     ast->type_ = kAt;
     ast->rExp_ = unique_ptr<BaseAST>($2);
     $$ = ast;
+  } | IDENT L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK ASS Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kAssignArray;
+    ast->array_offset_ = unique_ptr<BaseAST>($3);
+    ast->ident_ = *unique_ptr<string>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($6);
+    $$ = ast;
+  } | IDENT L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK {
+
   }
   ;
 
