@@ -188,7 +188,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
         }
         case kDeclareAssign:
             if (!current_block) {
-                auto assign = (ExprAST*)&(*this->assign_list_.back());
+                auto assign = (ExprAST *) &(*this->assign_list_.back());
                 var = new llvm::GlobalVariable(*ir.module_,
                                                int_type,
                                                false,
@@ -210,36 +210,61 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
             }
         case kDeclareArray: {
             if (!current_block) {
+                int size = 0;
                 if (this->array_size_ <= 0) {
                     llvm::report_fatal_error("The size of the value must be positive");
                 }
-                var = new llvm::GlobalVariable(*ir.module_,
-                                               llvm::ArrayType::get(int_type, this->array_size_),
-                                               true,
-                                               llvm::GlobalVariable::ExternalLinkage,
-                                               nullptr,
-                                               this->ident_);
-                const_array_elems.resize(this->array_size_);
-                for (int i = 0; i < this->array_size_; ++i) {
-                    const_array_elems[i] = llvm::ConstantInt::get(llvm::Type::getInt32Ty(ir.module_->getContext()), 0);
+                if (this->array_size2_ > 0) {
+                    if (this->array_size2_ < 0) {
+                        llvm::report_fatal_error("The size of the value must be positive");
+                    }
+                    var = new llvm::GlobalVariable(*ir.module_,
+                                                   llvm::ArrayType::get(
+                                                           llvm::ArrayType::get(int_type, this->array_size2_),
+                                                           this->array_size_),
+                                                   true,
+                                                   llvm::GlobalVariable::ExternalLinkage,
+                                                   nullptr,
+                                                   this->ident_);
+                    size = this->array_size_ * this->array_size2_;
+                } else {
+                    var = new llvm::GlobalVariable(*ir.module_,
+                                                   llvm::ArrayType::get(int_type, this->array_size_),
+                                                   true,
+                                                   llvm::GlobalVariable::ExternalLinkage,
+                                                   nullptr,
+                                                   this->ident_);
+                    size = this->array_size_;
+                }
+                const_array_elems.resize(size);
+                for (int i = 0; i < size; ++i) {
+                    const_array_elems[i] = llvm::ConstantInt::get(
+                            llvm::Type::getInt32Ty(ir.module_->getContext()), 0);
                 }
                 var->setInitializer(
-                        llvm::ConstantArray::get(llvm::ArrayType::get(llvm::Type::getInt32Ty(ir.module_->getContext()),
-                                                                      this->array_size_),
-                                                 const_array_elems));
+                        llvm::ConstantArray::get(
+                                llvm::ArrayType::get(llvm::Type::getInt32Ty(ir.module_->getContext()),
+                                                     this->array_size_),
+                                const_array_elems));
+                var->getType()->print(llvm::outs(), true);
                 ir.push_global_value(var, this->ident_);
                 break;
             } else {
-                if (this->array_size_ <= 0) {
+                if (this->array_size_ <= 0 || this->array_size2_ < 0) {
                     llvm::report_fatal_error("The size of the array must be positive");
                 }
-                if (ir.get_value(this->ident_, current_block)) {
-                    llvm::report_fatal_error("The param has been declared\n");
-                }
                 int_type = llvm::Type::getInt32Ty(ir.module_->getContext());
-                value = ir.builder_->CreateAlloca(llvm::ArrayType::get(int_type, this->array_size_),
-                                                  nullptr,
-                                                  this->ident_);
+                if (this->array_size2_ > 0) {
+                    value = ir.builder_->CreateAlloca(
+                            llvm::ArrayType::get(llvm::ArrayType::get(int_type, this->array_size2_),
+                                                 this->array_size_),
+                            nullptr,
+                            this->ident_);
+                } else {
+                    value = ir.builder_->CreateAlloca(llvm::ArrayType::get(int_type, this->array_size_),
+                                                      nullptr,
+                                                      this->ident_);
+                }
                 block_name = current_block->current_->getParent()->getName().str();
                 block_name += current_block->current_->getName().str();
                 ir.push_value(value,
