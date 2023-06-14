@@ -158,7 +158,8 @@ extern int yydebug;
     L_BRACE = 298,
     R_BRACE = 299,
     AUTO_INCREASE = 300,
-    AUTO_DECREASE = 301
+    AUTO_DECREASE = 301,
+    UMINUS = 302
   };
 #endif
 
@@ -173,7 +174,7 @@ union YYSTYPE
   BaseAST *ast_val;
   std::vector<std::unique_ptr<BaseAST>> *ast_list;
 
-#line 177 "sysy.tab.c"
+#line 178 "sysy.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -391,24 +392,24 @@ typedef int yytype_uint16;
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  11
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   471
+#define YYLAST   521
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  49
+#define YYNTOKENS  50
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  16
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  76
+#define YYNRULES  86
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  156
+#define YYNSTATES  184
 /* YYMAXRHS -- Maximum number of symbols on right-hand side of rule.  */
-#define YYMAXRHS 7
+#define YYMAXRHS 10
 /* YYMAXLEFT -- Maximum number of symbols to the left of a handle
    accessed by $0, $-1, etc., in any rule.  */
 #define YYMAXLEFT 0
 
 /* YYMAXUTOK -- Last valid token number (for yychar).  */
-#define YYMAXUTOK   301
+#define YYMAXUTOK   302
 /* YYUNDEFTOK -- Symbol number (for yytoken) that denotes an unknown
    token.  */
 #define YYUNDEFTOK  2
@@ -426,8 +427,8 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,    47,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,    48,
+       2,     2,     2,     2,    48,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,    49,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -452,21 +453,22 @@ static const yytype_int8 yytranslate[] =
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
       35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
-      45,    46
+      45,    46,    47
 };
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    81,    81,    86,    97,   105,   122,   126,   137,   145,
-     157,   166,   179,   188,   215,   221,   231,   243,   247,   251,
-     255,   263,   275,   279,   286,   294,   309,   313,   325,   331,
-     341,   348,   363,   367,   378,   380,   382,   387,   390,   400,
-     405,   410,   416,   422,   429,   435,   439,   443,   450,   456,
-     461,   467,   473,   479,   485,   491,   497,   503,   509,   515,
-     521,   527,   533,   539,   545,   551,   557,   563,   568,   573,
-     578,   587,   592,   598,   605,   614,   616
+       0,    77,    77,    82,    93,   101,   118,   122,   133,   141,
+     153,   162,   175,   184,   197,   207,   221,   230,   257,   263,
+     273,   285,   289,   293,   297,   305,   317,   321,   328,   336,
+     351,   355,   367,   373,   383,   390,   401,   411,   419,   431,
+     446,   450,   461,   468,   470,   477,   480,   490,   495,   500,
+     506,   512,   519,   525,   529,   533,   540,   546,   551,   557,
+     563,   569,   575,   581,   587,   593,   599,   605,   611,   617,
+     623,   629,   635,   641,   647,   653,   658,   663,   668,   677,
+     682,   688,   695,   700,   708,   719,   721
 };
 #endif
 
@@ -481,36 +483,39 @@ static const char *const yytname[] =
   "LESS_EQUAL", "LARGER", "LARGER_EQUAL", "ADD_ASSIGN", "SUB_ASSIGN",
   "MUL_ASSIGN", "DIV_ASSIGN", "NOT", "MOD", "IF", "WHILE", "ELSE", "TRUE",
   "FALSE", "AT", "INT_CONST", "L_PAREN", "R_PAREN", "L_BRACK", "R_BRACK",
-  "L_BRACE", "R_BRACE", "AUTO_INCREASE", "AUTO_DECREASE", "','", "';'",
-  "$accept", "CompUnit", "Params", "ParamList", "FuncDef", "Type", "Block",
-  "BlockItem", "VarDef", "Var", "InitVal", "InitValArray", "Declare",
-  "Stmt", "Expr", "Number", YY_NULLPTR
+  "L_BRACE", "R_BRACE", "AUTO_INCREASE", "AUTO_DECREASE", "UMINUS", "','",
+  "';'", "$accept", "CompUnit", "Params", "ParamList", "FuncDef", "Type",
+  "Block", "BlockItem", "VarDef", "Var", "InitVal", "InitValArray",
+  "Declare", "Stmt", "Expr", "Number", YY_NULLPTR
 };
 #endif
 
-#define YYPACT_NINF (-127)
+#define YYPACT_NINF (-157)
 #define YYTABLE_NINF (-1)
 
   /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
      STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-     107,  -127,  -127,  -127,  -127,   192,    53,   107,    54,   107,
-      59,  -127,  -127,   -10,    27,    42,  -127,    -8,    44,    22,
-      79,    66,  -127,    59,    66,  -127,    90,    85,   227,   227,
-    -127,   227,   164,  -127,   343,  -127,    83,    97,   131,   105,
-    -127,   118,   227,   204,   227,  -127,  -127,   343,   274,   164,
-    -127,   119,   201,   227,   227,   227,   227,   227,   227,   227,
-     227,   227,   227,   227,   227,   227,   227,   227,   227,   227,
-      63,  -127,    83,    89,    14,   149,   389,  -127,   124,   249,
-    -127,   122,  -127,   227,   165,   165,  -127,  -127,   440,   440,
-     423,   406,   134,   134,   134,   134,   389,   389,   366,   366,
-    -127,   227,   162,   121,   127,   152,   154,    59,  -127,   151,
-      63,    63,   130,  -127,    78,   192,    22,  -127,  -127,   191,
-     158,  -127,   161,   202,  -127,  -127,   227,   227,  -127,  -127,
-    -127,  -127,   168,   174,  -127,  -127,   227,   164,  -127,   169,
-     297,   320,   192,   171,   389,  -127,  -127,    95,    95,  -127,
-     192,   199,  -127,  -127,    95,  -127
+     200,  -157,  -157,  -157,  -157,   231,     2,   200,     7,   200,
+      15,  -157,  -157,    67,   -27,   -14,  -157,    57,    32,    79,
+     178,    -9,  -157,    15,    -9,  -157,   116,    26,    82,    82,
+    -157,    82,   237,  -157,   393,  -157,    41,    53,   101,   117,
+      73,  -157,    81,    82,   124,    82,  -157,  -157,   393,   324,
+      82,  -157,    80,   234,    82,    82,    82,    82,    82,    82,
+      82,    82,    82,    82,    82,    82,    82,    82,    82,    82,
+      82,   135,  -157,    41,   -34,    79,   121,    14,   119,   439,
+    -157,   104,   274,  -157,   109,  -157,    82,   204,   204,  -157,
+    -157,   490,   490,   473,   456,   259,   259,   259,   259,   439,
+     439,   416,   416,  -157,    82,   161,   127,   128,   131,   148,
+      15,  -157,   156,   135,   135,   170,  -157,    65,   231,  -157,
+     160,    79,   121,  -157,  -157,   134,   155,  -157,   202,   205,
+    -157,  -157,    82,    82,  -157,  -157,  -157,  -157,    28,   168,
+    -157,   191,  -157,   190,    82,    82,   237,  -157,   185,   347,
+     370,   121,   231,    30,    79,   227,   439,   299,  -157,  -157,
+      58,    58,   206,  -157,   121,   231,  -157,    79,   229,   215,
+    -157,   216,   208,  -157,  -157,    82,    58,   231,   218,   439,
+    -157,  -157,   231,  -157
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -518,36 +523,39 @@ static const yytype_int16 yypact[] =
      means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,    17,    19,    18,    20,     0,     0,     2,     0,     4,
-       0,     1,     3,    28,     0,    26,     5,    28,     0,     0,
-       0,     0,    37,     0,     0,    38,    68,     0,     0,     0,
-      75,     0,     0,    29,    32,    69,     0,     0,     0,     0,
-      27,     0,     0,     0,     0,    76,    67,    74,     0,     0,
-      34,     0,     6,     0,     0,     0,     0,     0,     0,     0,
+       0,    21,    23,    22,    24,     0,     0,     2,     0,     4,
+       0,     1,     3,    32,     0,    30,     5,    32,     0,     0,
+       0,     0,    45,     0,     0,    46,    76,     0,     0,     0,
+      85,     0,     0,    33,    40,    77,     0,     0,     0,     0,
+       0,    31,     0,     0,     0,     0,    86,    75,    82,     0,
+       0,    42,     0,     6,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,    14,     0,     8,    30,    30,    48,    71,     0,     0,
-      49,     0,    33,     0,    50,    51,    52,    53,    55,    56,
-      57,    58,    61,    62,    59,    60,    65,    66,    63,    64,
-      54,     0,     0,     0,     0,     0,     0,     0,    47,     0,
-      23,    22,     0,    15,     0,     0,     0,    16,    70,    72,
-      36,     7,     0,     0,    45,    46,     0,     0,    21,    25,
-      24,    40,    12,     0,     9,    31,     0,     0,    39,     0,
-       0,     0,     0,    10,    73,    35,    44,     0,     0,    13,
-       0,    41,    42,    11,     0,    43
+       0,     0,    18,     0,     8,     0,     0,    34,    34,    56,
+      79,     0,     0,    57,     0,    41,     0,    58,    59,    60,
+      61,    63,    64,    65,    66,    69,    70,    67,    68,    73,
+      74,    71,    72,    62,     0,     0,     0,     0,     0,     0,
+       0,    55,     0,    27,    26,     0,    19,     0,     0,    36,
+       0,     0,     0,    20,    78,    80,    44,     7,     0,     0,
+      53,    54,     0,     0,    25,    29,    28,    48,    12,     0,
+       9,     0,    35,     0,     0,     0,     0,    47,     0,     0,
+       0,     0,     0,    10,     0,    37,    81,     0,    43,    52,
+       0,     0,     0,    13,     0,     0,    39,     0,    84,    49,
+      50,    16,     0,    11,    38,     0,     0,     0,    14,    83,
+      51,    17,     0,    15
 };
 
   /* YYPGOTO[NTERM-NUM].  */
-static const yytype_int8 yypgoto[] =
+static const yytype_int16 yypgoto[] =
 {
-    -127,    65,   -26,   -59,  -127,    11,   -21,  -103,    -4,  -127,
-     120,   -47,   -56,  -126,   -19,   -20
+    -157,   162,   -29,  -100,  -157,    23,   -20,    -3,    56,  -157,
+     -67,   126,   -54,  -156,   -19,   -18
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     6,    50,    37,     7,    38,   108,   109,    14,    15,
-      33,    51,     9,   111,   112,    35
+      -1,     6,    51,    37,     7,    38,   111,   112,    14,    15,
+      33,    52,     9,   114,   115,    35
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -555,85 +563,95 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-      34,    39,    81,    19,    41,    19,    18,   129,   130,    46,
-      47,     8,    48,    52,   110,    71,    10,    78,     8,    40,
-       8,   151,   152,    76,    52,    79,    26,   116,   155,    20,
-      52,    21,    27,    24,    84,    85,    86,    87,    88,    89,
-      90,    91,    92,    93,    94,    95,    96,    97,    98,    99,
-     100,   113,    28,    11,   110,   110,   134,   121,    13,    29,
-      30,    31,   117,    17,    52,    32,   101,    26,     1,     2,
-       3,     4,    12,    27,    16,    22,    27,   102,   103,   104,
-       5,   107,   122,   149,     1,     2,     3,     4,    27,    23,
-     145,   153,    25,    28,   133,   105,   106,    34,   101,    26,
-      29,    30,    31,    42,    30,    27,    70,   140,   141,   102,
-     103,   104,     1,     2,     3,     4,    30,   144,    52,    36,
-     132,   107,   107,    45,     5,    28,    70,   105,   106,    43,
-     114,    44,    29,    30,    31,    73,   115,    72,    70,    53,
-      54,    55,    56,    53,    54,    55,    56,    74,    57,    58,
-      59,    60,    61,    62,    63,    64,    65,    66,    67,    68,
-      75,    69,   116,    82,   118,    69,   120,   123,    26,   124,
-      53,    54,    55,    56,    27,   125,    55,    56,   131,    57,
+      34,    27,    11,    40,   169,   170,    42,   117,   119,    47,
+      48,    13,    49,    53,   118,    81,    72,   113,   140,    17,
+     180,    84,    22,     8,    79,    53,    82,   121,    10,    30,
+       8,    53,     8,    39,    23,    87,    88,    89,    90,    91,
+      92,    93,    94,    95,    96,    97,    98,    99,   100,   101,
+     102,   103,   163,   116,   142,   122,    34,   127,   120,   113,
+     113,   104,    26,   123,    46,   173,    18,    53,    27,   151,
+      19,   164,   105,   106,   107,    27,   152,   181,   165,    41,
+      19,    25,   183,    26,    71,   128,    26,   166,    28,    27,
+     108,   109,    27,    73,   110,    29,    30,    31,    24,   139,
+     174,    71,    34,    30,   143,    74,    20,   138,    21,    28,
+     135,   136,    28,   149,   150,    77,    29,    30,    31,    29,
+      30,    31,    32,    78,    85,   156,   157,    53,    26,    43,
+      75,    27,   121,   162,    27,    34,   110,   110,   104,    26,
+       1,     2,     3,     4,   124,    27,   172,   144,    34,   105,
+     106,   107,     5,   126,    28,    44,   179,    45,    76,    30,
+     122,    29,    30,    31,    80,    28,   129,   108,   109,    12,
+     132,    16,    29,    30,    31,   145,   130,   131,    71,    54,
+      55,    56,    57,     1,     2,     3,     4,   133,    58,    59,
+      60,    61,    62,    63,    64,    65,    66,    67,    68,    69,
+     134,    70,   141,   146,   154,     1,     2,     3,     4,   148,
+     153,    54,    55,    56,    57,    56,    57,     5,    36,   137,
       58,    59,    60,    61,    62,    63,    64,    65,    66,    67,
-      68,   126,    69,   127,    28,   128,    69,     1,     2,     3,
-       4,    29,    30,    31,   136,   137,   139,    49,    26,   138,
-      53,    54,    55,    56,    27,   142,   143,   146,   150,    57,
-      58,    59,    60,    61,    62,    63,    64,    65,    66,    67,
-      68,    26,    69,   154,    28,     0,   135,    27,     0,     0,
-       0,    29,    30,    31,    77,     0,     0,     0,    83,     0,
-       0,     0,     0,     0,     0,     0,     0,    28,    53,    54,
-      55,    56,     0,     0,    29,    30,    31,    57,    58,    59,
-      60,    61,    62,    63,    64,    65,    66,    67,    68,     0,
-      69,     0,     0,    53,    54,    55,    56,     0,     0,     0,
-       0,   119,    57,    58,    59,    60,    61,    62,    63,    64,
-      65,    66,    67,    68,     0,    69,    53,    54,    55,    56,
-       0,     0,     0,     0,    80,    57,    58,    59,    60,    61,
-      62,    63,    64,    65,    66,    67,    68,     0,    69,    53,
-      54,    55,    56,     0,     0,     0,     0,   147,    57,    58,
-      59,    60,    61,    62,    63,    64,    65,    66,    67,    68,
-       0,    69,    53,    54,    55,    56,     0,     0,     0,     0,
-     148,    57,    58,    59,    60,    61,    62,    63,    64,    65,
-      66,    67,    68,     0,    69,    53,    54,    55,    56,     0,
-       0,     0,     0,     0,    57,    58,    59,    60,    61,    62,
-      63,    64,    65,    66,     0,     0,     0,    69,    53,    54,
-      55,    56,     0,     0,     0,     0,     0,    57,    58,    59,
-      60,    61,    62,    63,    64,    53,    54,    55,    56,     0,
-      69,     0,     0,     0,    57,    58,    59,     0,    61,    62,
-      63,    64,    53,    54,    55,    56,     0,    69,     0,     0,
-       0,    57,    58,     0,     0,    61,    62,    63,    64,    53,
-      54,    55,    56,     0,    69,     0,     0,     0,     0,     0,
-       0,     0,    61,    62,    63,    64,     0,     0,     0,     0,
-       0,    69
+      68,    69,   155,    70,   159,    70,     1,     2,     3,     4,
+     167,    26,   175,    54,    55,    56,    57,    27,   171,   176,
+     178,   147,    58,    59,    60,    61,    62,    63,    64,    65,
+      66,    67,    68,    69,   177,    70,   182,    28,    54,    55,
+      56,    57,   158,     0,    29,    30,    31,     0,     0,     0,
+      50,     0,    86,    54,    55,    56,    57,     0,     0,     0,
+      70,     0,    58,    59,    60,    61,    62,    63,    64,    65,
+      66,    67,    68,    69,     0,    70,     0,     0,    54,    55,
+      56,    57,     0,     0,     0,     0,   125,    58,    59,    60,
+      61,    62,    63,    64,    65,    66,    67,    68,    69,     0,
+      70,     0,     0,    54,    55,    56,    57,     0,     0,     0,
+       0,   168,    58,    59,    60,    61,    62,    63,    64,    65,
+      66,    67,    68,    69,     0,    70,    54,    55,    56,    57,
+       0,     0,     0,     0,    83,    58,    59,    60,    61,    62,
+      63,    64,    65,    66,    67,    68,    69,     0,    70,    54,
+      55,    56,    57,     0,     0,     0,     0,   160,    58,    59,
+      60,    61,    62,    63,    64,    65,    66,    67,    68,    69,
+       0,    70,    54,    55,    56,    57,     0,     0,     0,     0,
+     161,    58,    59,    60,    61,    62,    63,    64,    65,    66,
+      67,    68,    69,     0,    70,    54,    55,    56,    57,     0,
+       0,     0,     0,     0,    58,    59,    60,    61,    62,    63,
+      64,    65,    66,    67,     0,     0,     0,    70,    54,    55,
+      56,    57,     0,     0,     0,     0,     0,    58,    59,    60,
+      61,    62,    63,    64,    65,    54,    55,    56,    57,     0,
+      70,     0,     0,     0,    58,    59,    60,     0,    62,    63,
+      64,    65,    54,    55,    56,    57,     0,    70,     0,     0,
+       0,    58,    59,     0,     0,    62,    63,    64,    65,    54,
+      55,    56,    57,     0,    70,     0,     0,     0,     0,     0,
+       0,     0,    62,    63,    64,    65,     0,     0,     0,     0,
+       0,    70
 };
 
 static const yytype_int16 yycheck[] =
 {
-      19,    21,    49,    13,    24,    13,    10,   110,   111,    28,
-      29,     0,    31,    32,    70,    36,     5,    43,     7,    23,
-       9,   147,   148,    42,    43,    44,     4,    13,   154,    39,
-      49,    41,    10,    41,    53,    54,    55,    56,    57,    58,
+      19,    10,     0,    21,   160,   161,    24,    41,    75,    28,
+      29,     4,    31,    32,    48,    44,    36,    71,   118,     4,
+     176,    50,    49,     0,    43,    44,    45,    13,     5,    38,
+       7,    50,     9,    42,    48,    54,    55,    56,    57,    58,
       59,    60,    61,    62,    63,    64,    65,    66,    67,    68,
-      69,    72,    30,     0,   110,   111,   115,    83,     4,    37,
-      38,    39,    48,     4,    83,    43,     3,     4,     5,     6,
-       7,     8,     7,    10,     9,    48,    10,    14,    15,    16,
-      17,    70,   101,   142,     5,     6,     7,     8,    10,    47,
-     137,   150,    48,    30,   114,    32,    33,   116,     3,     4,
-      37,    38,    39,    13,    38,    10,    43,   126,   127,    14,
-      15,    16,     5,     6,     7,     8,    38,   136,   137,    40,
-      42,   110,   111,    38,    17,    30,    43,    32,    33,    39,
-      41,    41,    37,    38,    39,     4,    47,    40,    43,     9,
-      10,    11,    12,     9,    10,    11,    12,    42,    18,    19,
+      69,    70,   152,    73,   121,    41,    75,    86,    76,   113,
+     114,     3,     4,    49,    38,   165,    10,    86,    10,    41,
+      13,    41,    14,    15,    16,    10,    48,   177,    48,    23,
+      13,    49,   182,     4,    43,   104,     4,   154,    30,    10,
+      32,    33,    10,    40,    71,    37,    38,    39,    41,   117,
+     167,    43,   121,    38,   122,     4,    39,    42,    41,    30,
+     113,   114,    30,   132,   133,    42,    37,    38,    39,    37,
+      38,    39,    43,    42,    44,   144,   145,   146,     4,    13,
+      13,    10,    13,   151,    10,   154,   113,   114,     3,     4,
+       5,     6,     7,     8,    40,    10,   164,    13,   167,    14,
+      15,    16,    17,    44,    30,    39,   175,    41,    41,    38,
+      41,    37,    38,    39,    40,    30,     5,    32,    33,     7,
+      39,     9,    37,    38,    39,    41,    49,    49,    43,     9,
+      10,    11,    12,     5,     6,     7,     8,    39,    18,    19,
       20,    21,    22,    23,    24,    25,    26,    27,    28,    29,
-      42,    31,    13,    44,    40,    31,    44,     5,     4,    48,
-       9,    10,    11,    12,    10,    48,    11,    12,    48,    18,
-      19,    20,    21,    22,    23,    24,    25,    26,    27,    28,
-      29,    39,    31,    39,    30,    44,    31,     5,     6,     7,
-       8,    37,    38,    39,    13,    47,     4,    43,     4,    48,
-       9,    10,    11,    12,    10,    47,    42,    48,    47,    18,
-      19,    20,    21,    22,    23,    24,    25,    26,    27,    28,
-      29,     4,    31,    34,    30,    -1,   116,    10,    -1,    -1,
-      -1,    37,    38,    39,    40,    -1,    -1,    -1,    47,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    30,     9,    10,
-      11,    12,    -1,    -1,    37,    38,    39,    18,    19,    20,
+      44,    31,    42,    48,    13,     5,     6,     7,     8,     4,
+      42,     9,    10,    11,    12,    11,    12,    17,    40,    49,
+      18,    19,    20,    21,    22,    23,    24,    25,    26,    27,
+      28,    29,    42,    31,    49,    31,     5,     6,     7,     8,
+      13,     4,    13,     9,    10,    11,    12,    10,    42,    34,
+      42,    49,    18,    19,    20,    21,    22,    23,    24,    25,
+      26,    27,    28,    29,    48,    31,    48,    30,     9,    10,
+      11,    12,   146,    -1,    37,    38,    39,    -1,    -1,    -1,
+      43,    -1,    48,     9,    10,    11,    12,    -1,    -1,    -1,
+      31,    -1,    18,    19,    20,    21,    22,    23,    24,    25,
+      26,    27,    28,    29,    -1,    31,    -1,    -1,     9,    10,
+      11,    12,    -1,    -1,    -1,    -1,    42,    18,    19,    20,
       21,    22,    23,    24,    25,    26,    27,    28,    29,    -1,
       31,    -1,    -1,     9,    10,    11,    12,    -1,    -1,    -1,
       -1,    42,    18,    19,    20,    21,    22,    23,    24,    25,
@@ -661,54 +679,60 @@ static const yytype_int16 yycheck[] =
      symbol of state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     5,     6,     7,     8,    17,    50,    53,    54,    61,
-      54,     0,    50,     4,    57,    58,    50,     4,    57,    13,
-      39,    41,    48,    47,    41,    48,     4,    10,    30,    37,
-      38,    39,    43,    59,    63,    64,    40,    52,    54,    64,
-      57,    64,    13,    39,    41,    38,    63,    63,    63,    43,
-      51,    60,    63,     9,    10,    11,    12,    18,    19,    20,
-      21,    22,    23,    24,    25,    26,    27,    28,    29,    31,
-      43,    55,    40,     4,    42,    42,    63,    40,    51,    63,
-      40,    60,    44,    47,    63,    63,    63,    63,    63,    63,
-      63,    63,    63,    63,    63,    63,    63,    63,    63,    63,
-      63,     3,    14,    15,    16,    32,    33,    54,    55,    56,
-      61,    62,    63,    55,    41,    47,    13,    48,    40,    42,
-      44,    51,    63,     5,    48,    48,    39,    39,    44,    56,
-      56,    48,    42,    64,    52,    59,    13,    47,    48,     4,
-      63,    63,    47,    42,    63,    60,    48,    40,    40,    52,
-      47,    62,    62,    52,    34,    62
+       0,     5,     6,     7,     8,    17,    51,    54,    55,    62,
+      55,     0,    51,     4,    58,    59,    51,     4,    58,    13,
+      39,    41,    49,    48,    41,    49,     4,    10,    30,    37,
+      38,    39,    43,    60,    64,    65,    40,    53,    55,    42,
+      65,    58,    65,    13,    39,    41,    38,    64,    64,    64,
+      43,    52,    61,    64,     9,    10,    11,    12,    18,    19,
+      20,    21,    22,    23,    24,    25,    26,    27,    28,    29,
+      31,    43,    56,    40,     4,    13,    41,    42,    42,    64,
+      40,    52,    64,    40,    52,    44,    48,    64,    64,    64,
+      64,    64,    64,    64,    64,    64,    64,    64,    64,    64,
+      64,    64,    64,    64,     3,    14,    15,    16,    32,    33,
+      55,    56,    57,    62,    63,    64,    56,    41,    48,    60,
+      65,    13,    41,    49,    40,    42,    44,    52,    64,     5,
+      49,    49,    39,    39,    44,    57,    57,    49,    42,    65,
+      53,    42,    60,    65,    13,    41,    48,    49,     4,    64,
+      64,    41,    48,    42,    13,    42,    64,    64,    61,    49,
+      40,    40,    65,    53,    41,    48,    60,    13,    42,    63,
+      63,    42,    65,    53,    60,    13,    34,    48,    42,    64,
+      63,    53,    48,    53
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    49,    50,    50,    50,    50,    51,    51,    52,    52,
-      52,    52,    52,    52,    53,    53,    53,    54,    54,    54,
-      54,    55,    56,    56,    56,    56,    57,    57,    58,    58,
-      58,    58,    59,    59,    60,    60,    60,    61,    61,    62,
-      62,    62,    62,    62,    62,    62,    62,    62,    63,    63,
-      63,    63,    63,    63,    63,    63,    63,    63,    63,    63,
-      63,    63,    63,    63,    63,    63,    63,    63,    63,    63,
-      63,    63,    63,    63,    63,    64,    64
+       0,    50,    51,    51,    51,    51,    52,    52,    53,    53,
+      53,    53,    53,    53,    53,    53,    53,    53,    54,    54,
+      54,    55,    55,    55,    55,    56,    57,    57,    57,    57,
+      58,    58,    59,    59,    59,    59,    59,    59,    59,    59,
+      60,    60,    61,    61,    61,    62,    62,    63,    63,    63,
+      63,    63,    63,    63,    63,    63,    64,    64,    64,    64,
+      64,    64,    64,    64,    64,    64,    64,    64,    64,    64,
+      64,    64,    64,    64,    64,    64,    64,    64,    64,    64,
+      64,    64,    64,    64,    64,    65,    65
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     1,     2,     1,     2,     1,     3,     2,     4,
-       5,     7,     4,     6,     5,     6,     6,     1,     1,     1,
-       1,     3,     1,     1,     2,     2,     1,     3,     1,     3,
-       4,     6,     1,     3,     1,     5,     3,     3,     4,     3,
-       2,     5,     5,     7,     4,     2,     2,     1,     3,     3,
+       5,     7,     4,     6,     8,    10,     7,     9,     5,     6,
+       6,     1,     1,     1,     1,     3,     1,     1,     2,     2,
+       1,     3,     1,     3,     4,     6,     5,     7,     9,     8,
+       1,     3,     1,     5,     3,     3,     4,     3,     2,     5,
+       5,     7,     4,     2,     2,     1,     3,     3,     3,     3,
        3,     3,     3,     3,     3,     3,     3,     3,     3,     3,
-       3,     3,     3,     3,     3,     3,     3,     2,     1,     1,
-       4,     3,     4,     6,     2,     1,     2
+       3,     3,     3,     3,     3,     2,     1,     1,     4,     3,
+       4,     6,     2,     9,     7,     1,     2
 };
 
 
 /* YYDPREC[RULE-NUM] -- Dynamic precedence of rule #RULE-NUM (0 if none).  */
 static const yytype_int8 yydprec[] =
 {
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
@@ -729,6 +753,7 @@ static const yytype_int8 yymerger[] =
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0
 };
 
@@ -736,6 +761,7 @@ static const yytype_int8 yymerger[] =
    in the case of predicates.  */
 static const yybool yyimmediate[] =
 {
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
@@ -758,7 +784,7 @@ static const yytype_int8 yyconflp[] =
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     1,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     1,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
@@ -775,7 +801,12 @@ static const yytype_int8 yyconflp[] =
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     3,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     3,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
@@ -806,7 +837,7 @@ static const yytype_int8 yyconflp[] =
    0, pointed into by YYCONFLP.  */
 static const short yyconfl[] =
 {
-       0,    30,     0,    41,     0
+       0,    34,     0,    49,     0
 };
 
 /* Error token number */
@@ -1260,18 +1291,18 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
   switch (yyn)
     {
   case 2:
-#line 81 "sysy.y"
+#line 77 "sysy.y"
             {
     auto comp_unit = make_unique<CompUnitAST>();
     comp_unit->func_stmt_defs_.emplace_back(unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val)));
     ((*yyvalp).ast_val) = ((BaseAST*)&(*comp_unit));
     ast = move(comp_unit);
   }
-#line 1271 "sysy.tab.c"
+#line 1302 "sysy.tab.c"
     break;
 
   case 3:
-#line 86 "sysy.y"
+#line 82 "sysy.y"
                        {
     auto comp_unit = make_unique<CompUnitAST>();
     comp_unit->func_stmt_defs_.emplace_back(unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.ast_val)));
@@ -1284,11 +1315,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ((*yyvalp).ast_val) = ((BaseAST*)&(*comp_unit));
     ast = move(comp_unit);
   }
-#line 1288 "sysy.tab.c"
+#line 1319 "sysy.tab.c"
     break;
 
   case 4:
-#line 97 "sysy.y"
+#line 93 "sysy.y"
               {
     auto comp_unit = make_unique<CompUnitAST>();
     auto list = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_list);
@@ -1298,11 +1329,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ((*yyvalp).ast_val) = ((BaseAST*)&(*comp_unit));
     ast = move(comp_unit);
   }
-#line 1302 "sysy.tab.c"
+#line 1333 "sysy.tab.c"
     break;
 
   case 5:
-#line 105 "sysy.y"
+#line 101 "sysy.y"
                        {
     auto comp_unit = make_unique<CompUnitAST>();
     auto list = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.ast_list);
@@ -1317,21 +1348,21 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ((*yyvalp).ast_val) = ((BaseAST*)&(*comp_unit));
     ast = move(comp_unit);
   }
-#line 1321 "sysy.tab.c"
+#line 1352 "sysy.tab.c"
     break;
 
   case 6:
-#line 122 "sysy.y"
+#line 118 "sysy.y"
        {
     vector<unique_ptr<BaseAST>> *params = new vector<unique_ptr<BaseAST>>();
     params->emplace_back(unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val)));
     ((*yyvalp).ast_list) = params;
 }
-#line 1331 "sysy.tab.c"
+#line 1362 "sysy.tab.c"
     break;
 
   case 7:
-#line 126 "sysy.y"
+#line 122 "sysy.y"
                     {
     vector<unique_ptr<BaseAST>> *params = new vector<unique_ptr<BaseAST>>();
     params->emplace_back(unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval.ast_val)));
@@ -1341,11 +1372,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     }
     ((*yyvalp).ast_list) = params;
 }
-#line 1345 "sysy.tab.c"
+#line 1376 "sysy.tab.c"
     break;
 
   case 8:
-#line 137 "sysy.y"
+#line 133 "sysy.y"
              {
     vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
     auto ast = new StmtAST();
@@ -1355,11 +1386,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ident_list->emplace_back(unique_ptr<BaseAST>(ast));
     ((*yyvalp).ast_list) = ident_list;
 }
-#line 1359 "sysy.tab.c"
+#line 1390 "sysy.tab.c"
     break;
 
   case 9:
-#line 145 "sysy.y"
+#line 141 "sysy.y"
                              {
     vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
     auto ast = new StmtAST();
@@ -1373,11 +1404,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     }
     ((*yyvalp).ast_list) = ident_list;
 }
-#line 1377 "sysy.tab.c"
+#line 1408 "sysy.tab.c"
     break;
 
   case 10:
-#line 157 "sysy.y"
+#line 153 "sysy.y"
                                       {
     vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
     auto ast = new StmtAST();
@@ -1388,11 +1419,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ident_list->emplace_back(unique_ptr<BaseAST>(ast));
     ((*yyvalp).ast_list) = ident_list;
 }
-#line 1392 "sysy.tab.c"
+#line 1423 "sysy.tab.c"
     break;
 
   case 11:
-#line 166 "sysy.y"
+#line 162 "sysy.y"
                                                     {
     vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
     auto ast = new StmtAST();
@@ -1407,11 +1438,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     }
     ((*yyvalp).ast_list) = ident_list;
 }
-#line 1411 "sysy.tab.c"
+#line 1442 "sysy.tab.c"
     break;
 
   case 12:
-#line 179 "sysy.y"
+#line 175 "sysy.y"
                                {
     vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
     auto ast = new StmtAST();
@@ -1422,11 +1453,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ident_list->emplace_back(unique_ptr<BaseAST>(ast));
     ((*yyvalp).ast_list) = ident_list;
 }
-#line 1426 "sysy.tab.c"
+#line 1457 "sysy.tab.c"
     break;
 
   case 13:
-#line 188 "sysy.y"
+#line 184 "sysy.y"
                                              {
     vector<unique_ptr<BaseAST>> *ident_list = new vector<unique_ptr<BaseAST>>();
     auto ast = new StmtAST();
@@ -1441,11 +1472,81 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     }
     ((*yyvalp).ast_list) = ident_list;
 }
-#line 1445 "sysy.tab.c"
+#line 1476 "sysy.tab.c"
     break;
 
   case 14:
-#line 215 "sysy.y"
+#line 197 "sysy.y"
+                                                             {
+    auto ident_list = new vector<unique_ptr<BaseAST>>();
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArray;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-6)].yystate.yysemantics.yysval.str_val));
+    ast->array_size_ = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-4)].yystate.yysemantics.yysval.int_val);
+    ast->array_size2_ = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.int_val);
+    ident_list->emplace_back(unique_ptr<BaseAST>(ast));
+    ((*yyvalp).ast_list) = ident_list;
+}
+#line 1492 "sysy.tab.c"
+    break;
+
+  case 15:
+#line 207 "sysy.y"
+                                                                           {
+    auto ident_list = new vector<unique_ptr<BaseAST>>();
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArray;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-8)].yystate.yysemantics.yysval.str_val));
+    ast->array_size_ = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-6)].yystate.yysemantics.yysval.int_val);
+    ast->array_size2_ = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval.int_val);
+    ident_list->emplace_back(unique_ptr<BaseAST>(ast));
+    auto input_list = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_list);
+    for (auto &item : *input_list) {
+    	ident_list->emplace_back(std::move(item));
+    }
+    ((*yyvalp).ast_list) = ident_list;
+}
+#line 1512 "sysy.tab.c"
+    break;
+
+  case 16:
+#line 221 "sysy.y"
+                                                      {
+    auto ident_list = new vector<unique_ptr<BaseAST>>();
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArray;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-5)].yystate.yysemantics.yysval.str_val));
+    ast->array_size2_ = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.int_val);
+    ident_list->emplace_back(unique_ptr<BaseAST>(ast));
+    ((*yyvalp).ast_list) = ident_list;
+}
+#line 1527 "sysy.tab.c"
+    break;
+
+  case 17:
+#line 230 "sysy.y"
+                                                                    {
+    auto ident_list = new vector<unique_ptr<BaseAST>>();
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArray;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-7)].yystate.yysemantics.yysval.str_val));
+    ast->array_size2_ = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval.int_val);
+    ident_list->emplace_back(unique_ptr<BaseAST>(ast));
+    auto input_list = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_list);
+    for (auto &item : *input_list) {
+    	ident_list->emplace_back(std::move(item));
+    }
+    ((*yyvalp).ast_list) = ident_list;
+}
+#line 1546 "sysy.tab.c"
+    break;
+
+  case 18:
+#line 257 "sysy.y"
                                      {
     auto ast = new FuncDefAST();
     ast->func_type_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-4)].yystate.yysemantics.yysval.ast_val));
@@ -1453,11 +1554,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->block_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1457 "sysy.tab.c"
+#line 1558 "sysy.tab.c"
     break;
 
-  case 15:
-#line 221 "sysy.y"
+  case 19:
+#line 263 "sysy.y"
                                                  {
     auto ast = new FuncDefAST();
     ast->func_type_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-5)].yystate.yysemantics.yysval.ast_val));
@@ -1469,11 +1570,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     }
     ((*yyvalp).ast_val) = ast;
   }
-#line 1473 "sysy.tab.c"
+#line 1574 "sysy.tab.c"
     break;
 
-  case 16:
-#line 231 "sysy.y"
+  case 20:
+#line 273 "sysy.y"
                                             {
     auto ast = new StmtAST();
     ast->type_ = kDeclareArray;
@@ -1482,51 +1583,51 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->array_size_ = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval.int_val);
     ((*yyvalp).ast_val) = ast;
   }
-#line 1486 "sysy.tab.c"
+#line 1587 "sysy.tab.c"
     break;
 
-  case 17:
-#line 243 "sysy.y"
+  case 21:
+#line 285 "sysy.y"
         {
     auto ast = new FuncTypeAST();
     ast->type_ = *make_unique<string>("int");
     ((*yyvalp).ast_val) = ast;
   }
-#line 1496 "sysy.tab.c"
+#line 1597 "sysy.tab.c"
     break;
 
-  case 18:
-#line 247 "sysy.y"
+  case 22:
+#line 289 "sysy.y"
              {
     auto ast = new FuncTypeAST();
     ast->type_ = *make_unique<string>("double");
     ((*yyvalp).ast_val) = ast;
   }
-#line 1506 "sysy.tab.c"
+#line 1607 "sysy.tab.c"
     break;
 
-  case 19:
-#line 251 "sysy.y"
+  case 23:
+#line 293 "sysy.y"
            {
    auto ast = new FuncTypeAST();
    ast->type_ = *make_unique<string>("void");
    ((*yyvalp).ast_val) = ast;
   }
-#line 1516 "sysy.tab.c"
+#line 1617 "sysy.tab.c"
     break;
 
-  case 20:
-#line 255 "sysy.y"
+  case 24:
+#line 297 "sysy.y"
             {
     auto ast = new FuncTypeAST();
     ast->type_ = *make_unique<string>("float");
     ((*yyvalp).ast_val) = ast;
   }
-#line 1526 "sysy.tab.c"
+#line 1627 "sysy.tab.c"
     break;
 
-  case 21:
-#line 263 "sysy.y"
+  case 25:
+#line 305 "sysy.y"
                               {
     auto ast = new BlockAST();
     // auto temp_stmt = ;
@@ -1536,21 +1637,21 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     }
     ((*yyvalp).ast_val) = ast;
   }
-#line 1540 "sysy.tab.c"
+#line 1641 "sysy.tab.c"
     break;
 
-  case 22:
-#line 275 "sysy.y"
+  case 26:
+#line 317 "sysy.y"
          {
     auto item_list = new vector<unique_ptr<BaseAST>>();
     item_list->emplace_back(unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val)));
     ((*yyvalp).ast_list) = item_list;
   }
-#line 1550 "sysy.tab.c"
+#line 1651 "sysy.tab.c"
     break;
 
-  case 23:
-#line 279 "sysy.y"
+  case 27:
+#line 321 "sysy.y"
               {
     auto item_list = new vector<unique_ptr<BaseAST>>();
     auto list = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_list);
@@ -1559,11 +1660,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     }
     ((*yyvalp).ast_list) = item_list;
   }
-#line 1563 "sysy.tab.c"
+#line 1664 "sysy.tab.c"
     break;
 
-  case 24:
-#line 286 "sysy.y"
+  case 28:
+#line 328 "sysy.y"
                      {
     auto item_list = new vector<unique_ptr<BaseAST>>();
     item_list->emplace_back(unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.ast_val)));
@@ -1573,11 +1674,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     }
     ((*yyvalp).ast_list) = item_list;
   }
-#line 1577 "sysy.tab.c"
+#line 1678 "sysy.tab.c"
     break;
 
-  case 25:
-#line 294 "sysy.y"
+  case 29:
+#line 336 "sysy.y"
                         {
     auto item_list = new vector<unique_ptr<BaseAST>>();
     auto declare_list = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.ast_list);
@@ -1590,21 +1691,21 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     }
     ((*yyvalp).ast_list) = item_list;
   }
-#line 1594 "sysy.tab.c"
+#line 1695 "sysy.tab.c"
     break;
 
-  case 26:
-#line 309 "sysy.y"
+  case 30:
+#line 351 "sysy.y"
         {
     auto var_list = new vector<unique_ptr<BaseAST>>();
     var_list->emplace_back(unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val)));
     ((*yyvalp).ast_list) = var_list;
   }
-#line 1604 "sysy.tab.c"
+#line 1705 "sysy.tab.c"
     break;
 
-  case 27:
-#line 313 "sysy.y"
+  case 31:
+#line 355 "sysy.y"
                      {
     auto var_list = new vector<unique_ptr<BaseAST>>();
     var_list->emplace_back(unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval.ast_val)));
@@ -1614,11 +1715,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     }
     ((*yyvalp).ast_list) = var_list;
   }
-#line 1618 "sysy.tab.c"
+#line 1719 "sysy.tab.c"
     break;
 
-  case 28:
-#line 325 "sysy.y"
+  case 32:
+#line 367 "sysy.y"
           {
     auto ast = new StmtAST();
     ast->type_ = kDeclare;
@@ -1626,11 +1727,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->ident_ = *unique_ptr<string>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.str_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1630 "sysy.tab.c"
+#line 1731 "sysy.tab.c"
     break;
 
-  case 29:
-#line 331 "sysy.y"
+  case 33:
+#line 373 "sysy.y"
                         {
     auto ast = new StmtAST();
     ast->type_ = kDeclareAssign;
@@ -1642,12 +1743,12 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     }
     ((*yyvalp).ast_val) = ast;
   }
-#line 1646 "sysy.tab.c"
+#line 1747 "sysy.tab.c"
     break;
 
-  case 30:
-#line 341 "sysy.y"
-                                   {
+  case 34:
+#line 383 "sysy.y"
+                                                {
     auto ast = new StmtAST();
     ast->type_ = kDeclareArray;
     ast->key_word_ = *make_unique<string>("int");
@@ -1655,11 +1756,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->array_size_ = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.int_val);
     ((*yyvalp).ast_val) = ast;
   }
-#line 1659 "sysy.tab.c"
+#line 1760 "sysy.tab.c"
     break;
 
-  case 31:
-#line 348 "sysy.y"
+  case 35:
+#line 390 "sysy.y"
                                                {
     auto ast = new StmtAST();
     ast->type_ = kDeclareArrayAssign;
@@ -1672,67 +1773,137 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     }
     ((*yyvalp).ast_val) = ast;
   }
-#line 1676 "sysy.tab.c"
+#line 1777 "sysy.tab.c"
     break;
 
-  case 32:
-#line 363 "sysy.y"
+  case 36:
+#line 401 "sysy.y"
+                                        {
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArrayAssign;
+    ast->ident_ = *unique_ptr<string>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-4)].yystate.yysemantics.yysval.str_val));
+    ast->key_word_ = *make_unique<string>("int");
+    auto list = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_list);
+    for (auto &item : *list) {
+    	ast->assign_list_.emplace_back(std::move(item));
+    }
+    ((*yyvalp).ast_val) = ast;
+  }
+#line 1793 "sysy.tab.c"
+    break;
+
+  case 37:
+#line 411 "sysy.y"
+                                                          {
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArray;
+    ast->ident_ = *unique_ptr<string>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-6)].yystate.yysemantics.yysval.str_val));
+    ast->key_word_ = *make_unique<string>("int");
+    ast->array_size_ = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-4)].yystate.yysemantics.yysval.int_val);
+    ast->array_size2_ = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.int_val);
+    ((*yyvalp).ast_val) = ast;
+  }
+#line 1807 "sysy.tab.c"
+    break;
+
+  case 38:
+#line 419 "sysy.y"
+                                                                      {
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArrayAssign;
+    ast->ident_ = *unique_ptr<string>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-8)].yystate.yysemantics.yysval.str_val));
+    ast->key_word_ = *make_unique<string>("int");
+    ast->array_size_ = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-6)].yystate.yysemantics.yysval.int_val);
+    ast->array_size2_ = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval.int_val);
+    auto list = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_list);
+    for (auto &item : *list) {
+    	ast->assign_list_.emplace_back(std::move(item));
+    }
+    ((*yyvalp).ast_val) = ast;
+  }
+#line 1825 "sysy.tab.c"
+    break;
+
+  case 39:
+#line 431 "sysy.y"
+                                                               {
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArrayAssign;
+    ast->ident_ = *unique_ptr<string>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-7)].yystate.yysemantics.yysval.str_val));
+    ast->key_word_ = *make_unique<string>("int");
+    ast->array_size2_ = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval.int_val);
+    auto list = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_list);
+    for (auto &item : *list) {
+    	ast->assign_list_.emplace_back(std::move(item));
+    }
+    ((*yyvalp).ast_val) = ast;
+  }
+#line 1842 "sysy.tab.c"
+    break;
+
+  case 40:
+#line 446 "sysy.y"
          {
     auto list = new vector<unique_ptr<BaseAST>>();
     list->emplace_back(unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val)));
     ((*yyvalp).ast_list) = list;
   }
-#line 1686 "sysy.tab.c"
+#line 1852 "sysy.tab.c"
     break;
 
-  case 33:
-#line 367 "sysy.y"
-                                   {
-    auto list = new vector<unique_ptr<BaseAST>>();
-    auto array = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.ast_list);
-    for (auto &item : *array) {
-    	list->emplace_back(std::move(item));
-    }
-    ((*yyvalp).ast_list) = list;
-  }
-#line 1699 "sysy.tab.c"
+  case 41:
+#line 450 "sysy.y"
+                                  {
+     auto list = new vector<unique_ptr<BaseAST>>();
+     auto array = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.ast_list);
+     for (auto &item : *array) {
+           list->emplace_back(std::move(item));
+     }
+     ((*yyvalp).ast_list) = list;
+   }
+#line 1865 "sysy.tab.c"
     break;
 
-  case 34:
-#line 378 "sysy.y"
+  case 42:
+#line 461 "sysy.y"
             {
-
+    auto array = new vector<unique_ptr<BaseAST>>();
+    auto temp_param = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_list);
+    for (auto &item : *temp_param) {
+    	array->emplace_back(std::move(item));
+    }
+    ((*yyvalp).ast_list) = array;
   }
-#line 1707 "sysy.tab.c"
+#line 1878 "sysy.tab.c"
     break;
 
-  case 35:
-#line 380 "sysy.y"
-                                                    {
+  case 43:
+#line 468 "sysy.y"
+                                              {
 
   }
-#line 1715 "sysy.tab.c"
+#line 1886 "sysy.tab.c"
     break;
 
-  case 36:
-#line 382 "sysy.y"
-                                   {
+  case 44:
+#line 470 "sysy.y"
+                             {
 
   }
-#line 1723 "sysy.tab.c"
+#line 1894 "sysy.tab.c"
     break;
 
-  case 37:
-#line 387 "sysy.y"
+  case 45:
+#line 477 "sysy.y"
                      {
     auto list = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.ast_list);
     ((*yyvalp).ast_list) = list;
   }
-#line 1732 "sysy.tab.c"
+#line 1903 "sysy.tab.c"
     break;
 
-  case 38:
-#line 390 "sysy.y"
+  case 46:
+#line 480 "sysy.y"
                             {
     auto list = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.ast_list);
     for (auto &item : *list) {
@@ -1740,33 +1911,33 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     }
     ((*yyvalp).ast_list) = list;
   }
-#line 1744 "sysy.tab.c"
+#line 1915 "sysy.tab.c"
     break;
 
-  case 39:
-#line 400 "sysy.y"
+  case 47:
+#line 490 "sysy.y"
                     {
     auto ast = new StmtAST();
     ast->type_ = kReturn;
     ast->exp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1755 "sysy.tab.c"
+#line 1926 "sysy.tab.c"
     break;
 
-  case 40:
-#line 405 "sysy.y"
+  case 48:
+#line 495 "sysy.y"
                {
     auto ast = new StmtAST();
     ast->type_ = kExpression;
     ast->exp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1766 "sysy.tab.c"
+#line 1937 "sysy.tab.c"
     break;
 
-  case 41:
-#line 410 "sysy.y"
+  case 49:
+#line 500 "sysy.y"
                                    {
     auto ast = new StmtAST();
     ast->type_ = kIf;
@@ -1774,11 +1945,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->true_block_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1778 "sysy.tab.c"
+#line 1949 "sysy.tab.c"
     break;
 
-  case 42:
-#line 416 "sysy.y"
+  case 50:
+#line 506 "sysy.y"
                                       {
     auto ast = new StmtAST();
     ast->type_ = kWhile;
@@ -1786,11 +1957,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->block_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1790 "sysy.tab.c"
+#line 1961 "sysy.tab.c"
     break;
 
-  case 43:
-#line 422 "sysy.y"
+  case 51:
+#line 512 "sysy.y"
                                              {
     auto ast = new StmtAST();
     ast->type_ = kIf;
@@ -1799,11 +1970,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->false_block_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1803 "sysy.tab.c"
+#line 1974 "sysy.tab.c"
     break;
 
-  case 44:
-#line 429 "sysy.y"
+  case 52:
+#line 519 "sysy.y"
                            {
      auto ast = new StmtAST();
      ast->type_ = kStatic;
@@ -1811,40 +1982,40 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
      ast->ident_ = *unique_ptr<string>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.str_val));
      ((*yyvalp).ast_val) = ast;
   }
-#line 1815 "sysy.tab.c"
+#line 1986 "sysy.tab.c"
     break;
 
-  case 45:
-#line 435 "sysy.y"
+  case 53:
+#line 525 "sysy.y"
                    {
      auto ast = new StmtAST();
      ast->type_ = kContinue;
      ((*yyvalp).ast_val) = ast;
   }
-#line 1825 "sysy.tab.c"
+#line 1996 "sysy.tab.c"
     break;
 
-  case 46:
-#line 439 "sysy.y"
+  case 54:
+#line 529 "sysy.y"
                 {
      auto ast = new StmtAST();
      ast->type_ = kBreak;
      ((*yyvalp).ast_val) = ast;
   }
-#line 1835 "sysy.tab.c"
+#line 2006 "sysy.tab.c"
     break;
 
-  case 47:
-#line 443 "sysy.y"
+  case 55:
+#line 533 "sysy.y"
             {
      auto ast = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val);
      ((*yyvalp).ast_val) = ast;
   }
-#line 1844 "sysy.tab.c"
+#line 2015 "sysy.tab.c"
     break;
 
-  case 48:
-#line 450 "sysy.y"
+  case 56:
+#line 540 "sysy.y"
                    {
     auto ast = new ExprAST();
     ast->type_ = kAssign;
@@ -1852,22 +2023,22 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1856 "sysy.tab.c"
+#line 2027 "sysy.tab.c"
     break;
 
-  case 49:
-#line 456 "sysy.y"
+  case 57:
+#line 546 "sysy.y"
                            {
     auto ast = new ExprAST();
     ast->type_ = kParen;
     ast->lExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1867 "sysy.tab.c"
+#line 2038 "sysy.tab.c"
     break;
 
-  case 50:
-#line 461 "sysy.y"
+  case 58:
+#line 551 "sysy.y"
                     {
     auto ast = new ExprAST();
     ast->type_ = kAdd;
@@ -1875,11 +2046,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1879 "sysy.tab.c"
+#line 2050 "sysy.tab.c"
     break;
 
-  case 51:
-#line 467 "sysy.y"
+  case 59:
+#line 557 "sysy.y"
                     {
     auto ast = new ExprAST();
     ast->type_ = kSub;
@@ -1887,11 +2058,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1891 "sysy.tab.c"
+#line 2062 "sysy.tab.c"
     break;
 
-  case 52:
-#line 473 "sysy.y"
+  case 60:
+#line 563 "sysy.y"
                     {
     auto ast = new ExprAST();
     ast->type_ = kMul;
@@ -1899,11 +2070,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1903 "sysy.tab.c"
+#line 2074 "sysy.tab.c"
     break;
 
-  case 53:
-#line 479 "sysy.y"
+  case 61:
+#line 569 "sysy.y"
                     {
     auto ast = new ExprAST();
     ast->type_ = kDiv;
@@ -1911,11 +2082,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1915 "sysy.tab.c"
+#line 2086 "sysy.tab.c"
     break;
 
-  case 54:
-#line 485 "sysy.y"
+  case 62:
+#line 575 "sysy.y"
                     {
     auto ast = new ExprAST();
     ast->type_ = kMod ;
@@ -1923,11 +2094,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1927 "sysy.tab.c"
+#line 2098 "sysy.tab.c"
     break;
 
-  case 55:
-#line 491 "sysy.y"
+  case 63:
+#line 581 "sysy.y"
                       {
     auto ast = new ExprAST();
     ast->type_ = kEqual;
@@ -1935,11 +2106,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1939 "sysy.tab.c"
+#line 2110 "sysy.tab.c"
     break;
 
-  case 56:
-#line 497 "sysy.y"
+  case 64:
+#line 587 "sysy.y"
                           {
     auto ast = new ExprAST();
     ast->type_ = kNotEqual;
@@ -1947,11 +2118,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1951 "sysy.tab.c"
+#line 2122 "sysy.tab.c"
     break;
 
-  case 57:
-#line 503 "sysy.y"
+  case 65:
+#line 593 "sysy.y"
                     {
     auto ast = new ExprAST();
     ast->type_ = kAnd;
@@ -1959,11 +2130,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1963 "sysy.tab.c"
+#line 2134 "sysy.tab.c"
     break;
 
-  case 58:
-#line 509 "sysy.y"
+  case 66:
+#line 599 "sysy.y"
                    {
     auto ast = new ExprAST();
     ast->type_ = kOr;
@@ -1971,11 +2142,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1975 "sysy.tab.c"
+#line 2146 "sysy.tab.c"
     break;
 
-  case 59:
-#line 515 "sysy.y"
+  case 67:
+#line 605 "sysy.y"
                        {
     auto ast = new ExprAST();
     ast->type_ = kLarger;
@@ -1983,11 +2154,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1987 "sysy.tab.c"
+#line 2158 "sysy.tab.c"
     break;
 
-  case 60:
-#line 521 "sysy.y"
+  case 68:
+#line 611 "sysy.y"
                              {
     auto ast = new ExprAST();
     ast->type_ = kLargerEqual;
@@ -1995,11 +2166,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 1999 "sysy.tab.c"
+#line 2170 "sysy.tab.c"
     break;
 
-  case 61:
-#line 527 "sysy.y"
+  case 69:
+#line 617 "sysy.y"
                      {
     auto ast = new ExprAST();
     ast->type_ = kLess;
@@ -2007,11 +2178,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 2011 "sysy.tab.c"
+#line 2182 "sysy.tab.c"
     break;
 
-  case 62:
-#line 533 "sysy.y"
+  case 70:
+#line 623 "sysy.y"
                            {
     auto ast = new ExprAST();
     ast->type_ = kLessEqual;
@@ -2019,11 +2190,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 2023 "sysy.tab.c"
+#line 2194 "sysy.tab.c"
     break;
 
-  case 63:
-#line 539 "sysy.y"
+  case 71:
+#line 629 "sysy.y"
                            {
     auto ast = new ExprAST();
     ast->type_ = kMulAssign;
@@ -2031,11 +2202,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 2035 "sysy.tab.c"
+#line 2206 "sysy.tab.c"
     break;
 
-  case 64:
-#line 545 "sysy.y"
+  case 72:
+#line 635 "sysy.y"
                            {
     auto ast = new ExprAST();
     ast->type_ = kDivAssign;
@@ -2043,11 +2214,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 2047 "sysy.tab.c"
+#line 2218 "sysy.tab.c"
     break;
 
-  case 65:
-#line 551 "sysy.y"
+  case 73:
+#line 641 "sysy.y"
                            {
     auto ast = new ExprAST();
     ast->type_ = kAddAssign;
@@ -2055,11 +2226,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 2059 "sysy.tab.c"
+#line 2230 "sysy.tab.c"
     break;
 
-  case 66:
-#line 557 "sysy.y"
+  case 74:
+#line 647 "sysy.y"
                            {
     auto ast = new ExprAST();
     ast->type_ = kSubAssign;
@@ -2067,44 +2238,44 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 2071 "sysy.tab.c"
+#line 2242 "sysy.tab.c"
     break;
 
-  case 67:
-#line 563 "sysy.y"
+  case 75:
+#line 653 "sysy.y"
                {
     auto ast = new ExprAST();
     ast->type_ = kNot;
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 2082 "sysy.tab.c"
+#line 2253 "sysy.tab.c"
     break;
 
-  case 68:
-#line 568 "sysy.y"
+  case 76:
+#line 658 "sysy.y"
             {
     auto ast = new ExprAST();
     ast->type_ = kAtomIdent;
     ast->ident_ = *unique_ptr<string>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.str_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 2093 "sysy.tab.c"
+#line 2264 "sysy.tab.c"
     break;
 
-  case 69:
-#line 573 "sysy.y"
+  case 77:
+#line 663 "sysy.y"
              {
     auto ast = new ExprAST();
     ast->type_ = kAtomNum;
     ast->num_ = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.int_val);
     ((*yyvalp).ast_val) = ast;
   }
-#line 2104 "sysy.tab.c"
+#line 2275 "sysy.tab.c"
     break;
 
-  case 70:
-#line 578 "sysy.y"
+  case 78:
+#line 668 "sysy.y"
                                    {
     auto ast = new ExprAST();
     ast->type_ = kFunction;
@@ -2115,22 +2286,22 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     }
     ((*yyvalp).ast_val) = ast;
   }
-#line 2119 "sysy.tab.c"
+#line 2290 "sysy.tab.c"
     break;
 
-  case 71:
-#line 587 "sysy.y"
+  case 79:
+#line 677 "sysy.y"
                             {
     auto ast = new ExprAST();
     ast->type_ = kFunction;
     ast->ident_ = *unique_ptr<string>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-2)].yystate.yysemantics.yysval.str_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 2130 "sysy.tab.c"
+#line 2301 "sysy.tab.c"
     break;
 
-  case 72:
-#line 592 "sysy.y"
+  case 80:
+#line 682 "sysy.y"
                                  {
     auto ast = new ExprAST();
     ast->type_ = kAtomArray;
@@ -2138,11 +2309,11 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->array_offset_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 2142 "sysy.tab.c"
+#line 2313 "sysy.tab.c"
     break;
 
-  case 73:
-#line 598 "sysy.y"
+  case 81:
+#line 688 "sysy.y"
                                           {
     auto ast = new ExprAST();
     ast->type_ = kAssignArray;
@@ -2151,38 +2322,65 @@ yyuserAction (yyRuleNum yyn, int yyrhslen, yyGLRStackItem* yyvsp,
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 2155 "sysy.tab.c"
+#line 2326 "sysy.tab.c"
     break;
 
-  case 74:
-#line 605 "sysy.y"
+  case 82:
+#line 695 "sysy.y"
               {
     auto ast = new ExprAST();
     ast->type_ = kAt;
     ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
     ((*yyvalp).ast_val) = ast;
   }
-#line 2166 "sysy.tab.c"
+#line 2337 "sysy.tab.c"
     break;
 
-  case 75:
-#line 614 "sysy.y"
+  case 83:
+#line 700 "sysy.y"
+                                                               {
+    auto ast = new ExprAST();
+    ast->type_ = kAssignArray;
+    ast->array_offset_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-6)].yystate.yysemantics.yysval.ast_val));
+    ast->array_offset2_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-3)].yystate.yysemantics.yysval.ast_val));
+    ast->ident_ = *unique_ptr<string>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-8)].yystate.yysemantics.yysval.str_val));
+    ast->rExp_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.ast_val));
+    ((*yyvalp).ast_val) = ast;
+  }
+#line 2351 "sysy.tab.c"
+    break;
+
+  case 84:
+#line 708 "sysy.y"
+                                                      {
+    auto ast = new ExprAST();
+    ast->type_ = kAtomArray;
+    ast->array_offset_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-4)].yystate.yysemantics.yysval.ast_val));
+    ast->array_offset2_ = unique_ptr<BaseAST>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-1)].yystate.yysemantics.yysval.ast_val));
+    ast->ident_ = *unique_ptr<string>((YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (-6)].yystate.yysemantics.yysval.str_val));
+    ((*yyvalp).ast_val) = ast;
+  }
+#line 2364 "sysy.tab.c"
+    break;
+
+  case 85:
+#line 719 "sysy.y"
               {
     ((*yyvalp).int_val) = (YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.int_val);
   }
-#line 2174 "sysy.tab.c"
+#line 2372 "sysy.tab.c"
     break;
 
-  case 76:
-#line 616 "sysy.y"
+  case 86:
+#line 721 "sysy.y"
                     {
     ((*yyvalp).int_val) = -(YY_CAST (yyGLRStackItem const *, yyvsp)[YYFILL (0)].yystate.yysemantics.yysval.int_val);
   }
-#line 2182 "sysy.tab.c"
+#line 2380 "sysy.tab.c"
     break;
 
 
-#line 2186 "sysy.tab.c"
+#line 2384 "sysy.tab.c"
 
       default: break;
     }
@@ -3831,7 +4029,7 @@ yypdumpstack (yyGLRStack* yystackp)
 
 
 
-#line 621 "sysy.y"
+#line 726 "sysy.y"
 
 
 // 定义错误处理函数, 其中第二个参数是错误信息

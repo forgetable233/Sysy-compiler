@@ -649,7 +649,8 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                 llvm::Value *array_2;
                 llvm::Value *tar_value;
                 if (!global_value) {
-                    if (value->getType()->getPointerElementType()->isArrayTy()) {
+                    if (value->getType()->getPointerElementType()->isArrayTy() &&
+                        !value->getType()->getPointerElementType()->getArrayElementType()->isArrayTy()) {
                         llvm::Value *const_i;
                         llvm::ArrayType *array_type = llvm::ArrayType::get(
                                 llvm::IntegerType::getInt32Ty(ir.module_->getContext()), size);
@@ -698,25 +699,44 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                     return ir.builder_->CreateStore(r_exp_value, array_i, "store");
                 }
             } else {
-                // 2-dim
-//                value->getType()->print(llvm::outs(), true);
+                int size;
                 r_exp_value = rExp_->CodeGen(ir);
-
-                auto *global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
+                llvm::outs() << ident_ << ' ';
+                value->getType()->print(llvm::outs(), true);
+                llvm::outs() << '\n';
+                if (value->getType()->getPointerElementType()->isPointerTy()) {
+                    size = (int) value->getType()->getPointerElementType()->getPointerElementType()->getArrayNumElements();
+                    llvm::ArrayType *array_type = llvm::ArrayType::get(
+                            llvm::IntegerType::getInt32Ty(ir.module_->getContext()), size);
+                    llvm::PointerType *pointer = llvm::PointerType::get(array_type, 0);
+                    value = ir.builder_->CreateLoad(pointer, value);
+                }
+                auto global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
+                llvm::Value *array_1;
+                llvm::Value *array_2;
+                llvm::Value *tar_value;
                 if (!global_value) {
-                    llvm::Value *array_1 = BaseAST::GetOffsetPointer(value, &*array_offset_, ir);
-                    llvm::Value *array_2 = BaseAST::GetOffsetPointer(array_1, &*array_offset2_, ir);
+                    if (value->getType()->getPointerElementType()->isArrayTy() &&
+                        !value->getType()->getPointerElementType()->getArrayElementType()->isArrayTy()) {
+                        llvm::Value *const_i;
+                        llvm::ArrayType *array_type = llvm::ArrayType::get(
+                                llvm::IntegerType::getInt32Ty(ir.module_->getContext()), size);
+                        const_i = BaseAST::GetOffset(&*array_offset_, ir);
+                        array_1 = ir.builder_->CreateGEP(value, const_i);
+                    } else {
+                        array_1 = BaseAST::GetOffsetPointer(value, &*array_offset_, ir);
+                    }
+                    array_2 = BaseAST::GetOffsetPointer(array_1, &*array_offset2_, ir);
                     return ir.builder_->CreateStore(r_exp_value, array_2, "store");
                 } else {
-                    llvm::Value *array_1 = BaseAST::GetOffsetPointer(global_value, &*array_offset_, ir);
-                    llvm::Value *array_2 = BaseAST::GetOffsetPointer(array_1, &*array_offset2_, ir);
+                    array_1 = BaseAST::GetOffsetPointer(value, &*array_offset_, ir);
+                    array_2 = BaseAST::GetOffsetPointer(array_1, &*array_offset2_, ir);
                     return ir.builder_->CreateStore(r_exp_value, array_2, "store");
                 }
             }
 
         }
         case kFunction: {
-            // TODO 函数调用添加参数数量检查，类型检查先没写
             llvm::Function *func = ir.module_->getFunction(this->ident_);
             if (!func) {
                 llvm::report_fatal_error("unable to find the target function\n");

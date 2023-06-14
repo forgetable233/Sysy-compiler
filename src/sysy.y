@@ -56,6 +56,7 @@ using namespace std;
 %type <int_val> Number
 %type <ast_list> ParamList Params BlockItem Declare VarDef InitVal InitValArray
 
+%nonassoc UMINUS
 %right AT
 %left MUL_ASSIGN DIV_ASSIGN
 %left ADD_ASSIGN SUB_ASSIGN
@@ -269,13 +270,6 @@ FuncDef
     	ast->param_lists_.emplace_back(move(item));
     }
     $$ = ast;
-  } | Type IDENT L_BRACK Number R_BRACK ';' {
-    auto ast = new StmtAST();
-    ast->type_ = kDeclareArray;
-    ast->key_word_ = *make_unique<string>("int");
-    ast->ident_ = *unique_ptr<string>($2);
-    ast->array_size_ = $4;
-    $$ = ast;
   }
   ;
 
@@ -473,7 +467,7 @@ InitValArray
 
 
 Declare
-  : Type VarDef  ';' {
+  : Type VarDef  ';' %prec UMINUS{
     auto list = $2;
     $$ = list;
   } | CONST Type VarDef ';' {
