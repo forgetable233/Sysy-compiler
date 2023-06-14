@@ -721,7 +721,6 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                 auto global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
                 llvm::Value *array_1;
                 llvm::Value *array_2;
-                llvm::Value *tar_value;
                 if (!global_value) {
                     if (value->getType()->getPointerElementType()->isArrayTy() &&
                         !value->getType()->getPointerElementType()->getArrayElementType()->isArrayTy()) {
@@ -774,10 +773,12 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
             l_exp_value = lExp_->CodeGen(ir);
             r_exp_value = rExp_->CodeGen(ir);
             switch (type_) {
-                case kAdd:
+                case kAdd: {
                     return ir.builder_->CreateFAdd(l_exp_value, r_exp_value, "add");
-                case kSub:
+                }
+                case kSub: {
                     return ir.builder_->CreateFSub(l_exp_value, r_exp_value, "sub");
+                }
                 case kMul:
                     return ir.builder_->CreateMul(l_exp_value, r_exp_value, "mul");
                 case kDiv:

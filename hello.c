@@ -16,9 +16,12 @@ int test (int c[10][10], int m[10]) {
     int n[10];
     int d;
 //    int f[10];
-    d = test2(a[0]);
-    d = test2(b[0]);
-    d = test2(c[0]);
+    d = test2(a[0] + 1);
+    d = test2(b[0] + 1);
+    d = test2(c[0] + 1);
+    d = test2(n + 1);
+    d = test2(q + 1);
+    d = test2(m + 1);
 //    d = test3(f);
     return 0;
 }
