@@ -135,6 +135,8 @@ public:
     static llvm::Value *GetOffset(BaseAST *offset, IR &ir);
 
     static llvm::Value *GetOffset(int tar, IR &ir);
+
+    static bool isMultiArray(llvm::Value *value);
 };
 
 class ExprAST : public BaseAST {
