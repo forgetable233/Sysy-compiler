@@ -193,6 +193,52 @@ ParamList
     	ident_list->emplace_back(move(item));
     }
     $$ = ident_list;
+} | Type IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK {
+    auto ident_list = new vector<unique_ptr<BaseAST>>();
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArray;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>($2);
+    ast->array_size_ = $4;
+    ast->array_size2_ = $7;
+    ident_list->emplace_back(unique_ptr<BaseAST>(ast));
+    $$ = ident_list;
+} | Type IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK ',' ParamList {
+    auto ident_list = new vector<unique_ptr<BaseAST>>();
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArray;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>($2);
+    ast->array_size_ = $4;
+    ast->array_size2_ = $7;
+    ident_list->emplace_back(unique_ptr<BaseAST>(ast));
+    auto input_list = $10;
+    for (auto &item : *input_list) {
+    	ident_list->emplace_back(std::move(item));
+    }
+    $$ = ident_list;
+} | Type IDENT L_BRACK R_BRACK L_BRACK Number R_BRACK {
+    auto ident_list = new vector<unique_ptr<BaseAST>>();
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArray;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>($2);
+    ast->array_size2_ = $6;
+    ident_list->emplace_back(unique_ptr<BaseAST>(ast));
+    $$ = ident_list;
+} | Type IDENT L_BRACK R_BRACK L_BRACK Number R_BRACK ',' ParamList {
+    auto ident_list = new vector<unique_ptr<BaseAST>>();
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArray;
+    ast->key_word_ = *make_unique<string>("int");
+    ast->ident_ = *unique_ptr<string>($2);
+    ast->array_size2_ = $6;
+    ident_list->emplace_back(unique_ptr<BaseAST>(ast));
+    auto input_list = $9;
+    for (auto &item : *input_list) {
+    	ident_list->emplace_back(std::move(item));
+    }
+    $$ = ident_list;
 }
 ;
 

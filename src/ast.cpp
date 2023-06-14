@@ -246,7 +246,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                                 llvm::ArrayType::get(llvm::Type::getInt32Ty(ir.module_->getContext()),
                                                      this->array_size_),
                                 const_array_elems));
-                var->getType()->print(llvm::outs(), true);
+//                var->getType()->print(llvm::outs(), true);
                 ir.push_global_value(var, this->ident_);
                 break;
             } else {
@@ -636,14 +636,33 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                 }
             } else {
                 // 2-dim
-                auto *global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
+                int size;
+                if (value->getType()->getPointerElementType()->isPointerTy()) {
+                    size = (int) value->getType()->getPointerElementType()->getPointerElementType()->getArrayNumElements();
+                    llvm::ArrayType *array_type = llvm::ArrayType::get(
+                            llvm::IntegerType::getInt32Ty(ir.module_->getContext()), size);
+                    llvm::PointerType *pointer = llvm::PointerType::get(array_type, 0);
+                    value = ir.builder_->CreateLoad(pointer, value);
+                }
+                auto global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
+                llvm::Value *array_1;
+                llvm::Value *array_2;
+                llvm::Value *tar_value;
                 if (!global_value) {
-                    llvm::Value *array_1 = BaseAST::GetOffsetPointer(value, &*array_offset_, ir);
-                    llvm::Value *array_2 = BaseAST::GetOffsetPointer(array_1, &*array_offset2_, ir);
+                    if (value->getType()->getPointerElementType()->isArrayTy()) {
+                        llvm::Value *const_i;
+                        llvm::ArrayType *array_type = llvm::ArrayType::get(
+                                llvm::IntegerType::getInt32Ty(ir.module_->getContext()), size);
+                        const_i = BaseAST::GetOffset(&*array_offset_, ir);
+                        array_1 = ir.builder_->CreateGEP(value, const_i);
+                    } else {
+                        array_1 = BaseAST::GetOffsetPointer(value, &*array_offset_, ir);
+                    }
+                    array_2 = BaseAST::GetOffsetPointer(array_1, &*array_offset2_, ir);
                     return ir.builder_->CreateLoad(array_2);
                 } else {
-                    llvm::Value *array_1 = BaseAST::GetOffsetPointer(global_value, &*array_offset_, ir);
-                    llvm::Value *array_2 = BaseAST::GetOffsetPointer(array_1, &*array_offset2_, ir);
+                    array_1 = BaseAST::GetOffsetPointer(value, &*array_offset_, ir);
+                    array_2 = BaseAST::GetOffsetPointer(array_1, &*array_offset2_, ir);
                     return ir.builder_->CreateLoad(array_2);
                 }
             }
@@ -680,7 +699,7 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                 }
             } else {
                 // 2-dim
-                value->getType()->print(llvm::outs(), true);
+//                value->getType()->print(llvm::outs(), true);
                 r_exp_value = rExp_->CodeGen(ir);
 
                 auto *global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
@@ -829,9 +848,18 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
         if (ast->type_ == kDeclare) {
             param_types.emplace_back(ir.builder_->getInt32Ty());
         } else if (ast->type_ == kDeclareArray) {
-            llvm::IntegerType *int_type = llvm::IntegerType::get(ir.module_->getContext(), 32);
-            llvm::PointerType *pointer = llvm::PointerType::get(int_type, 0);
-            param_types.emplace_back(pointer);
+            if (ast->array_size2_ == 0) {
+                // 1-dims
+                llvm::IntegerType *int_type = llvm::IntegerType::get(ir.module_->getContext(), 32);
+                llvm::PointerType *pointer = llvm::PointerType::get(int_type, 0);
+                param_types.emplace_back(pointer);
+            } else {
+                // 2-dim
+                llvm::IntegerType *int_type = llvm::IntegerType::getInt32Ty(ir.module_->getContext());
+                llvm::ArrayType *array_type = llvm::ArrayType::get(int_type, ast->array_size2_);
+                llvm::PointerType *pointer = llvm::PointerType::get(array_type, 0);
+                param_types.emplace_back(pointer);
+            }
         } else {
             llvm::report_fatal_error("Undefined type\n");
         }
@@ -873,9 +901,17 @@ void FuncDefAST::AddParams(IR &ir) {
             auto value = ir.builder_->CreateAlloca(integerType);
             ir.push_value(value, block_name, std::to_string(i));
         } else {
-            llvm::PointerType *pointerType = llvm::PointerType::getInt32PtrTy(ir.module_->getContext());
-            auto value = ir.builder_->CreateAlloca(pointerType);
-            ir.push_value(value, block_name, std::to_string(i));
+            if (item.getType()->getPointerElementType()->isArrayTy()) {
+                int size = (int) item.getType()->getPointerElementType()->getArrayNumElements();
+                llvm::IntegerType *inter_type = llvm::IntegerType::getInt32Ty(ir.module_->getContext());
+                llvm::PointerType *pointer = llvm::PointerType::get(llvm::ArrayType::get(inter_type, size), 0);
+                auto value = ir.builder_->CreateAlloca(pointer);
+                ir.push_value(value, block_name, std::to_string(i));
+            } else {
+                llvm::PointerType *pointerType = llvm::PointerType::getInt32PtrTy(ir.module_->getContext());
+                auto value = ir.builder_->CreateAlloca(pointerType);
+                ir.push_value(value, block_name, std::to_string(i));
+            }
         }
         i++;
     }
