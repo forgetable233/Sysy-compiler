@@ -150,6 +150,7 @@ public:
     int num_;
 
     std::unique_ptr<BaseAST> array_offset_ = nullptr;
+    std::unique_ptr<BaseAST> array_offset2_ = nullptr;
 
     std::vector<std::unique_ptr<BaseAST>> param_lists_;
 

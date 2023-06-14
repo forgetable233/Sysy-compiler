@@ -620,17 +620,32 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
             if (!BaseAST::is_array(value)) {
                 llvm::report_fatal_error("The type of the param does not match, requires array but input ident");
             }
-            if (value->getType()->getPointerElementType()->isPointerTy()) {
-                llvm::PointerType *pointerType = llvm::PointerType::getInt32PtrTy(ir.module_->getContext());
-                value = ir.builder_->CreateLoad(pointerType, value);
-            }
-            auto *global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
-            if (!global_value) {
-                llvm::Value *array_i = BaseAST::GetOffsetPointer(value, offset, ir);
-                return ir.builder_->CreateLoad(array_i);
+            if (!array_offset2_) {
+                // 1-dim
+                if (value->getType()->getPointerElementType()->isPointerTy()) {
+                    llvm::PointerType *pointerType = llvm::PointerType::getInt32PtrTy(ir.module_->getContext());
+                    value = ir.builder_->CreateLoad(pointerType, value);
+                }
+                auto *global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
+                if (!global_value) {
+                    llvm::Value *array_i = BaseAST::GetOffsetPointer(value, offset, ir);
+                    return ir.builder_->CreateLoad(array_i);
+                } else {
+                    llvm::Value *array_i = BaseAST::GetOffsetPointer(global_value, offset, ir);
+                    return ir.builder_->CreateLoad(array_i);
+                }
             } else {
-                llvm::Value *array_i = BaseAST::GetOffsetPointer(global_value, offset, ir);
-                return ir.builder_->CreateLoad(array_i);
+                // 2-dim
+                auto *global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
+                if (!global_value) {
+                    llvm::Value *array_1 = BaseAST::GetOffsetPointer(value, &*array_offset_, ir);
+                    llvm::Value *array_2 = BaseAST::GetOffsetPointer(array_1, &*array_offset2_, ir);
+                    return ir.builder_->CreateLoad(array_2);
+                } else {
+                    llvm::Value *array_1 = BaseAST::GetOffsetPointer(global_value, &*array_offset_, ir);
+                    llvm::Value *array_2 = BaseAST::GetOffsetPointer(array_1, &*array_offset2_, ir);
+                    return ir.builder_->CreateLoad(array_2);
+                }
             }
         }
         case kAssign:
@@ -644,23 +659,42 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
             if (!BaseAST::is_array(value)) {
                 llvm::report_fatal_error("The type of the param does not match, requires array but input ident");
             }
-            if (value->getType()->getPointerElementType()->isPointerTy()) {
-                llvm::PointerType *pointerType = llvm::PointerType::getInt32PtrTy(ir.module_->getContext());
-                value = ir.builder_->CreateLoad(pointerType, value);
-            }
-            auto offset = &(*array_offset_);
-            r_exp = (ExprAST *) (&(*rExp_));
-            r_exp_value = r_exp->CodeGen(ir);
+            if (!array_offset2_) {
+                // 1-dim
+                if (value->getType()->getPointerElementType()->isPointerTy()) {
+                    llvm::PointerType *pointerType = llvm::PointerType::getInt32PtrTy(ir.module_->getContext());
+                    value = ir.builder_->CreateLoad(pointerType, value);
+                }
+                auto offset = &(*array_offset_);
+                r_exp = (ExprAST *) (&(*rExp_));
+                r_exp_value = r_exp->CodeGen(ir);
 
-            // consider the value is a global value
-            auto *global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
-            if (!global_value) {
-                llvm::Value *array_i = BaseAST::GetOffsetPointer(value, offset, ir);
-                return ir.builder_->CreateStore(r_exp_value, array_i, "store");
+                // consider the value is a global value
+                auto *global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
+                if (!global_value) {
+                    llvm::Value *array_i = BaseAST::GetOffsetPointer(value, offset, ir);
+                    return ir.builder_->CreateStore(r_exp_value, array_i, "store");
+                } else {
+                    llvm::Value *array_i = BaseAST::GetOffsetPointer(global_value, offset, ir);
+                    return ir.builder_->CreateStore(r_exp_value, array_i, "store");
+                }
             } else {
-                llvm::Value *array_i = BaseAST::GetOffsetPointer(global_value, offset, ir);
-                return ir.builder_->CreateStore(r_exp_value, array_i, "store");
+                // 2-dim
+                value->getType()->print(llvm::outs(), true);
+                r_exp_value = rExp_->CodeGen(ir);
+
+                auto *global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
+                if (!global_value) {
+                    llvm::Value *array_1 = BaseAST::GetOffsetPointer(value, &*array_offset_, ir);
+                    llvm::Value *array_2 = BaseAST::GetOffsetPointer(array_1, &*array_offset2_, ir);
+                    return ir.builder_->CreateStore(r_exp_value, array_2, "store");
+                } else {
+                    llvm::Value *array_1 = BaseAST::GetOffsetPointer(global_value, &*array_offset_, ir);
+                    llvm::Value *array_2 = BaseAST::GetOffsetPointer(array_1, &*array_offset2_, ir);
+                    return ir.builder_->CreateStore(r_exp_value, array_2, "store");
+                }
             }
+
         }
         case kFunction: {
             // TODO 函数调用添加参数数量检查，类型检查先没写
@@ -1064,6 +1098,5 @@ llvm::Value *BaseAST::GetOffsetPointer(llvm::Value *tar_pointer, int offset, IR 
     } else {
         array_i = ir.builder_->CreateGEP(tar_pointer, const_i);
     }
-
     return array_i;
 }

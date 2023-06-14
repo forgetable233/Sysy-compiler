@@ -654,11 +654,17 @@ Expr
     auto ast = new ExprAST();
     ast->type_ = kAssignArray;
     ast->array_offset_ = unique_ptr<BaseAST>($3);
+    ast->array_offset2_ = unique_ptr<BaseAST>($6);
     ast->ident_ = *unique_ptr<string>($1);
-    ast->rExp_ = unique_ptr<BaseAST>($6);
+    ast->rExp_ = unique_ptr<BaseAST>($9);
     $$ = ast;
   } | IDENT L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK {
-
+    auto ast = new ExprAST();
+    ast->type_ = kAtomArray;
+    ast->array_offset_ = unique_ptr<BaseAST>($3);
+    ast->array_offset2_ = unique_ptr<BaseAST>($6);
+    ast->ident_ = *unique_ptr<string>($1);
+    $$ = ast;
   }
   ;
 
