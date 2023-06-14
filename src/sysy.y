@@ -467,7 +467,7 @@ InitValArray
 
 
 Declare
-  : Type VarDef  ';' %prec UMINUS{
+  : Type VarDef  ';'{
     auto list = $2;
     $$ = list;
   } | CONST Type VarDef ';' {
@@ -502,7 +502,7 @@ Stmt
     ast->exp_ = unique_ptr<BaseAST>($3);
     ast->block_ = unique_ptr<BaseAST>($5);
     $$ = ast;
-  } | IF L_PAREN Expr R_PAREN Stmt ELSE Stmt {
+  } | IF L_PAREN Expr R_PAREN Stmt ELSE Stmt  {
     auto ast = new StmtAST();
     ast->type_ = kIf;
     ast->exp_ = unique_ptr<BaseAST>($3);

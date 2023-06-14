@@ -2,12 +2,12 @@
 
     TRUE
     FALSE
+    UMINUS
     AUTO_INCREASE
     AUTO_DECREASE
 
 
-状态 77 冲突：1 项偏移/归约
-状态 169 冲突：1 项偏移/归约
+状态 165 冲突：1 项偏移/归约
 
 
 语法
@@ -35,137 +35,136 @@
 
    17 FuncDef: Type IDENT L_PAREN R_PAREN Block
    18        | Type IDENT L_PAREN ParamList R_PAREN Block
-   19        | Type IDENT L_BRACK Number R_BRACK ';'
 
-   20 Type: INT
-   21     | DOUBLE
-   22     | VOID
-   23     | FLOAT
+   19 Type: INT
+   20     | DOUBLE
+   21     | VOID
+   22     | FLOAT
 
-   24 Block: L_BRACE BlockItem R_BRACE
+   23 Block: L_BRACE BlockItem R_BRACE
 
-   25 BlockItem: Stmt
-   26          | Declare
-   27          | Stmt BlockItem
-   28          | Declare BlockItem
+   24 BlockItem: Stmt
+   25          | Declare
+   26          | Stmt BlockItem
+   27          | Declare BlockItem
 
-   29 VarDef: Var
-   30       | Var ',' VarDef
+   28 VarDef: Var
+   29       | Var ',' VarDef
 
-   31 Var: IDENT
-   32    | IDENT ASS InitVal
-   33    | IDENT L_BRACK Number R_BRACK
-   34    | IDENT L_BRACK Number R_BRACK ASS InitVal
-   35    | IDENT L_BRACK R_BRACK ASS InitVal
-   36    | IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK
-   37    | IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK ASS InitVal
-   38    | IDENT L_BRACK R_BRACK L_BRACK Number R_BRACK ASS InitVal
+   30 Var: IDENT
+   31    | IDENT ASS InitVal
+   32    | IDENT L_BRACK Number R_BRACK
+   33    | IDENT L_BRACK Number R_BRACK ASS InitVal
+   34    | IDENT L_BRACK R_BRACK ASS InitVal
+   35    | IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK
+   36    | IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK ASS InitVal
+   37    | IDENT L_BRACK R_BRACK L_BRACK Number R_BRACK ASS InitVal
 
-   39 InitVal: Expr
-   40        | L_BRACE InitValArray R_BRACE
+   38 InitVal: Expr
+   39        | L_BRACE InitValArray R_BRACE
 
-   41 InitValArray: Params
-   42             | L_BRACE Params R_BRACE ',' InitValArray
-   43             | L_BRACE Params R_BRACE
+   40 InitValArray: Params
+   41             | L_BRACE Params R_BRACE ',' InitValArray
+   42             | L_BRACE Params R_BRACE
 
-   44 Declare: Type VarDef ';'
-   45        | CONST Type VarDef ';'
+   43 Declare: Type VarDef ';'
+   44        | CONST Type VarDef ';'
 
-   46 Stmt: RETURN Expr ';'
-   47     | Expr ';'
-   48     | IF L_PAREN Expr R_PAREN Stmt
-   49     | WHILE L_PAREN Expr R_PAREN Stmt
-   50     | IF L_PAREN Expr R_PAREN Stmt ELSE Stmt
-   51     | STATIC INT IDENT ';'
-   52     | CONTINUE ';'
-   53     | BREAK ';'
-   54     | Block
+   45 Stmt: RETURN Expr ';'
+   46     | Expr ';'
+   47     | IF L_PAREN Expr R_PAREN Stmt
+   48     | WHILE L_PAREN Expr R_PAREN Stmt
+   49     | IF L_PAREN Expr R_PAREN Stmt ELSE Stmt
+   50     | STATIC INT IDENT ';'
+   51     | CONTINUE ';'
+   52     | BREAK ';'
+   53     | Block
 
-   55 Expr: IDENT ASS Expr
-   56     | L_PAREN Expr R_PAREN
-   57     | Expr ADD Expr
-   58     | Expr SUB Expr
-   59     | Expr MUL Expr
-   60     | Expr DIV Expr
-   61     | Expr MOD Expr
-   62     | Expr EQUAL Expr
-   63     | Expr NOT_EQUAL Expr
-   64     | Expr AND Expr
-   65     | Expr OR Expr
-   66     | Expr LARGER Expr
-   67     | Expr LARGER_EQUAL Expr
-   68     | Expr LESS Expr
-   69     | Expr LESS_EQUAL Expr
-   70     | Expr MUL_ASSIGN Expr
-   71     | Expr DIV_ASSIGN Expr
-   72     | Expr ADD_ASSIGN Expr
-   73     | Expr SUB_ASSIGN Expr
-   74     | NOT Expr
-   75     | IDENT
-   76     | Number
-   77     | IDENT L_PAREN Params R_PAREN
-   78     | IDENT L_PAREN R_PAREN
-   79     | IDENT L_BRACK Expr R_BRACK
-   80     | IDENT L_BRACK Expr R_BRACK ASS Expr
-   81     | AT Expr
-   82     | IDENT L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK ASS Expr
-   83     | IDENT L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK
+   54 Expr: IDENT ASS Expr
+   55     | L_PAREN Expr R_PAREN
+   56     | Expr ADD Expr
+   57     | Expr SUB Expr
+   58     | Expr MUL Expr
+   59     | Expr DIV Expr
+   60     | Expr MOD Expr
+   61     | Expr EQUAL Expr
+   62     | Expr NOT_EQUAL Expr
+   63     | Expr AND Expr
+   64     | Expr OR Expr
+   65     | Expr LARGER Expr
+   66     | Expr LARGER_EQUAL Expr
+   67     | Expr LESS Expr
+   68     | Expr LESS_EQUAL Expr
+   69     | Expr MUL_ASSIGN Expr
+   70     | Expr DIV_ASSIGN Expr
+   71     | Expr ADD_ASSIGN Expr
+   72     | Expr SUB_ASSIGN Expr
+   73     | NOT Expr
+   74     | IDENT
+   75     | Number
+   76     | IDENT L_PAREN Params R_PAREN
+   77     | IDENT L_PAREN R_PAREN
+   78     | IDENT L_BRACK Expr R_BRACK
+   79     | IDENT L_BRACK Expr R_BRACK ASS Expr
+   80     | AT Expr
+   81     | IDENT L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK ASS Expr
+   82     | IDENT L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK
 
-   84 Number: INT_CONST
-   85       | SUB INT_CONST
+   83 Number: INT_CONST
+   84       | SUB INT_CONST
 
 
 终结语词，附有它们出现处的规则
 
     $end (0) 0
-    ',' (44) 6 8 10 12 14 16 30 42
-    ';' (59) 19 44 45 46 47 51 52 53
+    ',' (44) 6 8 10 12 14 16 29 41
+    ';' (59) 43 44 45 46 50 51 52
     error (256)
-    RETURN (258) 46
-    IDENT <str_val> (259) 7 8 9 10 11 12 13 14 15 16 17 18 19 31 32 33 34 35 36 37 38 51 55 75 77 78 79 80 82 83
-    INT <str_val> (260) 20 51
-    VOID <str_val> (261) 22
-    DOUBLE <str_val> (262) 21
-    FLOAT <str_val> (263) 23
-    ADD <str_val> (264) 57
-    SUB <str_val> (265) 58 85
-    MUL <str_val> (266) 59
-    DIV <str_val> (267) 60
-    ASS <str_val> (268) 32 34 35 37 38 55 80 82
-    STATIC <str_val> (269) 51
-    CONTINUE <str_val> (270) 52
-    BREAK <str_val> (271) 53
-    CONST <str_val> (272) 45
-    EQUAL <str_val> (273) 62
-    NOT_EQUAL <str_val> (274) 63
-    AND <str_val> (275) 64
-    OR <str_val> (276) 65
-    LESS <str_val> (277) 68
-    LESS_EQUAL <str_val> (278) 69
-    LARGER <str_val> (279) 66
-    LARGER_EQUAL <str_val> (280) 67
-    ADD_ASSIGN <str_val> (281) 72
-    SUB_ASSIGN <str_val> (282) 73
-    MUL_ASSIGN <str_val> (283) 70
-    DIV_ASSIGN <str_val> (284) 71
-    NOT <str_val> (285) 74
-    MOD <str_val> (286) 61
-    IF <str_val> (287) 48 50
-    WHILE <str_val> (288) 49
-    ELSE <str_val> (289) 50
+    RETURN (258) 45
+    IDENT <str_val> (259) 7 8 9 10 11 12 13 14 15 16 17 18 30 31 32 33 34 35 36 37 50 54 74 76 77 78 79 81 82
+    INT <str_val> (260) 19 50
+    VOID <str_val> (261) 21
+    DOUBLE <str_val> (262) 20
+    FLOAT <str_val> (263) 22
+    ADD <str_val> (264) 56
+    SUB <str_val> (265) 57 84
+    MUL <str_val> (266) 58
+    DIV <str_val> (267) 59
+    ASS <str_val> (268) 31 33 34 36 37 54 79 81
+    STATIC <str_val> (269) 50
+    CONTINUE <str_val> (270) 51
+    BREAK <str_val> (271) 52
+    CONST <str_val> (272) 44
+    EQUAL <str_val> (273) 61
+    NOT_EQUAL <str_val> (274) 62
+    AND <str_val> (275) 63
+    OR <str_val> (276) 64
+    LESS <str_val> (277) 67
+    LESS_EQUAL <str_val> (278) 68
+    LARGER <str_val> (279) 65
+    LARGER_EQUAL <str_val> (280) 66
+    ADD_ASSIGN <str_val> (281) 71
+    SUB_ASSIGN <str_val> (282) 72
+    MUL_ASSIGN <str_val> (283) 69
+    DIV_ASSIGN <str_val> (284) 70
+    NOT <str_val> (285) 73
+    MOD <str_val> (286) 60
+    IF <str_val> (287) 47 49
+    WHILE <str_val> (288) 48
+    ELSE <str_val> (289) 49
     TRUE <str_val> (290)
     FALSE <str_val> (291)
-    AT <str_val> (292) 81
-    INT_CONST <int_val> (293) 84 85
-    L_PAREN <str_val> (294) 17 18 48 49 50 56 77 78
-    R_PAREN <str_val> (295) 17 18 48 49 50 56 77 78
-    L_BRACK <str_val> (296) 9 10 11 12 13 14 15 16 19 33 34 35 36 37 38 79 80 82 83
-    R_BRACK <str_val> (297) 9 10 11 12 13 14 15 16 19 33 34 35 36 37 38 79 80 82 83
-    L_BRACE <str_val> (298) 24 40 42 43
-    R_BRACE <str_val> (299) 24 40 42 43
-    AUTO_INCREASE (300)
-    AUTO_DECREASE (301)
-    UMINUS (302)
+    AT <str_val> (292) 80
+    INT_CONST <int_val> (293) 83 84
+    L_PAREN <str_val> (294) 17 18 47 48 49 55 76 77
+    R_PAREN <str_val> (295) 17 18 47 48 49 55 76 77
+    L_BRACK <str_val> (296) 9 10 11 12 13 14 15 16 32 33 34 35 36 37 78 79 81 82
+    R_BRACK <str_val> (297) 9 10 11 12 13 14 15 16 32 33 34 35 36 37 78 79 81 82
+    L_BRACE <str_val> (298) 23 39 41 42
+    R_BRACE <str_val> (299) 23 39 41 42
+    UMINUS (300)
+    AUTO_INCREASE (301)
+    AUTO_DECREASE (302)
 
 
 非终结语词，附有它们出现处的规则
@@ -177,46 +176,46 @@
         on right: 0 2 4
     Params <ast_list> (52)
         on left: 5 6
-        on right: 6 41 42 43 77
+        on right: 6 40 41 42 76
     ParamList <ast_list> (53)
         on left: 7 8 9 10 11 12 13 14 15 16
         on right: 8 10 12 14 16 18
     FuncDef <ast_val> (54)
-        on left: 17 18 19
+        on left: 17 18
         on right: 1 2
     Type <ast_val> (55)
-        on left: 20 21 22 23
-        on right: 7 8 9 10 11 12 13 14 15 16 17 18 19 44 45
+        on left: 19 20 21 22
+        on right: 7 8 9 10 11 12 13 14 15 16 17 18 43 44
     Block <ast_val> (56)
-        on left: 24
-        on right: 17 18 54
+        on left: 23
+        on right: 17 18 53
     BlockItem <ast_list> (57)
-        on left: 25 26 27 28
-        on right: 24 27 28
+        on left: 24 25 26 27
+        on right: 23 26 27
     VarDef <ast_list> (58)
-        on left: 29 30
-        on right: 30 44 45
+        on left: 28 29
+        on right: 29 43 44
     Var <ast_val> (59)
-        on left: 31 32 33 34 35 36 37 38
-        on right: 29 30
+        on left: 30 31 32 33 34 35 36 37
+        on right: 28 29
     InitVal <ast_list> (60)
-        on left: 39 40
-        on right: 32 34 35 37 38
+        on left: 38 39
+        on right: 31 33 34 36 37
     InitValArray <ast_list> (61)
-        on left: 41 42 43
-        on right: 40 42
+        on left: 40 41 42
+        on right: 39 41
     Declare <ast_list> (62)
-        on left: 44 45
-        on right: 3 4 26 28
+        on left: 43 44
+        on right: 3 4 25 27
     Stmt <ast_val> (63)
-        on left: 46 47 48 49 50 51 52 53 54
-        on right: 25 27 48 49 50
+        on left: 45 46 47 48 49 50 51 52 53
+        on right: 24 26 47 48 49
     Expr <ast_val> (64)
-        on left: 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83
-        on right: 5 6 39 46 47 48 49 50 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 79 80 81 82 83
+        on left: 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82
+        on right: 5 6 38 45 46 47 48 49 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 78 79 80 81 82
     Number <int_val> (65)
-        on left: 84 85
-        on right: 9 10 13 14 15 16 19 33 34 36 37 38 76
+        on left: 83 84
+        on right: 9 10 13 14 15 16 32 33 35 36 37 75
 
 
 状态 0
@@ -237,35 +236,35 @@
 
 状态 1
 
-   20 Type: INT .
+   19 Type: INT .
 
-    $default  使用规则 20 以归约 (Type)
+    $default  使用规则 19 以归约 (Type)
 
 
 状态 2
 
-   22 Type: VOID .
-
-    $default  使用规则 22 以归约 (Type)
-
-
-状态 3
-
-   21 Type: DOUBLE .
+   21 Type: VOID .
 
     $default  使用规则 21 以归约 (Type)
 
 
+状态 3
+
+   20 Type: DOUBLE .
+
+    $default  使用规则 20 以归约 (Type)
+
+
 状态 4
 
-   23 Type: FLOAT .
+   22 Type: FLOAT .
 
-    $default  使用规则 23 以归约 (Type)
+    $default  使用规则 22 以归约 (Type)
 
 
 状态 5
 
-   45 Declare: CONST . Type VarDef ';'
+   44 Declare: CONST . Type VarDef ';'
 
     INT     偏移，并进入状态 1
     VOID    偏移，并进入状态 2
@@ -305,8 +304,7 @@
 
    17 FuncDef: Type . IDENT L_PAREN R_PAREN Block
    18        | Type . IDENT L_PAREN ParamList R_PAREN Block
-   19        | Type . IDENT L_BRACK Number R_BRACK ';'
-   44 Declare: Type . VarDef ';'
+   43 Declare: Type . VarDef ';'
 
     IDENT  偏移，并进入状态 13
 
@@ -335,7 +333,7 @@
 
 状态 10
 
-   45 Declare: CONST Type . VarDef ';'
+   44 Declare: CONST Type . VarDef ';'
 
     IDENT  偏移，并进入状态 17
 
@@ -361,38 +359,37 @@
 
    17 FuncDef: Type IDENT . L_PAREN R_PAREN Block
    18        | Type IDENT . L_PAREN ParamList R_PAREN Block
-   19        | Type IDENT . L_BRACK Number R_BRACK ';'
-   31 Var: IDENT .
-   32    | IDENT . ASS InitVal
-   33    | IDENT . L_BRACK Number R_BRACK
-   34    | IDENT . L_BRACK Number R_BRACK ASS InitVal
-   35    | IDENT . L_BRACK R_BRACK ASS InitVal
-   36    | IDENT . L_BRACK Number R_BRACK L_BRACK Number R_BRACK
-   37    | IDENT . L_BRACK Number R_BRACK L_BRACK Number R_BRACK ASS InitVal
-   38    | IDENT . L_BRACK R_BRACK L_BRACK Number R_BRACK ASS InitVal
+   30 Var: IDENT .
+   31    | IDENT . ASS InitVal
+   32    | IDENT . L_BRACK Number R_BRACK
+   33    | IDENT . L_BRACK Number R_BRACK ASS InitVal
+   34    | IDENT . L_BRACK R_BRACK ASS InitVal
+   35    | IDENT . L_BRACK Number R_BRACK L_BRACK Number R_BRACK
+   36    | IDENT . L_BRACK Number R_BRACK L_BRACK Number R_BRACK ASS InitVal
+   37    | IDENT . L_BRACK R_BRACK L_BRACK Number R_BRACK ASS InitVal
 
     ASS      偏移，并进入状态 19
     L_PAREN  偏移，并进入状态 20
     L_BRACK  偏移，并进入状态 21
 
-    $default  使用规则 31 以归约 (Var)
+    $default  使用规则 30 以归约 (Var)
 
 
 状态 14
 
-   44 Declare: Type VarDef . ';'
+   43 Declare: Type VarDef . ';'
 
     ';'  偏移，并进入状态 22
 
 
 状态 15
 
-   29 VarDef: Var .
-   30       | Var . ',' VarDef
+   28 VarDef: Var .
+   29       | Var . ',' VarDef
 
     ','  偏移，并进入状态 23
 
-    $default  使用规则 29 以归约 (VarDef)
+    $default  使用规则 28 以归约 (VarDef)
 
 
 状态 16
@@ -404,43 +401,43 @@
 
 状态 17
 
-   31 Var: IDENT .
-   32    | IDENT . ASS InitVal
-   33    | IDENT . L_BRACK Number R_BRACK
-   34    | IDENT . L_BRACK Number R_BRACK ASS InitVal
-   35    | IDENT . L_BRACK R_BRACK ASS InitVal
-   36    | IDENT . L_BRACK Number R_BRACK L_BRACK Number R_BRACK
-   37    | IDENT . L_BRACK Number R_BRACK L_BRACK Number R_BRACK ASS InitVal
-   38    | IDENT . L_BRACK R_BRACK L_BRACK Number R_BRACK ASS InitVal
+   30 Var: IDENT .
+   31    | IDENT . ASS InitVal
+   32    | IDENT . L_BRACK Number R_BRACK
+   33    | IDENT . L_BRACK Number R_BRACK ASS InitVal
+   34    | IDENT . L_BRACK R_BRACK ASS InitVal
+   35    | IDENT . L_BRACK Number R_BRACK L_BRACK Number R_BRACK
+   36    | IDENT . L_BRACK Number R_BRACK L_BRACK Number R_BRACK ASS InitVal
+   37    | IDENT . L_BRACK R_BRACK L_BRACK Number R_BRACK ASS InitVal
 
     ASS      偏移，并进入状态 19
-    L_BRACK  偏移，并进入状态 24
+    L_BRACK  偏移，并进入状态 21
 
-    $default  使用规则 31 以归约 (Var)
+    $default  使用规则 30 以归约 (Var)
 
 
 状态 18
 
-   45 Declare: CONST Type VarDef . ';'
+   44 Declare: CONST Type VarDef . ';'
 
-    ';'  偏移，并进入状态 25
+    ';'  偏移，并进入状态 24
 
 
 状态 19
 
-   32 Var: IDENT ASS . InitVal
+   31 Var: IDENT ASS . InitVal
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-    L_BRACE    偏移，并进入状态 32
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+    L_BRACE    偏移，并进入状态 31
 
-    InitVal  转到状态 33
-    Expr     转到状态 34
-    Number   转到状态 35
+    InitVal  转到状态 32
+    Expr     转到状态 33
+    Number   转到状态 34
 
 
 状态 20
@@ -452,237 +449,220 @@
     VOID     偏移，并进入状态 2
     DOUBLE   偏移，并进入状态 3
     FLOAT    偏移，并进入状态 4
-    R_PAREN  偏移，并进入状态 36
+    R_PAREN  偏移，并进入状态 35
 
-    ParamList  转到状态 37
-    Type       转到状态 38
+    ParamList  转到状态 36
+    Type       转到状态 37
 
 
 状态 21
 
-   19 FuncDef: Type IDENT L_BRACK . Number R_BRACK ';'
-   33 Var: IDENT L_BRACK . Number R_BRACK
-   34    | IDENT L_BRACK . Number R_BRACK ASS InitVal
-   35    | IDENT L_BRACK . R_BRACK ASS InitVal
-   36    | IDENT L_BRACK . Number R_BRACK L_BRACK Number R_BRACK
-   37    | IDENT L_BRACK . Number R_BRACK L_BRACK Number R_BRACK ASS InitVal
-   38    | IDENT L_BRACK . R_BRACK L_BRACK Number R_BRACK ASS InitVal
+   32 Var: IDENT L_BRACK . Number R_BRACK
+   33    | IDENT L_BRACK . Number R_BRACK ASS InitVal
+   34    | IDENT L_BRACK . R_BRACK ASS InitVal
+   35    | IDENT L_BRACK . Number R_BRACK L_BRACK Number R_BRACK
+   36    | IDENT L_BRACK . Number R_BRACK L_BRACK Number R_BRACK ASS InitVal
+   37    | IDENT L_BRACK . R_BRACK L_BRACK Number R_BRACK ASS InitVal
 
-    SUB        偏移，并进入状态 27
-    INT_CONST  偏移，并进入状态 30
-    R_BRACK    偏移，并进入状态 39
+    SUB        偏移，并进入状态 26
+    INT_CONST  偏移，并进入状态 29
+    R_BRACK    偏移，并进入状态 38
 
-    Number  转到状态 40
+    Number  转到状态 39
 
 
 状态 22
 
-   44 Declare: Type VarDef ';' .
+   43 Declare: Type VarDef ';' .
 
-    $default  使用规则 44 以归约 (Declare)
+    $default  使用规则 43 以归约 (Declare)
 
 
 状态 23
 
-   30 VarDef: Var ',' . VarDef
+   29 VarDef: Var ',' . VarDef
 
     IDENT  偏移，并进入状态 17
 
-    VarDef  转到状态 41
+    VarDef  转到状态 40
     Var     转到状态 15
 
 
 状态 24
 
-   33 Var: IDENT L_BRACK . Number R_BRACK
-   34    | IDENT L_BRACK . Number R_BRACK ASS InitVal
-   35    | IDENT L_BRACK . R_BRACK ASS InitVal
-   36    | IDENT L_BRACK . Number R_BRACK L_BRACK Number R_BRACK
-   37    | IDENT L_BRACK . Number R_BRACK L_BRACK Number R_BRACK ASS InitVal
-   38    | IDENT L_BRACK . R_BRACK L_BRACK Number R_BRACK ASS InitVal
+   44 Declare: CONST Type VarDef ';' .
 
-    SUB        偏移，并进入状态 27
-    INT_CONST  偏移，并进入状态 30
-    R_BRACK    偏移，并进入状态 39
-
-    Number  转到状态 42
+    $default  使用规则 44 以归约 (Declare)
 
 
 状态 25
 
-   45 Declare: CONST Type VarDef ';' .
+   54 Expr: IDENT . ASS Expr
+   74     | IDENT .
+   76     | IDENT . L_PAREN Params R_PAREN
+   77     | IDENT . L_PAREN R_PAREN
+   78     | IDENT . L_BRACK Expr R_BRACK
+   79     | IDENT . L_BRACK Expr R_BRACK ASS Expr
+   81     | IDENT . L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK ASS Expr
+   82     | IDENT . L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK
 
-    $default  使用规则 45 以归约 (Declare)
+    ASS      偏移，并进入状态 41
+    L_PAREN  偏移，并进入状态 42
+    L_BRACK  偏移，并进入状态 43
+
+    $default  使用规则 74 以归约 (Expr)
 
 
 状态 26
 
-   55 Expr: IDENT . ASS Expr
-   75     | IDENT .
-   77     | IDENT . L_PAREN Params R_PAREN
-   78     | IDENT . L_PAREN R_PAREN
-   79     | IDENT . L_BRACK Expr R_BRACK
-   80     | IDENT . L_BRACK Expr R_BRACK ASS Expr
-   82     | IDENT . L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK ASS Expr
-   83     | IDENT . L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK
+   84 Number: SUB . INT_CONST
 
-    ASS      偏移，并进入状态 43
-    L_PAREN  偏移，并进入状态 44
-    L_BRACK  偏移，并进入状态 45
-
-    $default  使用规则 75 以归约 (Expr)
+    INT_CONST  偏移，并进入状态 44
 
 
 状态 27
 
-   85 Number: SUB . INT_CONST
+   73 Expr: NOT . Expr
 
-    INT_CONST  偏移，并进入状态 46
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+
+    Expr    转到状态 45
+    Number  转到状态 34
 
 
 状态 28
 
-   74 Expr: NOT . Expr
+   80 Expr: AT . Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    Expr    转到状态 47
-    Number  转到状态 35
+    Expr    转到状态 46
+    Number  转到状态 34
 
 
 状态 29
 
-   81 Expr: AT . Expr
+   83 Number: INT_CONST .
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-
-    Expr    转到状态 48
-    Number  转到状态 35
+    $default  使用规则 83 以归约 (Number)
 
 
 状态 30
 
-   84 Number: INT_CONST .
+   55 Expr: L_PAREN . Expr R_PAREN
 
-    $default  使用规则 84 以归约 (Number)
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+
+    Expr    转到状态 47
+    Number  转到状态 34
 
 
 状态 31
 
-   56 Expr: L_PAREN . Expr R_PAREN
+   39 InitVal: L_BRACE . InitValArray R_BRACE
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+    L_BRACE    偏移，并进入状态 48
 
-    Expr    转到状态 49
-    Number  转到状态 35
+    Params        转到状态 49
+    InitValArray  转到状态 50
+    Expr          转到状态 51
+    Number        转到状态 34
 
 
 状态 32
 
-   40 InitVal: L_BRACE . InitValArray R_BRACE
+   31 Var: IDENT ASS InitVal .
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-    L_BRACE    偏移，并进入状态 50
-
-    Params        转到状态 51
-    InitValArray  转到状态 52
-    Expr          转到状态 53
-    Number        转到状态 35
+    $default  使用规则 31 以归约 (Var)
 
 
 状态 33
 
-   32 Var: IDENT ASS InitVal .
+   38 InitVal: Expr .
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
-    $default  使用规则 32 以归约 (Var)
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    OR            偏移，并进入状态 59
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    ADD_ASSIGN    偏移，并进入状态 64
+    SUB_ASSIGN    偏移，并进入状态 65
+    MUL_ASSIGN    偏移，并进入状态 66
+    DIV_ASSIGN    偏移，并进入状态 67
+    MOD           偏移，并进入状态 68
+
+    $default  使用规则 38 以归约 (InitVal)
 
 
 状态 34
 
-   39 InitVal: Expr .
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
+   75 Expr: Number .
 
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    OR            偏移，并进入状态 61
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    ADD_ASSIGN    偏移，并进入状态 66
-    SUB_ASSIGN    偏移，并进入状态 67
-    MUL_ASSIGN    偏移，并进入状态 68
-    DIV_ASSIGN    偏移，并进入状态 69
-    MOD           偏移，并进入状态 70
-
-    $default  使用规则 39 以归约 (InitVal)
+    $default  使用规则 75 以归约 (Expr)
 
 
 状态 35
 
-   76 Expr: Number .
+   17 FuncDef: Type IDENT L_PAREN R_PAREN . Block
 
-    $default  使用规则 76 以归约 (Expr)
+    L_BRACE  偏移，并进入状态 69
+
+    Block  转到状态 70
 
 
 状态 36
 
-   17 FuncDef: Type IDENT L_PAREN R_PAREN . Block
+   18 FuncDef: Type IDENT L_PAREN ParamList . R_PAREN Block
 
-    L_BRACE  偏移，并进入状态 71
-
-    Block  转到状态 72
+    R_PAREN  偏移，并进入状态 71
 
 
 状态 37
-
-   18 FuncDef: Type IDENT L_PAREN ParamList . R_PAREN Block
-
-    R_PAREN  偏移，并进入状态 73
-
-
-状态 38
 
     7 ParamList: Type . IDENT
     8          | Type . IDENT ',' ParamList
@@ -695,590 +675,579 @@
    15          | Type . IDENT L_BRACK R_BRACK L_BRACK Number R_BRACK
    16          | Type . IDENT L_BRACK R_BRACK L_BRACK Number R_BRACK ',' ParamList
 
-    IDENT  偏移，并进入状态 74
+    IDENT  偏移，并进入状态 72
+
+
+状态 38
+
+   34 Var: IDENT L_BRACK R_BRACK . ASS InitVal
+   37    | IDENT L_BRACK R_BRACK . L_BRACK Number R_BRACK ASS InitVal
+
+    ASS      偏移，并进入状态 73
+    L_BRACK  偏移，并进入状态 74
 
 
 状态 39
 
-   35 Var: IDENT L_BRACK R_BRACK . ASS InitVal
-   38    | IDENT L_BRACK R_BRACK . L_BRACK Number R_BRACK ASS InitVal
+   32 Var: IDENT L_BRACK Number . R_BRACK
+   33    | IDENT L_BRACK Number . R_BRACK ASS InitVal
+   35    | IDENT L_BRACK Number . R_BRACK L_BRACK Number R_BRACK
+   36    | IDENT L_BRACK Number . R_BRACK L_BRACK Number R_BRACK ASS InitVal
 
-    ASS      偏移，并进入状态 75
-    L_BRACK  偏移，并进入状态 76
+    R_BRACK  偏移，并进入状态 75
 
 
 状态 40
 
-   19 FuncDef: Type IDENT L_BRACK Number . R_BRACK ';'
-   33 Var: IDENT L_BRACK Number . R_BRACK
-   34    | IDENT L_BRACK Number . R_BRACK ASS InitVal
-   36    | IDENT L_BRACK Number . R_BRACK L_BRACK Number R_BRACK
-   37    | IDENT L_BRACK Number . R_BRACK L_BRACK Number R_BRACK ASS InitVal
+   29 VarDef: Var ',' VarDef .
 
-    R_BRACK  偏移，并进入状态 77
+    $default  使用规则 29 以归约 (VarDef)
 
 
 状态 41
 
-   30 VarDef: Var ',' VarDef .
+   54 Expr: IDENT ASS . Expr
 
-    $default  使用规则 30 以归约 (VarDef)
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+
+    Expr    转到状态 76
+    Number  转到状态 34
 
 
 状态 42
 
-   33 Var: IDENT L_BRACK Number . R_BRACK
-   34    | IDENT L_BRACK Number . R_BRACK ASS InitVal
-   36    | IDENT L_BRACK Number . R_BRACK L_BRACK Number R_BRACK
-   37    | IDENT L_BRACK Number . R_BRACK L_BRACK Number R_BRACK ASS InitVal
+   76 Expr: IDENT L_PAREN . Params R_PAREN
+   77     | IDENT L_PAREN . R_PAREN
 
-    R_BRACK  偏移，并进入状态 78
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+    R_PAREN    偏移，并进入状态 77
+
+    Params  转到状态 78
+    Expr    转到状态 51
+    Number  转到状态 34
 
 
 状态 43
 
-   55 Expr: IDENT ASS . Expr
+   78 Expr: IDENT L_BRACK . Expr R_BRACK
+   79     | IDENT L_BRACK . Expr R_BRACK ASS Expr
+   81     | IDENT L_BRACK . Expr R_BRACK L_BRACK Expr R_BRACK ASS Expr
+   82     | IDENT L_BRACK . Expr R_BRACK L_BRACK Expr R_BRACK
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
     Expr    转到状态 79
-    Number  转到状态 35
+    Number  转到状态 34
 
 
 状态 44
 
-   77 Expr: IDENT L_PAREN . Params R_PAREN
-   78     | IDENT L_PAREN . R_PAREN
+   84 Number: SUB INT_CONST .
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-    R_PAREN    偏移，并进入状态 80
-
-    Params  转到状态 81
-    Expr    转到状态 53
-    Number  转到状态 35
+    $default  使用规则 84 以归约 (Number)
 
 
 状态 45
 
-   79 Expr: IDENT L_BRACK . Expr R_BRACK
-   80     | IDENT L_BRACK . Expr R_BRACK ASS Expr
-   82     | IDENT L_BRACK . Expr R_BRACK L_BRACK Expr R_BRACK ASS Expr
-   83     | IDENT L_BRACK . Expr R_BRACK L_BRACK Expr R_BRACK
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
+   73     | NOT Expr .
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-
-    Expr    转到状态 82
-    Number  转到状态 35
+    $default  使用规则 73 以归约 (Expr)
 
 
 状态 46
 
-   85 Number: SUB INT_CONST .
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
+   80     | AT Expr .
 
-    $default  使用规则 85 以归约 (Number)
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    OR            偏移，并进入状态 59
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    ADD_ASSIGN    偏移，并进入状态 64
+    SUB_ASSIGN    偏移，并进入状态 65
+    MUL_ASSIGN    偏移，并进入状态 66
+    DIV_ASSIGN    偏移，并进入状态 67
+    MOD           偏移，并进入状态 68
+
+    $default  使用规则 80 以归约 (Expr)
 
 
 状态 47
 
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
-   74     | NOT Expr .
+   55 Expr: L_PAREN Expr . R_PAREN
+   56     | Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
-    $default  使用规则 74 以归约 (Expr)
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    OR            偏移，并进入状态 59
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    ADD_ASSIGN    偏移，并进入状态 64
+    SUB_ASSIGN    偏移，并进入状态 65
+    MUL_ASSIGN    偏移，并进入状态 66
+    DIV_ASSIGN    偏移，并进入状态 67
+    MOD           偏移，并进入状态 68
+    R_PAREN       偏移，并进入状态 80
 
 
 状态 48
 
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
-   81     | AT Expr .
+   41 InitValArray: L_BRACE . Params R_BRACE ',' InitValArray
+   42             | L_BRACE . Params R_BRACE
 
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    OR            偏移，并进入状态 61
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    ADD_ASSIGN    偏移，并进入状态 66
-    SUB_ASSIGN    偏移，并进入状态 67
-    MUL_ASSIGN    偏移，并进入状态 68
-    DIV_ASSIGN    偏移，并进入状态 69
-    MOD           偏移，并进入状态 70
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    $default  使用规则 81 以归约 (Expr)
+    Params  转到状态 81
+    Expr    转到状态 51
+    Number  转到状态 34
 
 
 状态 49
 
-   56 Expr: L_PAREN Expr . R_PAREN
-   57     | Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
+   40 InitValArray: Params .
 
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    OR            偏移，并进入状态 61
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    ADD_ASSIGN    偏移，并进入状态 66
-    SUB_ASSIGN    偏移，并进入状态 67
-    MUL_ASSIGN    偏移，并进入状态 68
-    DIV_ASSIGN    偏移，并进入状态 69
-    MOD           偏移，并进入状态 70
-    R_PAREN       偏移，并进入状态 83
+    $default  使用规则 40 以归约 (InitValArray)
 
 
 状态 50
 
-   42 InitValArray: L_BRACE . Params R_BRACE ',' InitValArray
-   43             | L_BRACE . Params R_BRACE
+   39 InitVal: L_BRACE InitValArray . R_BRACE
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-
-    Params  转到状态 84
-    Expr    转到状态 53
-    Number  转到状态 35
+    R_BRACE  偏移，并进入状态 82
 
 
 状态 51
 
-   41 InitValArray: Params .
-
-    $default  使用规则 41 以归约 (InitValArray)
-
-
-状态 52
-
-   40 InitVal: L_BRACE InitValArray . R_BRACE
-
-    R_BRACE  偏移，并进入状态 85
-
-
-状态 53
-
     5 Params: Expr .
     6       | Expr . ',' Params
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    OR            偏移，并进入状态 61
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    ADD_ASSIGN    偏移，并进入状态 66
-    SUB_ASSIGN    偏移，并进入状态 67
-    MUL_ASSIGN    偏移，并进入状态 68
-    DIV_ASSIGN    偏移，并进入状态 69
-    MOD           偏移，并进入状态 70
-    ','           偏移，并进入状态 86
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    OR            偏移，并进入状态 59
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    ADD_ASSIGN    偏移，并进入状态 64
+    SUB_ASSIGN    偏移，并进入状态 65
+    MUL_ASSIGN    偏移，并进入状态 66
+    DIV_ASSIGN    偏移，并进入状态 67
+    MOD           偏移，并进入状态 68
+    ','           偏移，并进入状态 83
 
     $default  使用规则 5 以归约 (Params)
 
 
+状态 52
+
+   56 Expr: Expr ADD . Expr
+
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+
+    Expr    转到状态 84
+    Number  转到状态 34
+
+
+状态 53
+
+   57 Expr: Expr SUB . Expr
+
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+
+    Expr    转到状态 85
+    Number  转到状态 34
+
+
 状态 54
 
-   57 Expr: Expr ADD . Expr
+   58 Expr: Expr MUL . Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    Expr    转到状态 87
-    Number  转到状态 35
+    Expr    转到状态 86
+    Number  转到状态 34
 
 
 状态 55
 
-   58 Expr: Expr SUB . Expr
+   59 Expr: Expr DIV . Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    Expr    转到状态 88
-    Number  转到状态 35
+    Expr    转到状态 87
+    Number  转到状态 34
 
 
 状态 56
 
-   59 Expr: Expr MUL . Expr
+   61 Expr: Expr EQUAL . Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    Expr    转到状态 89
-    Number  转到状态 35
+    Expr    转到状态 88
+    Number  转到状态 34
 
 
 状态 57
 
-   60 Expr: Expr DIV . Expr
+   62 Expr: Expr NOT_EQUAL . Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    Expr    转到状态 90
-    Number  转到状态 35
+    Expr    转到状态 89
+    Number  转到状态 34
 
 
 状态 58
 
-   62 Expr: Expr EQUAL . Expr
+   63 Expr: Expr AND . Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    Expr    转到状态 91
-    Number  转到状态 35
+    Expr    转到状态 90
+    Number  转到状态 34
 
 
 状态 59
 
-   63 Expr: Expr NOT_EQUAL . Expr
+   64 Expr: Expr OR . Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    Expr    转到状态 92
-    Number  转到状态 35
+    Expr    转到状态 91
+    Number  转到状态 34
 
 
 状态 60
 
-   64 Expr: Expr AND . Expr
+   67 Expr: Expr LESS . Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    Expr    转到状态 93
-    Number  转到状态 35
+    Expr    转到状态 92
+    Number  转到状态 34
 
 
 状态 61
 
-   65 Expr: Expr OR . Expr
+   68 Expr: Expr LESS_EQUAL . Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    Expr    转到状态 94
-    Number  转到状态 35
+    Expr    转到状态 93
+    Number  转到状态 34
 
 
 状态 62
 
-   68 Expr: Expr LESS . Expr
+   65 Expr: Expr LARGER . Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    Expr    转到状态 95
-    Number  转到状态 35
+    Expr    转到状态 94
+    Number  转到状态 34
 
 
 状态 63
 
-   69 Expr: Expr LESS_EQUAL . Expr
+   66 Expr: Expr LARGER_EQUAL . Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    Expr    转到状态 96
-    Number  转到状态 35
+    Expr    转到状态 95
+    Number  转到状态 34
 
 
 状态 64
 
-   66 Expr: Expr LARGER . Expr
+   71 Expr: Expr ADD_ASSIGN . Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    Expr    转到状态 97
-    Number  转到状态 35
+    Expr    转到状态 96
+    Number  转到状态 34
 
 
 状态 65
 
-   67 Expr: Expr LARGER_EQUAL . Expr
+   72 Expr: Expr SUB_ASSIGN . Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    Expr    转到状态 98
-    Number  转到状态 35
+    Expr    转到状态 97
+    Number  转到状态 34
 
 
 状态 66
 
-   72 Expr: Expr ADD_ASSIGN . Expr
+   69 Expr: Expr MUL_ASSIGN . Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    Expr    转到状态 99
-    Number  转到状态 35
+    Expr    转到状态 98
+    Number  转到状态 34
 
 
 状态 67
 
-   73 Expr: Expr SUB_ASSIGN . Expr
+   70 Expr: Expr DIV_ASSIGN . Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    Expr    转到状态 100
-    Number  转到状态 35
+    Expr    转到状态 99
+    Number  转到状态 34
 
 
 状态 68
 
-   70 Expr: Expr MUL_ASSIGN . Expr
+   60 Expr: Expr MOD . Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    Expr    转到状态 101
-    Number  转到状态 35
+    Expr    转到状态 100
+    Number  转到状态 34
 
 
 状态 69
 
-   71 Expr: Expr DIV_ASSIGN . Expr
+   23 Block: L_BRACE . BlockItem R_BRACE
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-
-    Expr    转到状态 102
-    Number  转到状态 35
-
-
-状态 70
-
-   61 Expr: Expr MOD . Expr
-
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-
-    Expr    转到状态 103
-    Number  转到状态 35
-
-
-状态 71
-
-   24 Block: L_BRACE . BlockItem R_BRACE
-
-    RETURN     偏移，并进入状态 104
-    IDENT      偏移，并进入状态 26
+    RETURN     偏移，并进入状态 101
+    IDENT      偏移，并进入状态 25
     INT        偏移，并进入状态 1
     VOID       偏移，并进入状态 2
     DOUBLE     偏移，并进入状态 3
     FLOAT      偏移，并进入状态 4
-    SUB        偏移，并进入状态 27
-    STATIC     偏移，并进入状态 105
-    CONTINUE   偏移，并进入状态 106
-    BREAK      偏移，并进入状态 107
+    SUB        偏移，并进入状态 26
+    STATIC     偏移，并进入状态 102
+    CONTINUE   偏移，并进入状态 103
+    BREAK      偏移，并进入状态 104
     CONST      偏移，并进入状态 5
-    NOT        偏移，并进入状态 28
-    IF         偏移，并进入状态 108
-    WHILE      偏移，并进入状态 109
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-    L_BRACE    偏移，并进入状态 71
+    NOT        偏移，并进入状态 27
+    IF         偏移，并进入状态 105
+    WHILE      偏移，并进入状态 106
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+    L_BRACE    偏移，并进入状态 69
 
-    Type       转到状态 110
-    Block      转到状态 111
-    BlockItem  转到状态 112
-    Declare    转到状态 113
-    Stmt       转到状态 114
-    Expr       转到状态 115
-    Number     转到状态 35
+    Type       转到状态 107
+    Block      转到状态 108
+    BlockItem  转到状态 109
+    Declare    转到状态 110
+    Stmt       转到状态 111
+    Expr       转到状态 112
+    Number     转到状态 34
 
 
-状态 72
+状态 70
 
    17 FuncDef: Type IDENT L_PAREN R_PAREN Block .
 
     $default  使用规则 17 以归约 (FuncDef)
 
 
-状态 73
+状态 71
 
    18 FuncDef: Type IDENT L_PAREN ParamList R_PAREN . Block
 
-    L_BRACE  偏移，并进入状态 71
+    L_BRACE  偏移，并进入状态 69
 
-    Block  转到状态 116
+    Block  转到状态 113
 
 
-状态 74
+状态 72
 
     7 ParamList: Type IDENT .
     8          | Type IDENT . ',' ParamList
@@ -1291,801 +1260,785 @@
    15          | Type IDENT . L_BRACK R_BRACK L_BRACK Number R_BRACK
    16          | Type IDENT . L_BRACK R_BRACK L_BRACK Number R_BRACK ',' ParamList
 
-    L_BRACK  偏移，并进入状态 117
-    ','      偏移，并进入状态 118
+    L_BRACK  偏移，并进入状态 114
+    ','      偏移，并进入状态 115
 
     $default  使用规则 7 以归约 (ParamList)
 
 
+状态 73
+
+   34 Var: IDENT L_BRACK R_BRACK ASS . InitVal
+
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+    L_BRACE    偏移，并进入状态 31
+
+    InitVal  转到状态 116
+    Expr     转到状态 33
+    Number   转到状态 34
+
+
+状态 74
+
+   37 Var: IDENT L_BRACK R_BRACK L_BRACK . Number R_BRACK ASS InitVal
+
+    SUB        偏移，并进入状态 26
+    INT_CONST  偏移，并进入状态 29
+
+    Number  转到状态 117
+
+
 状态 75
 
-   35 Var: IDENT L_BRACK R_BRACK ASS . InitVal
+   32 Var: IDENT L_BRACK Number R_BRACK .
+   33    | IDENT L_BRACK Number R_BRACK . ASS InitVal
+   35    | IDENT L_BRACK Number R_BRACK . L_BRACK Number R_BRACK
+   36    | IDENT L_BRACK Number R_BRACK . L_BRACK Number R_BRACK ASS InitVal
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-    L_BRACE    偏移，并进入状态 32
+    ASS      偏移，并进入状态 118
+    L_BRACK  偏移，并进入状态 119
 
-    InitVal  转到状态 119
-    Expr     转到状态 34
-    Number   转到状态 35
+    $default  使用规则 32 以归约 (Var)
 
 
 状态 76
 
-   38 Var: IDENT L_BRACK R_BRACK L_BRACK . Number R_BRACK ASS InitVal
+   54 Expr: IDENT ASS Expr .
+   56     | Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
-    SUB        偏移，并进入状态 27
-    INT_CONST  偏移，并进入状态 30
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    OR            偏移，并进入状态 59
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    MOD           偏移，并进入状态 68
 
-    Number  转到状态 120
+    $default  使用规则 54 以归约 (Expr)
 
 
 状态 77
 
-   19 FuncDef: Type IDENT L_BRACK Number R_BRACK . ';'
-   33 Var: IDENT L_BRACK Number R_BRACK .
-   34    | IDENT L_BRACK Number R_BRACK . ASS InitVal
-   36    | IDENT L_BRACK Number R_BRACK . L_BRACK Number R_BRACK
-   37    | IDENT L_BRACK Number R_BRACK . L_BRACK Number R_BRACK ASS InitVal
+   77 Expr: IDENT L_PAREN R_PAREN .
 
-    ASS      偏移，并进入状态 121
-    L_BRACK  偏移，并进入状态 122
-    ';'      偏移，并进入状态 123
-
-    ';'       [使用规则 33 以归约 (Var)]
-    $default  使用规则 33 以归约 (Var)
+    $default  使用规则 77 以归约 (Expr)
 
 
 状态 78
 
-   33 Var: IDENT L_BRACK Number R_BRACK .
-   34    | IDENT L_BRACK Number R_BRACK . ASS InitVal
-   36    | IDENT L_BRACK Number R_BRACK . L_BRACK Number R_BRACK
-   37    | IDENT L_BRACK Number R_BRACK . L_BRACK Number R_BRACK ASS InitVal
+   76 Expr: IDENT L_PAREN Params . R_PAREN
 
-    ASS      偏移，并进入状态 121
-    L_BRACK  偏移，并进入状态 122
-
-    $default  使用规则 33 以归约 (Var)
+    R_PAREN  偏移，并进入状态 120
 
 
 状态 79
 
-   55 Expr: IDENT ASS Expr .
-   57     | Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
+   78     | IDENT L_BRACK Expr . R_BRACK
+   79     | IDENT L_BRACK Expr . R_BRACK ASS Expr
+   81     | IDENT L_BRACK Expr . R_BRACK L_BRACK Expr R_BRACK ASS Expr
+   82     | IDENT L_BRACK Expr . R_BRACK L_BRACK Expr R_BRACK
 
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    OR            偏移，并进入状态 61
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    MOD           偏移，并进入状态 70
-
-    $default  使用规则 55 以归约 (Expr)
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    OR            偏移，并进入状态 59
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    ADD_ASSIGN    偏移，并进入状态 64
+    SUB_ASSIGN    偏移，并进入状态 65
+    MUL_ASSIGN    偏移，并进入状态 66
+    DIV_ASSIGN    偏移，并进入状态 67
+    MOD           偏移，并进入状态 68
+    R_BRACK       偏移，并进入状态 121
 
 
 状态 80
 
-   78 Expr: IDENT L_PAREN R_PAREN .
+   55 Expr: L_PAREN Expr R_PAREN .
 
-    $default  使用规则 78 以归约 (Expr)
+    $default  使用规则 55 以归约 (Expr)
 
 
 状态 81
 
-   77 Expr: IDENT L_PAREN Params . R_PAREN
+   41 InitValArray: L_BRACE Params . R_BRACE ',' InitValArray
+   42             | L_BRACE Params . R_BRACE
 
-    R_PAREN  偏移，并进入状态 124
+    R_BRACE  偏移，并进入状态 122
 
 
 状态 82
 
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
-   79     | IDENT L_BRACK Expr . R_BRACK
-   80     | IDENT L_BRACK Expr . R_BRACK ASS Expr
-   82     | IDENT L_BRACK Expr . R_BRACK L_BRACK Expr R_BRACK ASS Expr
-   83     | IDENT L_BRACK Expr . R_BRACK L_BRACK Expr R_BRACK
+   39 InitVal: L_BRACE InitValArray R_BRACE .
 
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    OR            偏移，并进入状态 61
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    ADD_ASSIGN    偏移，并进入状态 66
-    SUB_ASSIGN    偏移，并进入状态 67
-    MUL_ASSIGN    偏移，并进入状态 68
-    DIV_ASSIGN    偏移，并进入状态 69
-    MOD           偏移，并进入状态 70
-    R_BRACK       偏移，并进入状态 125
+    $default  使用规则 39 以归约 (InitVal)
 
 
 状态 83
 
-   56 Expr: L_PAREN Expr R_PAREN .
+    6 Params: Expr ',' . Params
 
-    $default  使用规则 56 以归约 (Expr)
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+
+    Params  转到状态 123
+    Expr    转到状态 51
+    Number  转到状态 34
 
 
 状态 84
 
-   42 InitValArray: L_BRACE Params . R_BRACE ',' InitValArray
-   43             | L_BRACE Params . R_BRACE
+   56 Expr: Expr . ADD Expr
+   56     | Expr ADD Expr .
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
-    R_BRACE  偏移，并进入状态 126
+    MUL  偏移，并进入状态 54
+    DIV  偏移，并进入状态 55
+    MOD  偏移，并进入状态 68
+
+    $default  使用规则 56 以归约 (Expr)
 
 
 状态 85
 
-   40 InitVal: L_BRACE InitValArray R_BRACE .
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   57     | Expr SUB Expr .
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
-    $default  使用规则 40 以归约 (InitVal)
-
-
-状态 86
-
-    6 Params: Expr ',' . Params
-
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-
-    Params  转到状态 127
-    Expr    转到状态 53
-    Number  转到状态 35
-
-
-状态 87
-
-   57 Expr: Expr . ADD Expr
-   57     | Expr ADD Expr .
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
-
-    MUL  偏移，并进入状态 56
-    DIV  偏移，并进入状态 57
-    MOD  偏移，并进入状态 70
+    MUL  偏移，并进入状态 54
+    DIV  偏移，并进入状态 55
+    MOD  偏移，并进入状态 68
 
     $default  使用规则 57 以归约 (Expr)
 
 
-状态 88
+状态 86
 
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   58     | Expr SUB Expr .
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
-
-    MUL  偏移，并进入状态 56
-    DIV  偏移，并进入状态 57
-    MOD  偏移，并进入状态 70
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   58     | Expr MUL Expr .
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
     $default  使用规则 58 以归约 (Expr)
 
 
-状态 89
+状态 87
 
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   59     | Expr MUL Expr .
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   59     | Expr DIV Expr .
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
     $default  使用规则 59 以归约 (Expr)
 
 
-状态 90
+状态 88
 
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   60     | Expr DIV Expr .
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   61     | Expr EQUAL Expr .
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
-    $default  使用规则 60 以归约 (Expr)
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    MOD           偏移，并进入状态 68
+
+    $default  使用规则 61 以归约 (Expr)
 
 
-状态 91
+状态 89
 
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   62     | Expr EQUAL Expr .
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   62     | Expr NOT_EQUAL Expr .
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    MOD           偏移，并进入状态 70
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    MOD           偏移，并进入状态 68
 
     $default  使用规则 62 以归约 (Expr)
 
 
-状态 92
+状态 90
 
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   63     | Expr NOT_EQUAL Expr .
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   63     | Expr AND Expr .
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    MOD           偏移，并进入状态 70
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    MOD           偏移，并进入状态 68
 
     $default  使用规则 63 以归约 (Expr)
 
 
-状态 93
+状态 91
 
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   64     | Expr AND Expr .
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   64     | Expr OR Expr .
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    MOD           偏移，并进入状态 70
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    MOD           偏移，并进入状态 68
 
     $default  使用规则 64 以归约 (Expr)
 
 
+状态 92
+
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   67     | Expr LESS Expr .
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
+
+    ADD  偏移，并进入状态 52
+    SUB  偏移，并进入状态 53
+    MUL  偏移，并进入状态 54
+    DIV  偏移，并进入状态 55
+    MOD  偏移，并进入状态 68
+
+    $default  使用规则 67 以归约 (Expr)
+
+
+状态 93
+
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   68     | Expr LESS_EQUAL Expr .
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
+
+    ADD  偏移，并进入状态 52
+    SUB  偏移，并进入状态 53
+    MUL  偏移，并进入状态 54
+    DIV  偏移，并进入状态 55
+    MOD  偏移，并进入状态 68
+
+    $default  使用规则 68 以归约 (Expr)
+
+
 状态 94
 
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   65     | Expr OR Expr .
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   65     | Expr LARGER Expr .
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    MOD           偏移，并进入状态 70
+    ADD  偏移，并进入状态 52
+    SUB  偏移，并进入状态 53
+    MUL  偏移，并进入状态 54
+    DIV  偏移，并进入状态 55
+    MOD  偏移，并进入状态 68
 
     $default  使用规则 65 以归约 (Expr)
 
 
 状态 95
 
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   68     | Expr LESS Expr .
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   66     | Expr LARGER_EQUAL Expr .
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
-    ADD  偏移，并进入状态 54
-    SUB  偏移，并进入状态 55
-    MUL  偏移，并进入状态 56
-    DIV  偏移，并进入状态 57
-    MOD  偏移，并进入状态 70
-
-    $default  使用规则 68 以归约 (Expr)
-
-
-状态 96
-
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   69     | Expr LESS_EQUAL Expr .
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
-
-    ADD  偏移，并进入状态 54
-    SUB  偏移，并进入状态 55
-    MUL  偏移，并进入状态 56
-    DIV  偏移，并进入状态 57
-    MOD  偏移，并进入状态 70
-
-    $default  使用规则 69 以归约 (Expr)
-
-
-状态 97
-
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   66     | Expr LARGER Expr .
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
-
-    ADD  偏移，并进入状态 54
-    SUB  偏移，并进入状态 55
-    MUL  偏移，并进入状态 56
-    DIV  偏移，并进入状态 57
-    MOD  偏移，并进入状态 70
+    ADD  偏移，并进入状态 52
+    SUB  偏移，并进入状态 53
+    MUL  偏移，并进入状态 54
+    DIV  偏移，并进入状态 55
+    MOD  偏移，并进入状态 68
 
     $default  使用规则 66 以归约 (Expr)
 
 
-状态 98
+状态 96
 
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   67     | Expr LARGER_EQUAL Expr .
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   71     | Expr ADD_ASSIGN Expr .
+   72     | Expr . SUB_ASSIGN Expr
 
-    ADD  偏移，并进入状态 54
-    SUB  偏移，并进入状态 55
-    MUL  偏移，并进入状态 56
-    DIV  偏移，并进入状态 57
-    MOD  偏移，并进入状态 70
-
-    $default  使用规则 67 以归约 (Expr)
-
-
-状态 99
-
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   72     | Expr ADD_ASSIGN Expr .
-   73     | Expr . SUB_ASSIGN Expr
-
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    OR            偏移，并进入状态 61
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    MOD           偏移，并进入状态 70
-
-    $default  使用规则 72 以归约 (Expr)
-
-
-状态 100
-
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
-   73     | Expr SUB_ASSIGN Expr .
-
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    OR            偏移，并进入状态 61
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    MOD           偏移，并进入状态 70
-
-    $default  使用规则 73 以归约 (Expr)
-
-
-状态 101
-
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   70     | Expr MUL_ASSIGN Expr .
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
-
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    OR            偏移，并进入状态 61
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    ADD_ASSIGN    偏移，并进入状态 66
-    SUB_ASSIGN    偏移，并进入状态 67
-    MOD           偏移，并进入状态 70
-
-    $default  使用规则 70 以归约 (Expr)
-
-
-状态 102
-
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   71     | Expr DIV_ASSIGN Expr .
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
-
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    OR            偏移，并进入状态 61
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    ADD_ASSIGN    偏移，并进入状态 66
-    SUB_ASSIGN    偏移，并进入状态 67
-    MOD           偏移，并进入状态 70
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    OR            偏移，并进入状态 59
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    MOD           偏移，并进入状态 68
 
     $default  使用规则 71 以归约 (Expr)
 
 
+状态 97
+
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
+   72     | Expr SUB_ASSIGN Expr .
+
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    OR            偏移，并进入状态 59
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    MOD           偏移，并进入状态 68
+
+    $default  使用规则 72 以归约 (Expr)
+
+
+状态 98
+
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   69     | Expr MUL_ASSIGN Expr .
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
+
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    OR            偏移，并进入状态 59
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    ADD_ASSIGN    偏移，并进入状态 64
+    SUB_ASSIGN    偏移，并进入状态 65
+    MOD           偏移，并进入状态 68
+
+    $default  使用规则 69 以归约 (Expr)
+
+
+状态 99
+
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   70     | Expr DIV_ASSIGN Expr .
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
+
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    OR            偏移，并进入状态 59
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    ADD_ASSIGN    偏移，并进入状态 64
+    SUB_ASSIGN    偏移，并进入状态 65
+    MOD           偏移，并进入状态 68
+
+    $default  使用规则 70 以归约 (Expr)
+
+
+状态 100
+
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   60     | Expr MOD Expr .
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
+
+    $default  使用规则 60 以归约 (Expr)
+
+
+状态 101
+
+   45 Stmt: RETURN . Expr ';'
+
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+
+    Expr    转到状态 124
+    Number  转到状态 34
+
+
+状态 102
+
+   50 Stmt: STATIC . INT IDENT ';'
+
+    INT  偏移，并进入状态 125
+
+
 状态 103
 
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   61     | Expr MOD Expr .
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
+   51 Stmt: CONTINUE . ';'
 
-    $default  使用规则 61 以归约 (Expr)
+    ';'  偏移，并进入状态 126
 
 
 状态 104
 
-   46 Stmt: RETURN . Expr ';'
+   52 Stmt: BREAK . ';'
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-
-    Expr    转到状态 128
-    Number  转到状态 35
+    ';'  偏移，并进入状态 127
 
 
 状态 105
 
-   51 Stmt: STATIC . INT IDENT ';'
+   47 Stmt: IF . L_PAREN Expr R_PAREN Stmt
+   49     | IF . L_PAREN Expr R_PAREN Stmt ELSE Stmt
 
-    INT  偏移，并进入状态 129
+    L_PAREN  偏移，并进入状态 128
 
 
 状态 106
 
-   52 Stmt: CONTINUE . ';'
+   48 Stmt: WHILE . L_PAREN Expr R_PAREN Stmt
 
-    ';'  偏移，并进入状态 130
+    L_PAREN  偏移，并进入状态 129
 
 
 状态 107
 
-   53 Stmt: BREAK . ';'
-
-    ';'  偏移，并进入状态 131
-
-
-状态 108
-
-   48 Stmt: IF . L_PAREN Expr R_PAREN Stmt
-   50     | IF . L_PAREN Expr R_PAREN Stmt ELSE Stmt
-
-    L_PAREN  偏移，并进入状态 132
-
-
-状态 109
-
-   49 Stmt: WHILE . L_PAREN Expr R_PAREN Stmt
-
-    L_PAREN  偏移，并进入状态 133
-
-
-状态 110
-
-   44 Declare: Type . VarDef ';'
+   43 Declare: Type . VarDef ';'
 
     IDENT  偏移，并进入状态 17
 
@@ -2093,139 +2046,139 @@
     Var     转到状态 15
 
 
+状态 108
+
+   53 Stmt: Block .
+
+    $default  使用规则 53 以归约 (Stmt)
+
+
+状态 109
+
+   23 Block: L_BRACE BlockItem . R_BRACE
+
+    R_BRACE  偏移，并进入状态 130
+
+
+状态 110
+
+   25 BlockItem: Declare .
+   27          | Declare . BlockItem
+
+    RETURN     偏移，并进入状态 101
+    IDENT      偏移，并进入状态 25
+    INT        偏移，并进入状态 1
+    VOID       偏移，并进入状态 2
+    DOUBLE     偏移，并进入状态 3
+    FLOAT      偏移，并进入状态 4
+    SUB        偏移，并进入状态 26
+    STATIC     偏移，并进入状态 102
+    CONTINUE   偏移，并进入状态 103
+    BREAK      偏移，并进入状态 104
+    CONST      偏移，并进入状态 5
+    NOT        偏移，并进入状态 27
+    IF         偏移，并进入状态 105
+    WHILE      偏移，并进入状态 106
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+    L_BRACE    偏移，并进入状态 69
+
+    $default  使用规则 25 以归约 (BlockItem)
+
+    Type       转到状态 107
+    Block      转到状态 108
+    BlockItem  转到状态 131
+    Declare    转到状态 110
+    Stmt       转到状态 111
+    Expr       转到状态 112
+    Number     转到状态 34
+
+
 状态 111
 
-   54 Stmt: Block .
+   24 BlockItem: Stmt .
+   26          | Stmt . BlockItem
 
-    $default  使用规则 54 以归约 (Stmt)
+    RETURN     偏移，并进入状态 101
+    IDENT      偏移，并进入状态 25
+    INT        偏移，并进入状态 1
+    VOID       偏移，并进入状态 2
+    DOUBLE     偏移，并进入状态 3
+    FLOAT      偏移，并进入状态 4
+    SUB        偏移，并进入状态 26
+    STATIC     偏移，并进入状态 102
+    CONTINUE   偏移，并进入状态 103
+    BREAK      偏移，并进入状态 104
+    CONST      偏移，并进入状态 5
+    NOT        偏移，并进入状态 27
+    IF         偏移，并进入状态 105
+    WHILE      偏移，并进入状态 106
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+    L_BRACE    偏移，并进入状态 69
+
+    $default  使用规则 24 以归约 (BlockItem)
+
+    Type       转到状态 107
+    Block      转到状态 108
+    BlockItem  转到状态 132
+    Declare    转到状态 110
+    Stmt       转到状态 111
+    Expr       转到状态 112
+    Number     转到状态 34
 
 
 状态 112
 
-   24 Block: L_BRACE BlockItem . R_BRACE
+   46 Stmt: Expr . ';'
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
-    R_BRACE  偏移，并进入状态 134
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    OR            偏移，并进入状态 59
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    ADD_ASSIGN    偏移，并进入状态 64
+    SUB_ASSIGN    偏移，并进入状态 65
+    MUL_ASSIGN    偏移，并进入状态 66
+    DIV_ASSIGN    偏移，并进入状态 67
+    MOD           偏移，并进入状态 68
+    ';'           偏移，并进入状态 133
 
 
 状态 113
-
-   26 BlockItem: Declare .
-   28          | Declare . BlockItem
-
-    RETURN     偏移，并进入状态 104
-    IDENT      偏移，并进入状态 26
-    INT        偏移，并进入状态 1
-    VOID       偏移，并进入状态 2
-    DOUBLE     偏移，并进入状态 3
-    FLOAT      偏移，并进入状态 4
-    SUB        偏移，并进入状态 27
-    STATIC     偏移，并进入状态 105
-    CONTINUE   偏移，并进入状态 106
-    BREAK      偏移，并进入状态 107
-    CONST      偏移，并进入状态 5
-    NOT        偏移，并进入状态 28
-    IF         偏移，并进入状态 108
-    WHILE      偏移，并进入状态 109
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-    L_BRACE    偏移，并进入状态 71
-
-    $default  使用规则 26 以归约 (BlockItem)
-
-    Type       转到状态 110
-    Block      转到状态 111
-    BlockItem  转到状态 135
-    Declare    转到状态 113
-    Stmt       转到状态 114
-    Expr       转到状态 115
-    Number     转到状态 35
-
-
-状态 114
-
-   25 BlockItem: Stmt .
-   27          | Stmt . BlockItem
-
-    RETURN     偏移，并进入状态 104
-    IDENT      偏移，并进入状态 26
-    INT        偏移，并进入状态 1
-    VOID       偏移，并进入状态 2
-    DOUBLE     偏移，并进入状态 3
-    FLOAT      偏移，并进入状态 4
-    SUB        偏移，并进入状态 27
-    STATIC     偏移，并进入状态 105
-    CONTINUE   偏移，并进入状态 106
-    BREAK      偏移，并进入状态 107
-    CONST      偏移，并进入状态 5
-    NOT        偏移，并进入状态 28
-    IF         偏移，并进入状态 108
-    WHILE      偏移，并进入状态 109
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-    L_BRACE    偏移，并进入状态 71
-
-    $default  使用规则 25 以归约 (BlockItem)
-
-    Type       转到状态 110
-    Block      转到状态 111
-    BlockItem  转到状态 136
-    Declare    转到状态 113
-    Stmt       转到状态 114
-    Expr       转到状态 115
-    Number     转到状态 35
-
-
-状态 115
-
-   47 Stmt: Expr . ';'
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
-
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    OR            偏移，并进入状态 61
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    ADD_ASSIGN    偏移，并进入状态 66
-    SUB_ASSIGN    偏移，并进入状态 67
-    MUL_ASSIGN    偏移，并进入状态 68
-    DIV_ASSIGN    偏移，并进入状态 69
-    MOD           偏移，并进入状态 70
-    ';'           偏移，并进入状态 137
-
-
-状态 116
 
    18 FuncDef: Type IDENT L_PAREN ParamList R_PAREN Block .
 
     $default  使用规则 18 以归约 (FuncDef)
 
 
-状态 117
+状态 114
 
     9 ParamList: Type IDENT L_BRACK . Number R_BRACK
    10          | Type IDENT L_BRACK . Number R_BRACK ',' ParamList
@@ -2236,14 +2189,14 @@
    15          | Type IDENT L_BRACK . R_BRACK L_BRACK Number R_BRACK
    16          | Type IDENT L_BRACK . R_BRACK L_BRACK Number R_BRACK ',' ParamList
 
-    SUB        偏移，并进入状态 27
-    INT_CONST  偏移，并进入状态 30
-    R_BRACK    偏移，并进入状态 138
+    SUB        偏移，并进入状态 26
+    INT_CONST  偏移，并进入状态 29
+    R_BRACK    偏移，并进入状态 134
 
-    Number  转到状态 139
+    Number  转到状态 135
 
 
-状态 118
+状态 115
 
     8 ParamList: Type IDENT ',' . ParamList
 
@@ -2252,427 +2205,420 @@
     DOUBLE  偏移，并进入状态 3
     FLOAT   偏移，并进入状态 4
 
-    ParamList  转到状态 140
-    Type       转到状态 38
+    ParamList  转到状态 136
+    Type       转到状态 37
+
+
+状态 116
+
+   34 Var: IDENT L_BRACK R_BRACK ASS InitVal .
+
+    $default  使用规则 34 以归约 (Var)
+
+
+状态 117
+
+   37 Var: IDENT L_BRACK R_BRACK L_BRACK Number . R_BRACK ASS InitVal
+
+    R_BRACK  偏移，并进入状态 137
+
+
+状态 118
+
+   33 Var: IDENT L_BRACK Number R_BRACK ASS . InitVal
+
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+    L_BRACE    偏移，并进入状态 31
+
+    InitVal  转到状态 138
+    Expr     转到状态 33
+    Number   转到状态 34
 
 
 状态 119
 
-   35 Var: IDENT L_BRACK R_BRACK ASS InitVal .
+   35 Var: IDENT L_BRACK Number R_BRACK L_BRACK . Number R_BRACK
+   36    | IDENT L_BRACK Number R_BRACK L_BRACK . Number R_BRACK ASS InitVal
 
-    $default  使用规则 35 以归约 (Var)
+    SUB        偏移，并进入状态 26
+    INT_CONST  偏移，并进入状态 29
+
+    Number  转到状态 139
 
 
 状态 120
 
-   38 Var: IDENT L_BRACK R_BRACK L_BRACK Number . R_BRACK ASS InitVal
+   76 Expr: IDENT L_PAREN Params R_PAREN .
 
-    R_BRACK  偏移，并进入状态 141
+    $default  使用规则 76 以归约 (Expr)
 
 
 状态 121
 
-   34 Var: IDENT L_BRACK Number R_BRACK ASS . InitVal
+   78 Expr: IDENT L_BRACK Expr R_BRACK .
+   79     | IDENT L_BRACK Expr R_BRACK . ASS Expr
+   81     | IDENT L_BRACK Expr R_BRACK . L_BRACK Expr R_BRACK ASS Expr
+   82     | IDENT L_BRACK Expr R_BRACK . L_BRACK Expr R_BRACK
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-    L_BRACE    偏移，并进入状态 32
+    ASS      偏移，并进入状态 140
+    L_BRACK  偏移，并进入状态 141
 
-    InitVal  转到状态 142
-    Expr     转到状态 34
-    Number   转到状态 35
+    $default  使用规则 78 以归约 (Expr)
 
 
 状态 122
 
-   36 Var: IDENT L_BRACK Number R_BRACK L_BRACK . Number R_BRACK
-   37    | IDENT L_BRACK Number R_BRACK L_BRACK . Number R_BRACK ASS InitVal
+   41 InitValArray: L_BRACE Params R_BRACE . ',' InitValArray
+   42             | L_BRACE Params R_BRACE .
 
-    SUB        偏移，并进入状态 27
-    INT_CONST  偏移，并进入状态 30
+    ','  偏移，并进入状态 142
 
-    Number  转到状态 143
+    $default  使用规则 42 以归约 (InitValArray)
 
 
 状态 123
-
-   19 FuncDef: Type IDENT L_BRACK Number R_BRACK ';' .
-
-    $default  使用规则 19 以归约 (FuncDef)
-
-
-状态 124
-
-   77 Expr: IDENT L_PAREN Params R_PAREN .
-
-    $default  使用规则 77 以归约 (Expr)
-
-
-状态 125
-
-   79 Expr: IDENT L_BRACK Expr R_BRACK .
-   80     | IDENT L_BRACK Expr R_BRACK . ASS Expr
-   82     | IDENT L_BRACK Expr R_BRACK . L_BRACK Expr R_BRACK ASS Expr
-   83     | IDENT L_BRACK Expr R_BRACK . L_BRACK Expr R_BRACK
-
-    ASS      偏移，并进入状态 144
-    L_BRACK  偏移，并进入状态 145
-
-    $default  使用规则 79 以归约 (Expr)
-
-
-状态 126
-
-   42 InitValArray: L_BRACE Params R_BRACE . ',' InitValArray
-   43             | L_BRACE Params R_BRACE .
-
-    ','  偏移，并进入状态 146
-
-    $default  使用规则 43 以归约 (InitValArray)
-
-
-状态 127
 
     6 Params: Expr ',' Params .
 
     $default  使用规则 6 以归约 (Params)
 
 
-状态 128
+状态 124
 
-   46 Stmt: RETURN Expr . ';'
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
+   45 Stmt: RETURN Expr . ';'
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    OR            偏移，并进入状态 61
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    ADD_ASSIGN    偏移，并进入状态 66
-    SUB_ASSIGN    偏移，并进入状态 67
-    MUL_ASSIGN    偏移，并进入状态 68
-    DIV_ASSIGN    偏移，并进入状态 69
-    MOD           偏移，并进入状态 70
-    ';'           偏移，并进入状态 147
-
-
-状态 129
-
-   51 Stmt: STATIC INT . IDENT ';'
-
-    IDENT  偏移，并进入状态 148
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    OR            偏移，并进入状态 59
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    ADD_ASSIGN    偏移，并进入状态 64
+    SUB_ASSIGN    偏移，并进入状态 65
+    MUL_ASSIGN    偏移，并进入状态 66
+    DIV_ASSIGN    偏移，并进入状态 67
+    MOD           偏移，并进入状态 68
+    ';'           偏移，并进入状态 143
 
 
-状态 130
+状态 125
 
-   52 Stmt: CONTINUE ';' .
+   50 Stmt: STATIC INT . IDENT ';'
+
+    IDENT  偏移，并进入状态 144
+
+
+状态 126
+
+   51 Stmt: CONTINUE ';' .
+
+    $default  使用规则 51 以归约 (Stmt)
+
+
+状态 127
+
+   52 Stmt: BREAK ';' .
 
     $default  使用规则 52 以归约 (Stmt)
 
 
+状态 128
+
+   47 Stmt: IF L_PAREN . Expr R_PAREN Stmt
+   49     | IF L_PAREN . Expr R_PAREN Stmt ELSE Stmt
+
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+
+    Expr    转到状态 145
+    Number  转到状态 34
+
+
+状态 129
+
+   48 Stmt: WHILE L_PAREN . Expr R_PAREN Stmt
+
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+
+    Expr    转到状态 146
+    Number  转到状态 34
+
+
+状态 130
+
+   23 Block: L_BRACE BlockItem R_BRACE .
+
+    $default  使用规则 23 以归约 (Block)
+
+
 状态 131
 
-   53 Stmt: BREAK ';' .
-
-    $default  使用规则 53 以归约 (Stmt)
-
-
-状态 132
-
-   48 Stmt: IF L_PAREN . Expr R_PAREN Stmt
-   50     | IF L_PAREN . Expr R_PAREN Stmt ELSE Stmt
-
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-
-    Expr    转到状态 149
-    Number  转到状态 35
-
-
-状态 133
-
-   49 Stmt: WHILE L_PAREN . Expr R_PAREN Stmt
-
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-
-    Expr    转到状态 150
-    Number  转到状态 35
-
-
-状态 134
-
-   24 Block: L_BRACE BlockItem R_BRACE .
-
-    $default  使用规则 24 以归约 (Block)
-
-
-状态 135
-
-   28 BlockItem: Declare BlockItem .
-
-    $default  使用规则 28 以归约 (BlockItem)
-
-
-状态 136
-
-   27 BlockItem: Stmt BlockItem .
+   27 BlockItem: Declare BlockItem .
 
     $default  使用规则 27 以归约 (BlockItem)
 
 
-状态 137
+状态 132
 
-   47 Stmt: Expr ';' .
+   26 BlockItem: Stmt BlockItem .
 
-    $default  使用规则 47 以归约 (Stmt)
+    $default  使用规则 26 以归约 (BlockItem)
 
 
-状态 138
+状态 133
+
+   46 Stmt: Expr ';' .
+
+    $default  使用规则 46 以归约 (Stmt)
+
+
+状态 134
 
    11 ParamList: Type IDENT L_BRACK R_BRACK .
    12          | Type IDENT L_BRACK R_BRACK . ',' ParamList
    15          | Type IDENT L_BRACK R_BRACK . L_BRACK Number R_BRACK
    16          | Type IDENT L_BRACK R_BRACK . L_BRACK Number R_BRACK ',' ParamList
 
-    L_BRACK  偏移，并进入状态 151
-    ','      偏移，并进入状态 152
+    L_BRACK  偏移，并进入状态 147
+    ','      偏移，并进入状态 148
 
     $default  使用规则 11 以归约 (ParamList)
 
 
-状态 139
+状态 135
 
     9 ParamList: Type IDENT L_BRACK Number . R_BRACK
    10          | Type IDENT L_BRACK Number . R_BRACK ',' ParamList
    13          | Type IDENT L_BRACK Number . R_BRACK L_BRACK Number R_BRACK
    14          | Type IDENT L_BRACK Number . R_BRACK L_BRACK Number R_BRACK ',' ParamList
 
-    R_BRACK  偏移，并进入状态 153
+    R_BRACK  偏移，并进入状态 149
 
 
-状态 140
+状态 136
 
     8 ParamList: Type IDENT ',' ParamList .
 
     $default  使用规则 8 以归约 (ParamList)
 
 
+状态 137
+
+   37 Var: IDENT L_BRACK R_BRACK L_BRACK Number R_BRACK . ASS InitVal
+
+    ASS  偏移，并进入状态 150
+
+
+状态 138
+
+   33 Var: IDENT L_BRACK Number R_BRACK ASS InitVal .
+
+    $default  使用规则 33 以归约 (Var)
+
+
+状态 139
+
+   35 Var: IDENT L_BRACK Number R_BRACK L_BRACK Number . R_BRACK
+   36    | IDENT L_BRACK Number R_BRACK L_BRACK Number . R_BRACK ASS InitVal
+
+    R_BRACK  偏移，并进入状态 151
+
+
+状态 140
+
+   79 Expr: IDENT L_BRACK Expr R_BRACK ASS . Expr
+
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+
+    Expr    转到状态 152
+    Number  转到状态 34
+
+
 状态 141
 
-   38 Var: IDENT L_BRACK R_BRACK L_BRACK Number R_BRACK . ASS InitVal
+   81 Expr: IDENT L_BRACK Expr R_BRACK L_BRACK . Expr R_BRACK ASS Expr
+   82     | IDENT L_BRACK Expr R_BRACK L_BRACK . Expr R_BRACK
 
-    ASS  偏移，并进入状态 154
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+
+    Expr    转到状态 153
+    Number  转到状态 34
 
 
 状态 142
 
-   34 Var: IDENT L_BRACK Number R_BRACK ASS InitVal .
+   41 InitValArray: L_BRACE Params R_BRACE ',' . InitValArray
 
-    $default  使用规则 34 以归约 (Var)
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+    L_BRACE    偏移，并进入状态 48
+
+    Params        转到状态 49
+    InitValArray  转到状态 154
+    Expr          转到状态 51
+    Number        转到状态 34
 
 
 状态 143
 
-   36 Var: IDENT L_BRACK Number R_BRACK L_BRACK Number . R_BRACK
-   37    | IDENT L_BRACK Number R_BRACK L_BRACK Number . R_BRACK ASS InitVal
+   45 Stmt: RETURN Expr ';' .
 
-    R_BRACK  偏移，并进入状态 155
+    $default  使用规则 45 以归约 (Stmt)
 
 
 状态 144
 
-   80 Expr: IDENT L_BRACK Expr R_BRACK ASS . Expr
+   50 Stmt: STATIC INT IDENT . ';'
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-
-    Expr    转到状态 156
-    Number  转到状态 35
+    ';'  偏移，并进入状态 155
 
 
 状态 145
 
-   82 Expr: IDENT L_BRACK Expr R_BRACK L_BRACK . Expr R_BRACK ASS Expr
-   83     | IDENT L_BRACK Expr R_BRACK L_BRACK . Expr R_BRACK
+   47 Stmt: IF L_PAREN Expr . R_PAREN Stmt
+   49     | IF L_PAREN Expr . R_PAREN Stmt ELSE Stmt
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-
-    Expr    转到状态 157
-    Number  转到状态 35
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    OR            偏移，并进入状态 59
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    ADD_ASSIGN    偏移，并进入状态 64
+    SUB_ASSIGN    偏移，并进入状态 65
+    MUL_ASSIGN    偏移，并进入状态 66
+    DIV_ASSIGN    偏移，并进入状态 67
+    MOD           偏移，并进入状态 68
+    R_PAREN       偏移，并进入状态 156
 
 
 状态 146
 
-   42 InitValArray: L_BRACE Params R_BRACE ',' . InitValArray
+   48 Stmt: WHILE L_PAREN Expr . R_PAREN Stmt
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-    L_BRACE    偏移，并进入状态 50
-
-    Params        转到状态 51
-    InitValArray  转到状态 158
-    Expr          转到状态 53
-    Number        转到状态 35
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    OR            偏移，并进入状态 59
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    ADD_ASSIGN    偏移，并进入状态 64
+    SUB_ASSIGN    偏移，并进入状态 65
+    MUL_ASSIGN    偏移，并进入状态 66
+    DIV_ASSIGN    偏移，并进入状态 67
+    MOD           偏移，并进入状态 68
+    R_PAREN       偏移，并进入状态 157
 
 
 状态 147
 
-   46 Stmt: RETURN Expr ';' .
-
-    $default  使用规则 46 以归约 (Stmt)
-
-
-状态 148
-
-   51 Stmt: STATIC INT IDENT . ';'
-
-    ';'  偏移，并进入状态 159
-
-
-状态 149
-
-   48 Stmt: IF L_PAREN Expr . R_PAREN Stmt
-   50     | IF L_PAREN Expr . R_PAREN Stmt ELSE Stmt
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
-
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    OR            偏移，并进入状态 61
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    ADD_ASSIGN    偏移，并进入状态 66
-    SUB_ASSIGN    偏移，并进入状态 67
-    MUL_ASSIGN    偏移，并进入状态 68
-    DIV_ASSIGN    偏移，并进入状态 69
-    MOD           偏移，并进入状态 70
-    R_PAREN       偏移，并进入状态 160
-
-
-状态 150
-
-   49 Stmt: WHILE L_PAREN Expr . R_PAREN Stmt
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
-
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    OR            偏移，并进入状态 61
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    ADD_ASSIGN    偏移，并进入状态 66
-    SUB_ASSIGN    偏移，并进入状态 67
-    MUL_ASSIGN    偏移，并进入状态 68
-    DIV_ASSIGN    偏移，并进入状态 69
-    MOD           偏移，并进入状态 70
-    R_PAREN       偏移，并进入状态 161
-
-
-状态 151
-
    15 ParamList: Type IDENT L_BRACK R_BRACK L_BRACK . Number R_BRACK
    16          | Type IDENT L_BRACK R_BRACK L_BRACK . Number R_BRACK ',' ParamList
 
-    SUB        偏移，并进入状态 27
-    INT_CONST  偏移，并进入状态 30
+    SUB        偏移，并进入状态 26
+    INT_CONST  偏移，并进入状态 29
 
-    Number  转到状态 162
+    Number  转到状态 158
 
 
-状态 152
+状态 148
 
    12 ParamList: Type IDENT L_BRACK R_BRACK ',' . ParamList
 
@@ -2681,220 +2627,220 @@
     DOUBLE  偏移，并进入状态 3
     FLOAT   偏移，并进入状态 4
 
-    ParamList  转到状态 163
-    Type       转到状态 38
+    ParamList  转到状态 159
+    Type       转到状态 37
 
 
-状态 153
+状态 149
 
     9 ParamList: Type IDENT L_BRACK Number R_BRACK .
    10          | Type IDENT L_BRACK Number R_BRACK . ',' ParamList
    13          | Type IDENT L_BRACK Number R_BRACK . L_BRACK Number R_BRACK
    14          | Type IDENT L_BRACK Number R_BRACK . L_BRACK Number R_BRACK ',' ParamList
 
-    L_BRACK  偏移，并进入状态 164
-    ','      偏移，并进入状态 165
+    L_BRACK  偏移，并进入状态 160
+    ','      偏移，并进入状态 161
 
     $default  使用规则 9 以归约 (ParamList)
 
 
+状态 150
+
+   37 Var: IDENT L_BRACK R_BRACK L_BRACK Number R_BRACK ASS . InitVal
+
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+    L_BRACE    偏移，并进入状态 31
+
+    InitVal  转到状态 162
+    Expr     转到状态 33
+    Number   转到状态 34
+
+
+状态 151
+
+   35 Var: IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK .
+   36    | IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK . ASS InitVal
+
+    ASS  偏移，并进入状态 163
+
+    $default  使用规则 35 以归约 (Var)
+
+
+状态 152
+
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
+   79     | IDENT L_BRACK Expr R_BRACK ASS Expr .
+
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    OR            偏移，并进入状态 59
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    MOD           偏移，并进入状态 68
+
+    $default  使用规则 79 以归约 (Expr)
+
+
+状态 153
+
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
+   81     | IDENT L_BRACK Expr R_BRACK L_BRACK Expr . R_BRACK ASS Expr
+   82     | IDENT L_BRACK Expr R_BRACK L_BRACK Expr . R_BRACK
+
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    OR            偏移，并进入状态 59
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    ADD_ASSIGN    偏移，并进入状态 64
+    SUB_ASSIGN    偏移，并进入状态 65
+    MUL_ASSIGN    偏移，并进入状态 66
+    DIV_ASSIGN    偏移，并进入状态 67
+    MOD           偏移，并进入状态 68
+    R_BRACK       偏移，并进入状态 164
+
+
 状态 154
 
-   38 Var: IDENT L_BRACK R_BRACK L_BRACK Number R_BRACK ASS . InitVal
+   41 InitValArray: L_BRACE Params R_BRACE ',' InitValArray .
 
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-    L_BRACE    偏移，并进入状态 32
-
-    InitVal  转到状态 166
-    Expr     转到状态 34
-    Number   转到状态 35
+    $default  使用规则 41 以归约 (InitValArray)
 
 
 状态 155
 
-   36 Var: IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK .
-   37    | IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK . ASS InitVal
+   50 Stmt: STATIC INT IDENT ';' .
 
-    ASS  偏移，并进入状态 167
-
-    $default  使用规则 36 以归约 (Var)
+    $default  使用规则 50 以归约 (Stmt)
 
 
 状态 156
 
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
-   80     | IDENT L_BRACK Expr R_BRACK ASS Expr .
+   47 Stmt: IF L_PAREN Expr R_PAREN . Stmt
+   49     | IF L_PAREN Expr R_PAREN . Stmt ELSE Stmt
 
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    OR            偏移，并进入状态 61
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    MOD           偏移，并进入状态 70
+    RETURN     偏移，并进入状态 101
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    STATIC     偏移，并进入状态 102
+    CONTINUE   偏移，并进入状态 103
+    BREAK      偏移，并进入状态 104
+    NOT        偏移，并进入状态 27
+    IF         偏移，并进入状态 105
+    WHILE      偏移，并进入状态 106
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+    L_BRACE    偏移，并进入状态 69
 
-    $default  使用规则 80 以归约 (Expr)
+    Block   转到状态 108
+    Stmt    转到状态 165
+    Expr    转到状态 112
+    Number  转到状态 34
 
 
 状态 157
 
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
-   82     | IDENT L_BRACK Expr R_BRACK L_BRACK Expr . R_BRACK ASS Expr
-   83     | IDENT L_BRACK Expr R_BRACK L_BRACK Expr . R_BRACK
+   48 Stmt: WHILE L_PAREN Expr R_PAREN . Stmt
 
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    OR            偏移，并进入状态 61
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    ADD_ASSIGN    偏移，并进入状态 66
-    SUB_ASSIGN    偏移，并进入状态 67
-    MUL_ASSIGN    偏移，并进入状态 68
-    DIV_ASSIGN    偏移，并进入状态 69
-    MOD           偏移，并进入状态 70
-    R_BRACK       偏移，并进入状态 168
+    RETURN     偏移，并进入状态 101
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    STATIC     偏移，并进入状态 102
+    CONTINUE   偏移，并进入状态 103
+    BREAK      偏移，并进入状态 104
+    NOT        偏移，并进入状态 27
+    IF         偏移，并进入状态 105
+    WHILE      偏移，并进入状态 106
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+    L_BRACE    偏移，并进入状态 69
+
+    Block   转到状态 108
+    Stmt    转到状态 166
+    Expr    转到状态 112
+    Number  转到状态 34
 
 
 状态 158
 
-   42 InitValArray: L_BRACE Params R_BRACE ',' InitValArray .
-
-    $default  使用规则 42 以归约 (InitValArray)
-
-
-状态 159
-
-   51 Stmt: STATIC INT IDENT ';' .
-
-    $default  使用规则 51 以归约 (Stmt)
-
-
-状态 160
-
-   48 Stmt: IF L_PAREN Expr R_PAREN . Stmt
-   50     | IF L_PAREN Expr R_PAREN . Stmt ELSE Stmt
-
-    RETURN     偏移，并进入状态 104
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    STATIC     偏移，并进入状态 105
-    CONTINUE   偏移，并进入状态 106
-    BREAK      偏移，并进入状态 107
-    NOT        偏移，并进入状态 28
-    IF         偏移，并进入状态 108
-    WHILE      偏移，并进入状态 109
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-    L_BRACE    偏移，并进入状态 71
-
-    Block   转到状态 111
-    Stmt    转到状态 169
-    Expr    转到状态 115
-    Number  转到状态 35
-
-
-状态 161
-
-   49 Stmt: WHILE L_PAREN Expr R_PAREN . Stmt
-
-    RETURN     偏移，并进入状态 104
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    STATIC     偏移，并进入状态 105
-    CONTINUE   偏移，并进入状态 106
-    BREAK      偏移，并进入状态 107
-    NOT        偏移，并进入状态 28
-    IF         偏移，并进入状态 108
-    WHILE      偏移，并进入状态 109
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-    L_BRACE    偏移，并进入状态 71
-
-    Block   转到状态 111
-    Stmt    转到状态 170
-    Expr    转到状态 115
-    Number  转到状态 35
-
-
-状态 162
-
    15 ParamList: Type IDENT L_BRACK R_BRACK L_BRACK Number . R_BRACK
    16          | Type IDENT L_BRACK R_BRACK L_BRACK Number . R_BRACK ',' ParamList
 
-    R_BRACK  偏移，并进入状态 171
+    R_BRACK  偏移，并进入状态 167
 
 
-状态 163
+状态 159
 
    12 ParamList: Type IDENT L_BRACK R_BRACK ',' ParamList .
 
     $default  使用规则 12 以归约 (ParamList)
 
 
-状态 164
+状态 160
 
    13 ParamList: Type IDENT L_BRACK Number R_BRACK L_BRACK . Number R_BRACK
    14          | Type IDENT L_BRACK Number R_BRACK L_BRACK . Number R_BRACK ',' ParamList
 
-    SUB        偏移，并进入状态 27
-    INT_CONST  偏移，并进入状态 30
+    SUB        偏移，并进入状态 26
+    INT_CONST  偏移，并进入状态 29
 
-    Number  转到状态 172
+    Number  转到状态 168
 
 
-状态 165
+状态 161
 
    10 ParamList: Type IDENT L_BRACK Number R_BRACK ',' . ParamList
 
@@ -2903,134 +2849,134 @@
     DOUBLE  偏移，并进入状态 3
     FLOAT   偏移，并进入状态 4
 
-    ParamList  转到状态 173
-    Type       转到状态 38
+    ParamList  转到状态 169
+    Type       转到状态 37
+
+
+状态 162
+
+   37 Var: IDENT L_BRACK R_BRACK L_BRACK Number R_BRACK ASS InitVal .
+
+    $default  使用规则 37 以归约 (Var)
+
+
+状态 163
+
+   36 Var: IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK ASS . InitVal
+
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+    L_BRACE    偏移，并进入状态 31
+
+    InitVal  转到状态 170
+    Expr     转到状态 33
+    Number   转到状态 34
+
+
+状态 164
+
+   81 Expr: IDENT L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK . ASS Expr
+   82     | IDENT L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK .
+
+    ASS  偏移，并进入状态 171
+
+    $default  使用规则 82 以归约 (Expr)
+
+
+状态 165
+
+   47 Stmt: IF L_PAREN Expr R_PAREN Stmt .
+   49     | IF L_PAREN Expr R_PAREN Stmt . ELSE Stmt
+
+    ELSE  偏移，并进入状态 172
+
+    ELSE      [使用规则 47 以归约 (Stmt)]
+    $default  使用规则 47 以归约 (Stmt)
 
 
 状态 166
 
-   38 Var: IDENT L_BRACK R_BRACK L_BRACK Number R_BRACK ASS InitVal .
+   48 Stmt: WHILE L_PAREN Expr R_PAREN Stmt .
 
-    $default  使用规则 38 以归约 (Var)
+    $default  使用规则 48 以归约 (Stmt)
 
 
 状态 167
 
-   37 Var: IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK ASS . InitVal
-
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-    L_BRACE    偏移，并进入状态 32
-
-    InitVal  转到状态 174
-    Expr     转到状态 34
-    Number   转到状态 35
-
-
-状态 168
-
-   82 Expr: IDENT L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK . ASS Expr
-   83     | IDENT L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK .
-
-    ASS  偏移，并进入状态 175
-
-    $default  使用规则 83 以归约 (Expr)
-
-
-状态 169
-
-   48 Stmt: IF L_PAREN Expr R_PAREN Stmt .
-   50     | IF L_PAREN Expr R_PAREN Stmt . ELSE Stmt
-
-    ELSE  偏移，并进入状态 176
-
-    ELSE      [使用规则 48 以归约 (Stmt)]
-    $default  使用规则 48 以归约 (Stmt)
-
-
-状态 170
-
-   49 Stmt: WHILE L_PAREN Expr R_PAREN Stmt .
-
-    $default  使用规则 49 以归约 (Stmt)
-
-
-状态 171
-
    15 ParamList: Type IDENT L_BRACK R_BRACK L_BRACK Number R_BRACK .
    16          | Type IDENT L_BRACK R_BRACK L_BRACK Number R_BRACK . ',' ParamList
 
-    ','  偏移，并进入状态 177
+    ','  偏移，并进入状态 173
 
     $default  使用规则 15 以归约 (ParamList)
 
 
-状态 172
+状态 168
 
    13 ParamList: Type IDENT L_BRACK Number R_BRACK L_BRACK Number . R_BRACK
    14          | Type IDENT L_BRACK Number R_BRACK L_BRACK Number . R_BRACK ',' ParamList
 
-    R_BRACK  偏移，并进入状态 178
+    R_BRACK  偏移，并进入状态 174
 
 
-状态 173
+状态 169
 
    10 ParamList: Type IDENT L_BRACK Number R_BRACK ',' ParamList .
 
     $default  使用规则 10 以归约 (ParamList)
 
 
-状态 174
+状态 170
 
-   37 Var: IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK ASS InitVal .
+   36 Var: IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK ASS InitVal .
 
-    $default  使用规则 37 以归约 (Var)
-
-
-状态 175
-
-   82 Expr: IDENT L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK ASS . Expr
-
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    NOT        偏移，并进入状态 28
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-
-    Expr    转到状态 179
-    Number  转到状态 35
+    $default  使用规则 36 以归约 (Var)
 
 
-状态 176
+状态 171
 
-   50 Stmt: IF L_PAREN Expr R_PAREN Stmt ELSE . Stmt
+   81 Expr: IDENT L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK ASS . Expr
 
-    RETURN     偏移，并进入状态 104
-    IDENT      偏移，并进入状态 26
-    SUB        偏移，并进入状态 27
-    STATIC     偏移，并进入状态 105
-    CONTINUE   偏移，并进入状态 106
-    BREAK      偏移，并进入状态 107
-    NOT        偏移，并进入状态 28
-    IF         偏移，并进入状态 108
-    WHILE      偏移，并进入状态 109
-    AT         偏移，并进入状态 29
-    INT_CONST  偏移，并进入状态 30
-    L_PAREN    偏移，并进入状态 31
-    L_BRACE    偏移，并进入状态 71
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    NOT        偏移，并进入状态 27
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
 
-    Block   转到状态 111
-    Stmt    转到状态 180
-    Expr    转到状态 115
-    Number  转到状态 35
+    Expr    转到状态 175
+    Number  转到状态 34
 
 
-状态 177
+状态 172
+
+   49 Stmt: IF L_PAREN Expr R_PAREN Stmt ELSE . Stmt
+
+    RETURN     偏移，并进入状态 101
+    IDENT      偏移，并进入状态 25
+    SUB        偏移，并进入状态 26
+    STATIC     偏移，并进入状态 102
+    CONTINUE   偏移，并进入状态 103
+    BREAK      偏移，并进入状态 104
+    NOT        偏移，并进入状态 27
+    IF         偏移，并进入状态 105
+    WHILE      偏移，并进入状态 106
+    AT         偏移，并进入状态 28
+    INT_CONST  偏移，并进入状态 29
+    L_PAREN    偏移，并进入状态 30
+    L_BRACE    偏移，并进入状态 69
+
+    Block   转到状态 108
+    Stmt    转到状态 176
+    Expr    转到状态 112
+    Number  转到状态 34
+
+
+状态 173
 
    16 ParamList: Type IDENT L_BRACK R_BRACK L_BRACK Number R_BRACK ',' . ParamList
 
@@ -3039,73 +2985,73 @@
     DOUBLE  偏移，并进入状态 3
     FLOAT   偏移，并进入状态 4
 
-    ParamList  转到状态 181
-    Type       转到状态 38
+    ParamList  转到状态 177
+    Type       转到状态 37
 
 
-状态 178
+状态 174
 
    13 ParamList: Type IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK .
    14          | Type IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK . ',' ParamList
 
-    ','  偏移，并进入状态 182
+    ','  偏移，并进入状态 178
 
     $default  使用规则 13 以归约 (ParamList)
 
 
-状态 179
+状态 175
 
-   57 Expr: Expr . ADD Expr
-   58     | Expr . SUB Expr
-   59     | Expr . MUL Expr
-   60     | Expr . DIV Expr
-   61     | Expr . MOD Expr
-   62     | Expr . EQUAL Expr
-   63     | Expr . NOT_EQUAL Expr
-   64     | Expr . AND Expr
-   65     | Expr . OR Expr
-   66     | Expr . LARGER Expr
-   67     | Expr . LARGER_EQUAL Expr
-   68     | Expr . LESS Expr
-   69     | Expr . LESS_EQUAL Expr
-   70     | Expr . MUL_ASSIGN Expr
-   71     | Expr . DIV_ASSIGN Expr
-   72     | Expr . ADD_ASSIGN Expr
-   73     | Expr . SUB_ASSIGN Expr
-   82     | IDENT L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK ASS Expr .
+   56 Expr: Expr . ADD Expr
+   57     | Expr . SUB Expr
+   58     | Expr . MUL Expr
+   59     | Expr . DIV Expr
+   60     | Expr . MOD Expr
+   61     | Expr . EQUAL Expr
+   62     | Expr . NOT_EQUAL Expr
+   63     | Expr . AND Expr
+   64     | Expr . OR Expr
+   65     | Expr . LARGER Expr
+   66     | Expr . LARGER_EQUAL Expr
+   67     | Expr . LESS Expr
+   68     | Expr . LESS_EQUAL Expr
+   69     | Expr . MUL_ASSIGN Expr
+   70     | Expr . DIV_ASSIGN Expr
+   71     | Expr . ADD_ASSIGN Expr
+   72     | Expr . SUB_ASSIGN Expr
+   81     | IDENT L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK ASS Expr .
 
-    ADD           偏移，并进入状态 54
-    SUB           偏移，并进入状态 55
-    MUL           偏移，并进入状态 56
-    DIV           偏移，并进入状态 57
-    EQUAL         偏移，并进入状态 58
-    NOT_EQUAL     偏移，并进入状态 59
-    AND           偏移，并进入状态 60
-    OR            偏移，并进入状态 61
-    LESS          偏移，并进入状态 62
-    LESS_EQUAL    偏移，并进入状态 63
-    LARGER        偏移，并进入状态 64
-    LARGER_EQUAL  偏移，并进入状态 65
-    MOD           偏移，并进入状态 70
+    ADD           偏移，并进入状态 52
+    SUB           偏移，并进入状态 53
+    MUL           偏移，并进入状态 54
+    DIV           偏移，并进入状态 55
+    EQUAL         偏移，并进入状态 56
+    NOT_EQUAL     偏移，并进入状态 57
+    AND           偏移，并进入状态 58
+    OR            偏移，并进入状态 59
+    LESS          偏移，并进入状态 60
+    LESS_EQUAL    偏移，并进入状态 61
+    LARGER        偏移，并进入状态 62
+    LARGER_EQUAL  偏移，并进入状态 63
+    MOD           偏移，并进入状态 68
 
-    $default  使用规则 82 以归约 (Expr)
-
-
-状态 180
-
-   50 Stmt: IF L_PAREN Expr R_PAREN Stmt ELSE Stmt .
-
-    $default  使用规则 50 以归约 (Stmt)
+    $default  使用规则 81 以归约 (Expr)
 
 
-状态 181
+状态 176
+
+   49 Stmt: IF L_PAREN Expr R_PAREN Stmt ELSE Stmt .
+
+    $default  使用规则 49 以归约 (Stmt)
+
+
+状态 177
 
    16 ParamList: Type IDENT L_BRACK R_BRACK L_BRACK Number R_BRACK ',' ParamList .
 
     $default  使用规则 16 以归约 (ParamList)
 
 
-状态 182
+状态 178
 
    14 ParamList: Type IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK ',' . ParamList
 
@@ -3114,11 +3060,11 @@
     DOUBLE  偏移，并进入状态 3
     FLOAT   偏移，并进入状态 4
 
-    ParamList  转到状态 183
-    Type       转到状态 38
+    ParamList  转到状态 179
+    Type       转到状态 37
 
 
-状态 183
+状态 179
 
    14 ParamList: Type IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK ',' ParamList .
 
