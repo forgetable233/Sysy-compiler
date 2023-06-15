@@ -62,8 +62,8 @@ int main(int argc, const char *argv[]) {
     std::string input_file_name(file_path, 9, file_path.length());
 
     // 打开文件
-    yyin = fopen(file_path.c_str(), "r");
-//    yyin = fopen(test_hello.c_str(), "r");
+//    yyin = fopen(file_path.c_str(), "r");
+    yyin = fopen(test_hello.c_str(), "r");
     assert(yyin);
 
     unique_ptr<BaseAST> ast;
@@ -76,11 +76,11 @@ int main(int argc, const char *argv[]) {
     ast->CodeGen(ir);
     std::cout << std::endl << "finish CodeGen" << std::endl;
 
-    if (store_file(ir, input_file_name)) {
-        std::cout << "successfully store a file\n";
-    } else {
-        std::cerr << "unable to store the target file\n";
-    }
-//    ir.module_->print(llvm::outs(), nullptr);
+//    if (store_file(ir, input_file_name)) {
+//        std::cout << "successfully store a file\n";
+//    } else {
+//        std::cerr << "unable to store the target file\n";
+//    }
+    ir.module_->print(llvm::outs(), nullptr);
     return 0;
 }

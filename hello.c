@@ -1,8 +1,10 @@
-int main () {
-    int a, b, c, d;
-    a = b = c = d = 1;
-    a = -a;
-    b = -(a + b);
-    c = a - - d;
+int main(){
+    /*
+    The comment block;
+    int a=5;
+    int b[10];
+    int c;
+    int d=a*2;
+    */
     return 0;
 }
