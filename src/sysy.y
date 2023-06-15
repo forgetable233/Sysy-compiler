@@ -755,14 +755,17 @@ Expr
     ast->array_offset2_ = unique_ptr<BaseAST>($6);
     ast->ident_ = *unique_ptr<string>($1);
     $$ = ast;
+  } | SUB Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kNegative;
+    ast->rExp_ = unique_ptr<BaseAST>($2);
+    $$ = ast;
   }
   ;
 
 Number
   : INT_CONST {
     $$ = $1;
-  } | SUB INT_CONST {
-    $$ = -$2;
   }
   ;
 

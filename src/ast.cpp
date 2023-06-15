@@ -618,6 +618,9 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
             }
             return ir.builder_->CreateLoad(value);
         }
+        case kNegative: {
+            return ir.builder_->CreateNeg(rExp_->CodeGen(ir));
+        }
         case kAtomArray: {
             auto offset = &(*array_offset_);
             value = ir.get_value(this->ident_, current_block);
@@ -686,7 +689,8 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
             value = ir.get_value(this->ident_, current_block);
             r_exp = (ExprAST *) (&(*rExp_));
             r_exp_value = r_exp->CodeGen(ir);
-            return ir.builder_->CreateStore(r_exp_value, value, "store");
+            ir.builder_->CreateStore(r_exp_value, value, "store");
+            return r_exp_value;
         case kAssignArray: {
             value = ir.get_value(this->ident_, current_block);
             // check the type of the value
@@ -707,10 +711,12 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                 auto *global_value = llvm::dyn_cast<llvm::GlobalVariable>(value);
                 if (!global_value) {
                     llvm::Value *array_i = BaseAST::GetOffsetPointer(value, offset, ir);
-                    return ir.builder_->CreateStore(r_exp_value, array_i, "store");
+                    ir.builder_->CreateStore(r_exp_value, array_i, "store");
+                    return r_exp_value;
                 } else {
                     llvm::Value *array_i = BaseAST::GetOffsetPointer(global_value, offset, ir);
-                    return ir.builder_->CreateStore(r_exp_value, array_i, "store");
+                    ir.builder_->CreateStore(r_exp_value, array_i, "store");
+                    return r_exp_value;
                 }
             } else {
                 int size;
@@ -737,11 +743,13 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                         array_1 = BaseAST::GetOffsetPointer(value, &*array_offset_, ir);
                     }
                     array_2 = BaseAST::GetOffsetPointer(array_1, &*array_offset2_, ir);
-                    return ir.builder_->CreateStore(r_exp_value, array_2, "store");
+                    ir.builder_->CreateStore(r_exp_value, array_2, "store");
+                    return r_exp_value;
                 } else {
                     array_1 = BaseAST::GetOffsetPointer(value, &*array_offset_, ir);
                     array_2 = BaseAST::GetOffsetPointer(array_1, &*array_offset2_, ir);
-                    return ir.builder_->CreateStore(r_exp_value, array_2, "store");
+                    ir.builder_->CreateStore(r_exp_value, array_2, "store");
+                    return r_exp_value;
                 }
             }
 
