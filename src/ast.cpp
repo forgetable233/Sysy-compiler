@@ -928,25 +928,37 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
         llvm::report_fatal_error("The function has been used in functions or params");
     }
     llvm::IntegerType *return_type = llvm::IntegerType::get(ir.module_->getContext(), 32);
-    llvm::FunctionType *func_type = llvm::FunctionType::get(return_type, param_types, false);
-    llvm::Function *func = llvm::Function::Create(func_type,
-                                                  llvm::GlobalValue::ExternalLinkage,
-                                                  this->ident_,
-                                                  *ir.module_);
+    llvm::FunctionType *func_type;
+    llvm::Function *func;
+    if (type_ == kInt) {
+        func_type = llvm::FunctionType::get(return_type, param_types, false);
+        func = llvm::Function::Create(func_type,
+                                      llvm::GlobalValue::ExternalLinkage,
+                                      this->ident_,
+                                      *ir.module_);
+    } else {
+        func_type = llvm::FunctionType::get(llvm::Type::getVoidTy(ir.module_->getContext()), param_types, false);
+        func = llvm::Function::Create(func_type,
+                                      llvm::GlobalValue::ExternalLinkage,
+                                      this->ident_,
+                                      *ir.module_);
+    }
     int i = 0;
     StmtAST *stmt_ast;
     for (auto arg = func->arg_begin(); arg != func->arg_end(); arg++) {
         stmt_ast = ((StmtAST *) &(*param_lists_[i++]));
         arg->setName(stmt_ast->ident_);
     }
-    llvm::BasicBlock *entry = llvm::BasicBlock::Create(ir.module_->getContext(), "begin", func);
-    auto current_block = new BasicBlock(nullptr, entry);
-    ir.push_global_value(func, this->ident_);
-    ir.SetCurrentBlock(current_block);
+    if (block_) {
+        llvm::BasicBlock *entry = llvm::BasicBlock::Create(ir.module_->getContext(), "begin", func);
+        auto current_block = new BasicBlock(nullptr, entry);
+        ir.push_global_value(func, this->ident_);
+        ir.SetCurrentBlock(current_block);
 
-    this->AddParams(ir);
+        this->AddParams(ir);
 
-    block_->CodeGen(ir);
+        block_->CodeGen(ir);
+    }
     return func;
 }
 

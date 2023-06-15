@@ -52,9 +52,10 @@ using namespace std;
 %token <str_val> L_PAREN R_PAREN L_BRACK R_BRACK L_BRACE R_BRACE
 
 // 非终结符的类型定义
-%type <ast_val> CompUnit FuncDef Type Block Stmt Expr Var
+%type <ast_val> CompUnit FuncDef Block Stmt Expr Var
 %type <int_val> Number
 %type <ast_list> ParamList Params BlockItem Declare VarDef InitVal InitValArray
+%type <str_val> Type
 
 %nonassoc UMINUS
 %right AT
@@ -256,15 +257,49 @@ ParamList
 FuncDef
   : Type IDENT L_PAREN R_PAREN Block {
     auto ast = new FuncDefAST();
-    ast->func_type_ = unique_ptr<BaseAST>($1);
+    auto type = $1;
+    if (*type == "int") {
+    	ast->type_ = kInt;
+    } else {
+    	ast->type_ = kVoid;
+    }
     ast->ident_ = *unique_ptr<string>($2);
     ast->block_ = unique_ptr<BaseAST>($5);
     $$ = ast;
   } | Type IDENT L_PAREN ParamList R_PAREN Block {
     auto ast = new FuncDefAST();
-    ast->func_type_ = unique_ptr<BaseAST>($1);
+    auto type = $1;
+    if (*type == "int") {
+    	ast->type_ = kInt;
+    } else {
+    	ast->type_ = kVoid;
+    }
     ast->ident_ = *unique_ptr<string>($2);
     ast->block_ = unique_ptr<BaseAST>($6);
+    auto list = $4;
+    for (auto &item : *list) {
+    	ast->param_lists_.emplace_back(move(item));
+    }
+    $$ = ast;
+  } | Type IDENT L_PAREN R_PAREN ';' {
+    auto ast = new FuncDefAST();
+    auto type = $1;
+    if (*type == "int") {
+    	ast->type_ = kInt;
+    } else {
+    	ast->type_ = kVoid;
+    }
+    ast->ident_ = *unique_ptr<string>($2);
+    $$ = ast;
+  } | Type IDENT L_PAREN ParamList R_PAREN ';' {
+    auto ast = new FuncDefAST();
+    auto type = $1;
+    if (*type == "int") {
+    	ast->type_ = kInt;
+    } else {
+    	ast->type_ = kVoid;
+    }
+    ast->ident_ = *unique_ptr<string>($2);
     auto list = $4;
     for (auto &item : *list) {
     	ast->param_lists_.emplace_back(move(item));
@@ -276,21 +311,17 @@ FuncDef
 // 同上, 不再解释
 Type
   : INT {
-    auto ast = new FuncTypeAST();
-    ast->type_ = *make_unique<string>("int");
-    $$ = ast;
+    auto type = new string("int");
+    $$ = type;
   } | DOUBLE {
-    auto ast = new FuncTypeAST();
-    ast->type_ = *make_unique<string>("double");
-    $$ = ast;
+    auto type = new string("double");
+    $$ = type;
   } | VOID {
-   auto ast = new FuncTypeAST();
-   ast->type_ = *make_unique<string>("void");
-   $$ = ast;
+   auto type = new string("void");
+   $$ = type;
   } | FLOAT {
-    auto ast = new FuncTypeAST();
-    ast->type_ = *make_unique<string>("float");
-    $$ = ast;
+    auto type = new string("float");
+    $$ = type;
   }
   ;
 
@@ -741,4 +772,5 @@ Number
 // parser 如果发生错误 (例如输入的程序出现了语法错误), 就会调用这个函数
 void yyerror(unique_ptr<BaseAST> &ast, const char *s) {
   cerr << "error: " << s << endl;
+  cerr << "++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }

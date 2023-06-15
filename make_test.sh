@@ -10,7 +10,7 @@ TAR_FOLDER="../tests/success/"
 echo "$FOLDER"
 for file in "$FOLDER"*.sy; do
   if [ -f "$file" ]; then
-#    echo "$file"
+    echo "$file"
     ./minic "${file}"
     return_code=$?
     if [ ${return_code} -eq 255 ]; then

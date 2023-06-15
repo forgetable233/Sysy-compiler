@@ -91,14 +91,9 @@ enum StmtType {
     kBreak
 };
 
-enum ParamType {
-    ATOM,
-    ARRAY
-};
-
-enum UnitTpye {
-//    kFunction,
-    kIdent
+enum FuncType {
+    kInt,
+    kVoid
 };
 
 // 所有AST的基础类
@@ -283,6 +278,8 @@ public:
 class FuncDefAST : public BaseAST {
 public:
 //    UnitTpye type_;
+
+    FuncType type_;
 
     std::string ident_;
 
