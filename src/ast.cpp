@@ -371,7 +371,11 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
             break;
         }
         case kReturn: {
-            return ir.builder_->CreateRet(exp_->CodeGen(ir));
+            if (!exp_) {
+                return ir.builder_->CreateRetVoid();
+            } else {
+                return ir.builder_->CreateRet(exp_->CodeGen(ir));
+            }
         }
         case kIf: {
             // get condition code
@@ -1069,8 +1073,8 @@ bool ExprAST::get_params(BasicBlock *entry_block,
     auto arg = func->arg_begin();
     for (auto &item: param_lists_) {
         auto value = item->CodeGen(ir);
-        value->getType()->print(llvm::outs(), true);
-        llvm::outs() << '\n';
+//        value->getType()->print(llvm::outs(), true);
+//        llvm::outs() << '\n';
 //        if ((arg->getType()->isPointerTy() && !value->getType()->isPointerTy()) ||
 //            (arg->getType()->isIntegerTy() && !value->getType()->isIntegerTy()) ||
 //            (arg->getType()->isPointerTy() && !value->getType()->isArrayTy())) {

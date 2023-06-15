@@ -459,9 +459,23 @@ InitValArray
     }
     $$ = array;
   } | L_BRACE Params R_BRACE ',' InitValArray {
-
+    auto array = new vector<unique_ptr<BaseAST>>();
+    auto temp_param = $2;
+    auto temp_list = $5;
+    for (auto &item : *temp_param) {
+    	array->emplace_back(std::move(item));
+    }
+    for (auto &item : *temp_list) {
+    	array->emplace_back(std::move(item));
+    }
+    $$ = array;
   } | L_BRACE Params R_BRACE {
-
+    auto array = new vector<unique_ptr<BaseAST>>();
+    auto temp_param = $2;
+    for (auto &item : *temp_param) {
+    	array->emplace_back(std::move(item));
+    }
+    $$ = array;
   }
   ;
 
@@ -484,6 +498,11 @@ Stmt
     auto ast = new StmtAST();
     ast->type_ = kReturn;
     ast->exp_ = unique_ptr<BaseAST>($2);
+    $$ = ast;
+  } | RETURN ';' {
+    auto ast = new StmtAST();
+    ast->type_ = kReturn;
+    ast->exp_ = nullptr;
     $$ = ast;
   } | Expr ';' {
     auto ast = new StmtAST();
