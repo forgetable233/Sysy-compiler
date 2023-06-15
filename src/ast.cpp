@@ -769,14 +769,40 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
         case kParen: {
             return lExp_->CodeGen(ir);
         }
-        default:
+        default: {
+            bool is_pointer = false;
+            bool is_pointer_2 = false;
             l_exp_value = lExp_->CodeGen(ir);
+            auto &instruction = current_block->current_->getInstList().back();
+            if (instruction.getOpcode() == llvm::Instruction::GetElementPtr) {
+                is_pointer = true;
+            }
             r_exp_value = rExp_->CodeGen(ir);
+            auto &instruction2 = current_block->current_->getInstList().back();
+            if (instruction2.getOpcode() == llvm::Instruction::GetElementPtr) {
+                is_pointer_2 = true;
+            }
             switch (type_) {
                 case kAdd: {
+                    if (is_pointer) {
+                        return BaseAST::GetOffsetPointer(l_exp_value, &*rExp_, ir);
+                    }
+                    if (is_pointer_2) {
+                        return BaseAST::GetOffsetPointer(r_exp_value, &*lExp_, ir);
+                    }
                     return ir.builder_->CreateFAdd(l_exp_value, r_exp_value, "add");
                 }
                 case kSub: {
+                    if (is_pointer) {
+                        r_exp = (ExprAST *) &*rExp_;
+                        if (r_exp->type_ == kAtomNum) {
+                            r_exp->num_ = -r_exp->num_;
+                        }
+                        return BaseAST::GetOffsetPointer(l_exp_value, &*rExp_, ir);
+                    }
+                    if (is_pointer_2) {
+                        llvm::report_fatal_error("pointer error");
+                    }
                     return ir.builder_->CreateFSub(l_exp_value, r_exp_value, "sub");
                 }
                 case kMul:
@@ -831,6 +857,8 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                     return ir.builder_->CreateStore(op_result, l_exp_value, "store");
                 }
             }
+        }
+
     }
     return nullptr;
 }
@@ -1134,11 +1162,7 @@ llvm::Value *BaseAST::GetOffsetPointer(llvm::Value *tar_pointer, BaseAST *offset
 llvm::Value *BaseAST::GetOffset(BaseAST *offset, IR &ir) {
     auto exp = (ExprAST *) &(*offset);
     if (exp->type_ == kAtomNum) {
-        if (exp->num_ < 0) {
-            llvm::report_fatal_error("the index must be positive");
-        } else {
-            return BaseAST::GetOffset(exp->num_, ir);
-        }
+        return BaseAST::GetOffset(exp->num_, ir);
     }
     return offset->CodeGen(ir);
 }

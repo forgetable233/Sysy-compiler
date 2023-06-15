@@ -35,19 +35,13 @@ define dso_local i32 @test([10 x i32]* %0, i32* %1) #0 {
   %7 = alloca i32, align 4
   store [10 x i32]* %0, [10 x i32]** %3, align 8
   store i32* %1, i32** %4, align 8
-  %8 = call i32 @test2(i32* getelementptr inbounds ([10 x [10 x i32]], [10 x [10 x i32]]* @a, i64 0, i64 0, i64 1))
-  store i32 %8, i32* %7, align 4
-  %9 = getelementptr inbounds [10 x [10 x i32]], [10 x [10 x i32]]* %5, i64 0, i64 0
+  %8 = load [10 x i32]*, [10 x i32]** %3, align 8
+  %9 = getelementptr inbounds [10 x i32], [10 x i32]* %8, i64 0
   %10 = getelementptr inbounds [10 x i32], [10 x i32]* %9, i64 0, i64 0
   %11 = getelementptr inbounds i32, i32* %10, i64 1
-  %12 = call i32 @test2(i32* %11)
-  store i32 %12, i32* %7, align 4
-  %13 = load [10 x i32]*, [10 x i32]** %3, align 8
-  %14 = getelementptr inbounds [10 x i32], [10 x i32]* %13, i64 0
-  %15 = getelementptr inbounds [10 x i32], [10 x i32]* %14, i64 0, i64 0
-  %16 = getelementptr inbounds i32, i32* %15, i64 1
-  %17 = call i32 @test2(i32* %16)
-  store i32 %17, i32* %7, align 4
+  %12 = getelementptr inbounds i32, i32* %11, i64 -1
+  %13 = call i32 @test2(i32* %12)
+  store i32 %13, i32* %7, align 4
   ret i32 0
 }
 
