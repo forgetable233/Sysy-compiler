@@ -16,7 +16,8 @@ IR::IR(std::string &name) {
 }
 
 IR::~IR() {
-    delete builder_;
+    module_.reset(nullptr);
+//    delete builder_;
 }
 
 void IR::push_value(llvm::Value *value, const std::string &block_name, const std::string &value_name) {

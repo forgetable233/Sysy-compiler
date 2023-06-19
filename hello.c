@@ -1,10 +1,9 @@
+int a,b;
+
 int main(){
-    /*
-    The comment block;
-    int a=5;
-    int b[10];
-    int c;
-    int d=a*2;
-    */
+    a=10;
+    if (a) {
+        int n;
+    }
     return 0;
 }

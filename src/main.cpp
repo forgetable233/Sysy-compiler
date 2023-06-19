@@ -28,19 +28,21 @@ extern FILE *yyin;
 extern int yyparse(unique_ptr<BaseAST> &ast);
 
 bool store_file(IR &ir, std::string &file_name) {
+    std::string ll_file_path = "../outs/ll/";
     std::string file(file_name, 0, file_name.length() - 2);
     file += "ll";
+    ll_file_path += file;
     std::error_code EC;
-    llvm::raw_fd_ostream output(llvm::StringRef(file), EC);
+    llvm::raw_fd_ostream output(llvm::StringRef(ll_file_path), EC);
 
     if (EC) {
         llvm::errs() << "unable to open the tar file: " << EC.message() << '\n';
-        return false;
+        exit(-1);
     }
     ir.module_->print(output, nullptr);
     output.flush();
     output.close();
-    return true;
+    exit(0);
 }
 
 void InitSylib(IR &ir) {
@@ -75,15 +77,6 @@ int main(int argc, const char *argv[]) {
         return -1;
     }
     ast->BuildAstTree();
-    std::cout << "Finish AST Tree build\n";
     ast->CodeGen(ir);
-    std::cout << std::endl << "finish CodeGen" << std::endl;
-
-//    if (store_file(ir, input_file_name)) {
-//        std::cout << "successfully store a file\n";
-//    } else {
-//        std::cerr << "unable to store the target file\n";
-//    }
-    ir.module_->print(llvm::outs(), nullptr);
-    return 0;
+    store_file(ir, input_file_name);
 }

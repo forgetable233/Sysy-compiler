@@ -411,7 +411,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 ir.builder_->CreateBr(merge_block);
             } else {
                 // 不存在false block的情况
-                ir.builder_->CreateCondBr(value, true_block, nullptr);
+                ir.builder_->CreateCondBr(value, true_block, merge_block);
 
                 // true block
                 ir.SetCurrentBlock(_true);
@@ -764,7 +764,7 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                 llvm::report_fatal_error("param error\n");
             }
             llvm::ArrayRef<llvm::Value *> params(temp_args);
-            return ir.builder_->CreateCall(func, params, "call");
+            return ir.builder_->CreateCall(func, params);
         }
         case kNot: {
             r_exp = (ExprAST *) (&(*rExp_));
@@ -802,7 +802,7 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                     if (is_pointer_2) {
                         return BaseAST::GetOffsetPointer(r_exp_value, &*lExp_, ir);
                     }
-                    return ir.builder_->CreateFAdd(l_exp_value, r_exp_value, "add");
+                    return ir.builder_->CreateAdd(l_exp_value, r_exp_value, "add");
                 }
                 case kSub: {
                     if (is_pointer) {
@@ -815,12 +815,12 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                     if (is_pointer_2) {
                         llvm::report_fatal_error("pointer error");
                     }
-                    return ir.builder_->CreateFSub(l_exp_value, r_exp_value, "sub");
+                    return ir.builder_->CreateSub(l_exp_value, r_exp_value, "sub");
                 }
                 case kMul:
                     return ir.builder_->CreateMul(l_exp_value, r_exp_value, "mul");
                 case kDiv:
-                    return ir.builder_->CreateFDiv(l_exp_value, r_exp_value, "div");
+                    return ir.builder_->CreateSDiv(l_exp_value, r_exp_value, "div");
                 case kEqual:
                     return ir.builder_->CreateICmpEQ(l_exp_value, r_exp_value, "equal");
                 case kNotEqual:
