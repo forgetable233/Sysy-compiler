@@ -399,7 +399,8 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 // true block
                 ir.SetCurrentBlock(_true);
                 true_block_->CodeGen(ir);
-                auto &last_ins = _true->current_->back();
+                auto now_block_true = ir.GetCurrentBlock();
+                auto &last_ins = now_block_true->current_->back();
                 if (!last_ins.isTerminator() && !llvm::ReturnInst::classof(&last_ins)) {
                     ir.builder_->CreateBr(merge_block);
                 }
@@ -407,7 +408,8 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 // false block
                 ir.SetCurrentBlock(_false);
                 false_block_->CodeGen(ir);
-                auto &false_last_ins = _false->current_->back();
+                auto now_block_false = ir.GetCurrentBlock();
+                auto &false_last_ins = now_block_false->current_->back();
                 if (!false_last_ins.isTerminator() && !llvm::ReturnInst::classof(&false_last_ins)) {
                     ir.builder_->CreateBr(merge_block);
                 }
@@ -426,8 +428,6 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
             // 更改当前控制流
             ir.SetCurrentBlock(_merge);
             break;
-            // 下面需要进行控制流的转换，需要在IR中进行更改，需要进行大改
-            // TODO 完成控制流的更改
         }
         case kWhile: {
             /** 首先生成对应的loop_header **/
@@ -452,14 +452,14 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
 
             // loop_header
             ir.SetCurrentBlock(header);
-            ir.builder_->CreateBr(current_block->current_);
             value = exp_->CodeGen(ir);
             ir.builder_->CreateCondBr(value, loop_body, loop_exit);
 
             // loop_body
             ir.SetCurrentBlock(body);
             block_->CodeGen(ir);
-            auto &body_last = body->current_->back();
+            auto now_block = ir.GetCurrentBlock();
+            auto &body_last = now_block->current_->back();
             if (!body_last.isTerminator() && !llvm::ReturnInst::classof(&body_last)) {
                 ir.builder_->CreateBr(loop_header);
             }
@@ -971,6 +971,9 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
         auto current_block = new BasicBlock(nullptr, entry);
         ir.push_global_value(func, this->ident_);
         ir.SetCurrentBlock(current_block);
+        auto value = ir.builder_->CreateAlloca(llvm::IntegerType::getInt32Ty(ir.module_->getContext()));
+        auto zero = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()), 0);
+        ir.builder_->CreateStore(zero, value);
 
         this->AddParams(ir, name_list);
 

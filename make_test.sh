@@ -21,7 +21,7 @@ for file in "$FOLDER"*.sy; do
 #        mv "${file}" "${TAR_FOLDER}"
         file_name_sy=${file:9}
         file_name=${file_name_sy:0:${#file_names_sy}-2}
-        llc -filetype=asm "${LL_FOLDER}${file_name}ll" -o "${ASM_FOLDER}${file_name}s"
+        llvm-as "${LL_FOLDER}${file_name}ll" -o "${ASM_FOLDER}${file_name}bc"
     fi
   fi
 done
