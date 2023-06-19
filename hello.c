@@ -1,9 +1,12 @@
-int a;
 
 int main(){
-    a = 10;
-    if( a>0 ){
-        return 1;
+    int a = 10;
+    while (a) {
+        a = a - 1;
+        if( a>0 ){
+            int a = 0;
+        } else {
+            int b = 0;
+        }
     }
-    return 0;
 }

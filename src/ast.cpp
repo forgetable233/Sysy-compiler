@@ -376,15 +376,16 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
         case kIf: {
             // get condition code
             value = exp_->CodeGen(ir);
+            if (value->getType()->isIntegerTy() && value->getType()->getIntegerBitWidth() == 32) {
+                llvm::Value *zero = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()), 0);
+                value = ir.builder_->CreateICmpSGT(value, zero);
+                value = ir.builder_->CreateZExtOrTrunc(value, llvm::Type::getInt1Ty(ir.module_->getContext()));
+            }
             // get true block
             auto true_block = llvm::BasicBlock::Create(ir.module_->getContext(),
                                                        "",
                                                        current_block->current_->getParent());
-            auto merge_block = llvm::BasicBlock::Create(ir.module_->getContext(),
-                                                        "",
-                                                        current_block->current_->getParent());
 
-            auto _merge = new BasicBlock(current_block, merge_block);
             auto _true = new BasicBlock(current_block, true_block);
 
             if (false_block_) {
@@ -392,6 +393,15 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 auto false_block = llvm::BasicBlock::Create(ir.module_->getContext(),
                                                             "",
                                                             current_block->current_->getParent());
+                llvm::BasicBlock *merge_block;
+                BasicBlock *_merge;
+                if (!isEnd) {
+                    merge_block = llvm::BasicBlock::Create(ir.module_->getContext(),
+                                                           "",
+                                                           current_block->current_->getParent());
+
+                    _merge = new BasicBlock(current_block, merge_block);
+                }
                 auto _false = new BasicBlock(current_block, false_block);
                 llvm::BranchInst::Create(true_block, false_block, value, current_block->current_);
 
@@ -401,7 +411,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 true_block_->CodeGen(ir);
                 auto now_block_true = ir.GetCurrentBlock();
                 auto &last_ins = now_block_true->current_->back();
-                if (!last_ins.isTerminator() && !llvm::ReturnInst::classof(&last_ins)) {
+                if (!last_ins.isTerminator() && !llvm::ReturnInst::classof(&last_ins) && !isEnd) {
                     ir.builder_->CreateBr(merge_block);
                 }
 
@@ -410,39 +420,59 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 false_block_->CodeGen(ir);
                 auto now_block_false = ir.GetCurrentBlock();
                 auto &false_last_ins = now_block_false->current_->back();
-                if (!false_last_ins.isTerminator() && !llvm::ReturnInst::classof(&false_last_ins)) {
+                if (!false_last_ins.isTerminator() && !llvm::ReturnInst::classof(&false_last_ins) && !isEnd) {
                     ir.builder_->CreateBr(merge_block);
                 }
+                ir.SetCurrentBlock(_merge);
+                break;
             } else {
                 // 不存在false block的情况
+                llvm::BasicBlock *merge_block;
+                BasicBlock *_merge;
+                if (!isEnd) {
+                    merge_block = llvm::BasicBlock::Create(ir.module_->getContext(),
+                                                           "",
+                                                           current_block->current_->getParent());
+
+                    _merge = new BasicBlock(current_block, merge_block);
+                }
                 ir.builder_->CreateCondBr(value, true_block, merge_block);
 
                 // true block
                 ir.SetCurrentBlock(_true);
                 true_block_->CodeGen(ir);
                 auto &last_ins = _true->current_->back();
-                if (!last_ins.isTerminator() && !llvm::ReturnInst::classof(&last_ins)) {
+                if (!last_ins.isTerminator() && !llvm::ReturnInst::classof(&last_ins) && !isEnd) {
                     ir.builder_->CreateBr(merge_block);
                 }
+                ir.SetCurrentBlock(_merge);
+                break;
             }
             // 更改当前控制流
-            ir.SetCurrentBlock(_merge);
-            break;
         }
         case kWhile: {
             /** 首先生成对应的loop_header **/
             auto loop_header = llvm::BasicBlock::Create(ir.module_->getContext(), "",
                                                         current_block->current_->getParent());
-            auto loop_exit = llvm::BasicBlock::Create(ir.module_->getContext(), "",
-                                                      current_block->current_->getParent());
+            llvm::BasicBlock *loop_exit = nullptr;
+            BasicBlock *exit;
             auto loop_body = llvm::BasicBlock::Create(ir.module_->getContext(), "",
                                                       current_block->current_->getParent());
 
+            if (!isEnd) {
+                loop_exit = llvm::BasicBlock::Create(ir.module_->getContext(), "",
+                                                     current_block->current_->getParent());
+                exit = new BasicBlock(current_block, loop_exit);
+            }
+
             auto header = new BasicBlock(current_block, loop_header);
             auto body = new BasicBlock(current_block, loop_body);
-            auto exit = new BasicBlock(current_block, loop_exit);
             ir.continue_block_ = header;
-            ir.break_block_ = exit;
+            if (!isEnd) {
+                ir.break_block_ = exit;
+            } else {
+                ir.break_block_ = current_block;
+            }
 
             BasicBlock *temp_continue = ir.continue_block_;
             BasicBlock *temp_break = ir.break_block_;
@@ -453,7 +483,16 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
             // loop_header
             ir.SetCurrentBlock(header);
             value = exp_->CodeGen(ir);
-            ir.builder_->CreateCondBr(value, loop_body, loop_exit);
+            if (value->getType()->isIntegerTy() && value->getType()->getIntegerBitWidth() == 32) {
+                llvm::Value *zero = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()), 0);
+                value = ir.builder_->CreateICmpSGT(value, zero);
+                value = ir.builder_->CreateZExtOrTrunc(value, llvm::Type::getInt1Ty(ir.module_->getContext()));
+            }
+            if (!isEnd) {
+                ir.builder_->CreateCondBr(value, loop_body, loop_exit);
+            } else {
+                ir.builder_->CreateCondBr(value, loop_body, current_block->current_);
+            }
 
             // loop_body
             ir.SetCurrentBlock(body);
@@ -1042,9 +1081,10 @@ llvm::Value *BlockAST::CodeGen(IR &ir) {
 //    llvm::outs() << '\n';
     auto args = current_block->current_->getParent()->arg_begin();
     for (auto &item: this->stmt_) {
-        auto &last_ins = current_block->current_->back();
-//        auto name = llvm::Instruction::getOpcodeName(last_ins.getOpcode());
-//        llvm::outs() << name << '\n';
+        if (item == stmt_.back()) {
+            auto stmt = (StmtAST *) &(*item);
+            stmt->isEnd = true;
+        }
         item->CodeGen(ir);
     }
     return nullptr;

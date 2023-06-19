@@ -193,6 +193,8 @@ public:
 
     int array_size2_ = 0;
 
+    bool isEnd = false;
+
     StmtAST() = default;
 
     ~StmtAST() override;

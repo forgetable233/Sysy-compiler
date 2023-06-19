@@ -61,16 +61,16 @@ int main(int argc, const char *argv[]) {
     std::string ir_name = "top";
     IR ir(ir_name);
     InitSylib(ir);
-//    auto input = "../src/preDeclareFunc.c";
-    auto input = argv[1];
+    auto input = "../tests/10_if_else.sy";
+//    auto input = argv[1];
     std::string test_hello = "../hello.c";
     std::string file_path = input;
 //    std::string file_path = "../hello.c";
     std::string input_file_name(file_path, 9, file_path.length());
 
     // 打开文件
-    yyin = fopen(file_path.c_str(), "r");
-//    yyin = fopen(test_hello.c_str(), "r");
+//    yyin = fopen(file_path.c_str(), "r");
+    yyin = fopen(test_hello.c_str(), "r");
     assert(yyin);
 
     unique_ptr<BaseAST> ast;
@@ -80,5 +80,6 @@ int main(int argc, const char *argv[]) {
     }
     ast->BuildAstTree();
     ast->CodeGen(ir);
-    store_file(ir, input_file_name);
+    ir.module_->print(llvm::outs(), nullptr);
+//    store_file(ir, input_file_name);
 }
