@@ -42,6 +42,7 @@ bool store_file(IR &ir, std::string &file_name) {
     ir.module_->print(output, nullptr);
     output.flush();
     output.close();
+//    ir.module_->print(llvm::outs(), nullptr);
     exit(0);
 }
 
@@ -63,7 +64,8 @@ int main(int argc, const char *argv[]) {
 //    auto input = "../src/preDeclareFunc.c";
     auto input = argv[1];
     std::string test_hello = "../hello.c";
-    std::string file_path = input;
+//    std::string file_path = input;
+    std::string file_path = "../hello.c";
     std::string input_file_name(file_path, 9, file_path.length());
 
     // 打开文件

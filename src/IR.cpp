@@ -20,14 +20,14 @@ IR::~IR() {
 //    delete builder_;
 }
 
-void IR::push_value(llvm::Value *value, const std::string &block_name, const std::string &value_name) {
+void IR::push_value(llvm::Value *value, const std::string &block_name, const std::string &ident) {
     auto tar_block = name_values_.find(block_name);
     if (tar_block == name_values_.end()) {
         std::map<std::string, llvm::Value *> tar_value;
-        tar_value.insert(std::pair<std::string, llvm::Value *>(value_name, value));
+        tar_value.insert(std::pair<std::string, llvm::Value *>(ident, value));
         name_values_.insert(std::pair<std::string, std::map<std::string, llvm::Value *>>(block_name, tar_value));
     } else {
-        tar_block->second.insert(std::pair<std::string, llvm::Value *>(value_name, value));
+        tar_block->second.insert(std::pair<std::string, llvm::Value *>(ident, value));
     }
 }
 
@@ -105,5 +105,23 @@ BasicBlock *IR::GetCurrentBlock() {
 void IR::SetCurrentBlock(BasicBlock *current_block) {
     current_block_ = current_block;
     builder_->SetInsertPoint(current_block->current_);
+}
+
+void IR::DeleteUnusedIns() {
+    bool haveEnd = false;
+    for (llvm::Function &function: module_->getFunctionList()) {
+        for (llvm::BasicBlock &basicBlock: function.getBasicBlockList()) {
+            haveEnd = false;
+            for (llvm::Instruction &instruction: basicBlock.getInstList()) {
+                if (haveEnd) {
+                    basicBlock.getInstList().erase(instruction);
+                }
+                if (instruction.getOpcode() == llvm::Instruction::Ret ||
+                    instruction.getOpcode() == llvm::Instruction::Br) {
+                    haveEnd = true;
+                }
+            }
+        }
+    }
 }
 

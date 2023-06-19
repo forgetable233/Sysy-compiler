@@ -59,6 +59,8 @@ public:
 
     std::map<std::string, std::map<std::string, llvm::Value *>> name_values_;
 
+    std::map<std::string, std::map<std::string, std::string>> name_ident_;
+
     std::map<std::string, llvm::Value *> global_values_;
 
     std::vector<BasicBlock> blocks_;
@@ -67,7 +69,7 @@ public:
 
     explicit IR(std::string &name);
 
-    void push_value(llvm::Value *value, const std::string &block_name, const std::string &value_name);
+    void push_value(llvm::Value *value, const std::string &block_name, const std::string &ident);
 
     void push_global_value(llvm::Value *value, const std::string &value_name);
 
@@ -81,6 +83,8 @@ public:
     ~IR();
 
     void SetCurrentBlock(BasicBlock *current_block);
+
+    void DeleteUnusedIns();
 
     BasicBlock * GetCurrentBlock();
 };

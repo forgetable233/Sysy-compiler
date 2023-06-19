@@ -300,7 +300,7 @@ public:
 
     llvm::Value *ErrorValue(const char *str) override;
 
-    void AddParams(IR &ir);
+    void AddParams(IR &ir, std::vector<std::string> &name_list);
 
     void BuildAstTree() override;
 };

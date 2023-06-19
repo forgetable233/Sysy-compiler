@@ -179,7 +179,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
             } else {
                 block_name = current_block->current_->getParent()->getName().str();
                 block_name += current_block->current_->getName().str();
-                value = ir.builder_->CreateAlloca(int_type, nullptr, this->ident_);
+                value = ir.builder_->CreateAlloca(int_type);
                 ir.push_value(value,
                               block_name,
                               this->ident_);
@@ -199,8 +199,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 break;
             } else {
                 ir.get_value(this->ident_, current_block);
-                value = ir.builder_->Insert(ir.builder_->CreateAlloca(int_type, nullptr, this->ident_));
-                value->setName(this->ident_);
+                value = ir.builder_->CreateAlloca(int_type);
                 auto &assign = assign_list_.back();
                 ir.builder_->CreateStore(assign->CodeGen(ir), value);
                 block_name = current_block->current_->getParent()->getName().str();
@@ -258,12 +257,10 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                     value = ir.builder_->CreateAlloca(
                             llvm::ArrayType::get(llvm::ArrayType::get(int_type, this->array_size2_),
                                                  this->array_size_),
-                            nullptr,
-                            this->ident_);
+                            nullptr);
                 } else {
                     value = ir.builder_->CreateAlloca(llvm::ArrayType::get(int_type, this->array_size_),
-                                                      nullptr,
-                                                      this->ident_);
+                                                      nullptr);
                 }
                 block_name = current_block->current_->getParent()->getName().str();
                 block_name += current_block->current_->getName().str();
@@ -333,8 +330,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                     int begin = (int) assign_list_.size() - size * array_size2_;
                     value = ir.builder_->CreateAlloca(
                             llvm::ArrayType::get(llvm::ArrayType::get(int_type, size), array_size2_),
-                            nullptr,
-                            ident_);
+                            nullptr);
                     for (int i = 0; i < size; ++i) {
                         auto pointer_1 = BaseAST::GetOffsetPointer(value, i, ir);
                         for (int j = 0; j < array_size2_; ++j) {
@@ -353,7 +349,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                     }
                     ResetAssignSize(size);
                     int begin = (int) assign_list_.size() - size;
-                    value = ir.builder_->CreateAlloca(llvm::ArrayType::get(int_type, size), nullptr, ident_);
+                    value = ir.builder_->CreateAlloca(llvm::ArrayType::get(int_type, size), nullptr);
                     for (int i = 0; i < size; ++i) {
                         auto pointer = BaseAST::GetOffsetPointer(value, i, ir);
                         auto assign_value = assign_list_[begin++]->CodeGen(ir);
@@ -362,7 +358,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 }
                 block_name = current_block->current_->getParent()->getName().str();
                 block_name += current_block->current_->getName().str();
-                ir.push_value(value, block_name, ident_);
+                ir.push_value(value, block_name, value->getName().str());
             }
             break;
         }
@@ -382,10 +378,10 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
             value = exp_->CodeGen(ir);
             // get true block
             auto true_block = llvm::BasicBlock::Create(ir.module_->getContext(),
-                                                       "true_block",
+                                                       "",
                                                        current_block->current_->getParent());
             auto merge_block = llvm::BasicBlock::Create(ir.module_->getContext(),
-                                                        "merge_block",
+                                                        "",
                                                         current_block->current_->getParent());
 
             auto _merge = new BasicBlock(current_block, merge_block);
@@ -394,7 +390,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
             if (false_block_) {
                 // 存在false block的情况
                 auto false_block = llvm::BasicBlock::Create(ir.module_->getContext(),
-                                                            "false_block",
+                                                            "",
                                                             current_block->current_->getParent());
                 auto _false = new BasicBlock(current_block, false_block);
                 llvm::BranchInst::Create(true_block, false_block, value, current_block->current_);
@@ -403,12 +399,18 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 // true block
                 ir.SetCurrentBlock(_true);
                 true_block_->CodeGen(ir);
-                ir.builder_->CreateBr(merge_block);
+                auto &last_ins = _true->current_->back();
+                if (!last_ins.isTerminator() && !llvm::ReturnInst::classof(&last_ins)) {
+                    ir.builder_->CreateBr(merge_block);
+                }
 
                 // false block
                 ir.SetCurrentBlock(_false);
                 false_block_->CodeGen(ir);
-                ir.builder_->CreateBr(merge_block);
+                auto &false_last_ins = _false->current_->back();
+                if (!false_last_ins.isTerminator() && !llvm::ReturnInst::classof(&false_last_ins)) {
+                    ir.builder_->CreateBr(merge_block);
+                }
             } else {
                 // 不存在false block的情况
                 ir.builder_->CreateCondBr(value, true_block, merge_block);
@@ -416,7 +418,10 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 // true block
                 ir.SetCurrentBlock(_true);
                 true_block_->CodeGen(ir);
-                ir.builder_->CreateBr(merge_block);
+                auto &last_ins = _true->current_->back();
+                if (!last_ins.isTerminator() && !llvm::ReturnInst::classof(&last_ins)) {
+                    ir.builder_->CreateBr(merge_block);
+                }
             }
             // 更改当前控制流
             ir.SetCurrentBlock(_merge);
@@ -426,11 +431,11 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
         }
         case kWhile: {
             /** 首先生成对应的loop_header **/
-            auto loop_header = llvm::BasicBlock::Create(ir.module_->getContext(), "loop_header",
+            auto loop_header = llvm::BasicBlock::Create(ir.module_->getContext(), "",
                                                         current_block->current_->getParent());
-            auto loop_exit = llvm::BasicBlock::Create(ir.module_->getContext(), "loop_exit",
+            auto loop_exit = llvm::BasicBlock::Create(ir.module_->getContext(), "",
                                                       current_block->current_->getParent());
-            auto loop_body = llvm::BasicBlock::Create(ir.module_->getContext(), "loop_body",
+            auto loop_body = llvm::BasicBlock::Create(ir.module_->getContext(), "",
                                                       current_block->current_->getParent());
 
             auto header = new BasicBlock(current_block, loop_header);
@@ -454,7 +459,10 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
             // loop_body
             ir.SetCurrentBlock(body);
             block_->CodeGen(ir);
-            ir.builder_->CreateBr(loop_header);
+            auto &body_last = body->current_->back();
+            if (!body_last.isTerminator() && !llvm::ReturnInst::classof(&body_last)) {
+                ir.builder_->CreateBr(loop_header);
+            }
 
             // loop_exit
             ir.SetCurrentBlock(exit);
@@ -802,7 +810,7 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                     if (is_pointer_2) {
                         return BaseAST::GetOffsetPointer(r_exp_value, &*lExp_, ir);
                     }
-                    return ir.builder_->CreateAdd(l_exp_value, r_exp_value, "add");
+                    return ir.builder_->CreateAdd(l_exp_value, r_exp_value);
                 }
                 case kSub: {
                     if (is_pointer) {
@@ -815,48 +823,48 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                     if (is_pointer_2) {
                         llvm::report_fatal_error("pointer error");
                     }
-                    return ir.builder_->CreateSub(l_exp_value, r_exp_value, "sub");
+                    return ir.builder_->CreateSub(l_exp_value, r_exp_value);
                 }
                 case kMul:
-                    return ir.builder_->CreateMul(l_exp_value, r_exp_value, "mul");
+                    return ir.builder_->CreateMul(l_exp_value, r_exp_value);
                 case kDiv:
-                    return ir.builder_->CreateSDiv(l_exp_value, r_exp_value, "div");
+                    return ir.builder_->CreateSDiv(l_exp_value, r_exp_value);
                 case kEqual:
-                    return ir.builder_->CreateICmpEQ(l_exp_value, r_exp_value, "equal");
+                    return ir.builder_->CreateICmpEQ(l_exp_value, r_exp_value);
                 case kNotEqual:
-                    return ir.builder_->CreateICmpNE(l_exp_value, r_exp_value, "not_equal");
+                    return ir.builder_->CreateICmpNE(l_exp_value, r_exp_value);
                 case kAnd:
-                    return ir.builder_->CreateAnd(l_exp_value, r_exp_value, "and");
+                    return ir.builder_->CreateAnd(l_exp_value, r_exp_value);
                 case kMod:
-                    return ir.builder_->CreateURem(l_exp_value, r_exp_value, "mod");
+                    return ir.builder_->CreateURem(l_exp_value, r_exp_value);
                 case kOr:
-                    return ir.builder_->CreateOr(l_exp_value, r_exp_value, "or");
+                    return ir.builder_->CreateOr(l_exp_value, r_exp_value);
                 case kLarger:
-                    return ir.builder_->CreateICmpSGT(l_exp_value, r_exp_value, "greater");
+                    return ir.builder_->CreateICmpSGT(l_exp_value, r_exp_value);
                 case kLargerEqual:
-                    return ir.builder_->CreateICmpSGE(l_exp_value, r_exp_value, "greater_equal");
+                    return ir.builder_->CreateICmpSGE(l_exp_value, r_exp_value);
                 case kLess:
-                    return ir.builder_->CreateICmpSLT(l_exp_value, r_exp_value, "less");
+                    return ir.builder_->CreateICmpSLT(l_exp_value, r_exp_value);
                 case kLessEqual:
-                    return ir.builder_->CreateICmpSLE(l_exp_value, r_exp_value, "less_equal");
+                    return ir.builder_->CreateICmpSLE(l_exp_value, r_exp_value);
                 default: {
                     llvm::Value *op_result = nullptr;
                     switch (type_) {
                         case kAddAssign: {
                             op_result = ir.builder_->CreateAdd(l_exp_value, r_exp_value);
-                            return ir.builder_->CreateStore(op_result, l_exp_value, "store");
+                            return ir.builder_->CreateStore(op_result, l_exp_value);
                         }
                         case kSubAssign: {
                             op_result = ir.builder_->CreateSub(l_exp_value, r_exp_value);
-                            return ir.builder_->CreateStore(op_result, l_exp_value, "store");
+                            return ir.builder_->CreateStore(op_result, l_exp_value);
                         }
                         case kMulAssign: {
                             op_result = ir.builder_->CreateMul(l_exp_value, r_exp_value);
-                            return ir.builder_->CreateStore(op_result, l_exp_value, "store");
+                            return ir.builder_->CreateStore(op_result, l_exp_value);
                         }
                         case kDivAssign: {
                             op_result = ir.builder_->CreateUDiv(l_exp_value, r_exp_value);
-                            return ir.builder_->CreateStore(op_result, l_exp_value, "store");
+                            return ir.builder_->CreateStore(op_result, l_exp_value);
                         }
                         default:
                             llvm::report_fatal_error("undefined type");
@@ -938,6 +946,7 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
     llvm::IntegerType *return_type = llvm::IntegerType::get(ir.module_->getContext(), 32);
     llvm::FunctionType *func_type;
     llvm::Function *func;
+    std::vector<std::string> name_list;
     if (type_ == kInt) {
         func_type = llvm::FunctionType::get(return_type, param_types, false);
         func = llvm::Function::Create(func_type,
@@ -955,22 +964,22 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
     StmtAST *stmt_ast;
     for (auto arg = func->arg_begin(); arg != func->arg_end(); arg++) {
         stmt_ast = ((StmtAST *) &(*param_lists_[i++]));
-        arg->setName(stmt_ast->ident_);
+        name_list.emplace_back(stmt_ast->ident_);
     }
     if (block_) {
-        llvm::BasicBlock *entry = llvm::BasicBlock::Create(ir.module_->getContext(), "begin", func);
+        llvm::BasicBlock *entry = llvm::BasicBlock::Create(ir.module_->getContext(), "", func);
         auto current_block = new BasicBlock(nullptr, entry);
         ir.push_global_value(func, this->ident_);
         ir.SetCurrentBlock(current_block);
 
-        this->AddParams(ir);
+        this->AddParams(ir, name_list);
 
         block_->CodeGen(ir);
     }
     return func;
 }
 
-void FuncDefAST::AddParams(IR &ir) {
+void FuncDefAST::AddParams(IR &ir, std::vector<std::string> &name_list) {
     auto current_block = ir.GetCurrentBlock();
     int i = 0;
     std::string block_name = current_block->current_->getParent()->getName().str();
@@ -979,25 +988,25 @@ void FuncDefAST::AddParams(IR &ir) {
         if (item.getType()->isIntegerTy()) {
             llvm::IntegerType *integerType = llvm::IntegerType::get(ir.module_->getContext(), 32);
             auto value = ir.builder_->CreateAlloca(integerType);
-            ir.push_value(value, block_name, std::to_string(i));
+            ir.push_value(value, block_name, name_list[i]);
         } else {
             if (item.getType()->getPointerElementType()->isArrayTy()) {
                 int size = (int) item.getType()->getPointerElementType()->getArrayNumElements();
                 llvm::IntegerType *inter_type = llvm::IntegerType::getInt32Ty(ir.module_->getContext());
                 llvm::PointerType *pointer = llvm::PointerType::get(llvm::ArrayType::get(inter_type, size), 0);
                 auto value = ir.builder_->CreateAlloca(pointer);
-                ir.push_value(value, block_name, std::to_string(i));
+                ir.push_value(value, block_name, name_list[i]);
             } else {
                 llvm::PointerType *pointerType = llvm::PointerType::getInt32PtrTy(ir.module_->getContext());
                 auto value = ir.builder_->CreateAlloca(pointerType);
-                ir.push_value(value, block_name, std::to_string(i));
+                ir.push_value(value, block_name, name_list[i]);
             }
         }
         i++;
     }
     i = 0;
     for (auto &item: current_block->current_->getParent()->args()) {
-        auto value = ir.get_value(std::to_string(i++), current_block);
+        auto value = ir.get_value(name_list[i++], current_block);
         ir.builder_->CreateStore(&item, value);
     }
 }
@@ -1030,6 +1039,9 @@ llvm::Value *BlockAST::CodeGen(IR &ir) {
 //    llvm::outs() << '\n';
     auto args = current_block->current_->getParent()->arg_begin();
     for (auto &item: this->stmt_) {
+        auto &last_ins = current_block->current_->back();
+//        auto name = llvm::Instruction::getOpcodeName(last_ins.getOpcode());
+//        llvm::outs() << name << '\n';
         item->CodeGen(ir);
     }
     return nullptr;

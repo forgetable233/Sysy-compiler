@@ -1,9 +1,9 @@
-int a,b;
+int a;
 
 int main(){
-    a=10;
-    if (a) {
-        int n;
+    a = 10;
+    if( a>0 ){
+        return 1;
     }
     return 0;
 }
