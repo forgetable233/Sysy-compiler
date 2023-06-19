@@ -5,17 +5,34 @@
 #ifndef COMPILER_IR_H
 #define COMPILER_IR_H
 
+
+#include <memory>
+#include <string>
+#include <map>
+#include <vector>
+#include <llvm/IR/CFG.h>
+#include <llvm/IR/Module.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Verifier.h>
+#include <llvm/IR/LegacyPassManager.h>
 #include <llvm/IR/Value.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/GlobalIFunc.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
-#include <memory>
-#include <string>
-#include <map>
-#include <vector>
-#include <llvm/Support/raw_os_ostream.h>
-#include <llvm/IR/CFG.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/FileSystem.h>
+#include <llvm/Support/Host.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/Support/TargetRegistry.h>
+#include <llvm/Target/TargetMachine.h>
+#include <llvm/Target/TargetOptions.h>
+#include <llvm/Target/TargetLoweringObjectFile.h>
+#include <llvm/MC/MCContext.h>
+#include <llvm/MC/MCAssembler.h>
+#include <llvm/MC/MCAsmInfo.h>
+#include <llvm/MC/MCAsmBackend.h>
+
 
 /**
  * 以一个module为标准构建一个IR
@@ -85,6 +102,8 @@ public:
     void SetCurrentBlock(BasicBlock *current_block);
 
     void DeleteUnusedIns();
+
+    void GenerateObj(std::string &file_name) const;
 
     BasicBlock * GetCurrentBlock();
 };

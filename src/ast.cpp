@@ -972,6 +972,9 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
         ir.push_global_value(func, this->ident_);
         ir.SetCurrentBlock(current_block);
 
+//        auto value = ir.builder_->CreateAlloca(llvm::IntegerType::getInt32Ty(ir.module_->getContext()));
+//        auto zero = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()), 0);
+//        ir.builder_->CreateStore(zero, value);
         this->AddParams(ir, name_list);
 
         block_->CodeGen(ir);

@@ -62,7 +62,7 @@ llvm_map_components_to_libnames(llvm_libs support core irreader)
 add_compile_options(-g -std=c++17)
 add_executable(minic ${SOURCES})
 set_target_properties(minic PROPERTIES C_STANDARD 11 CXX_STANDARD 17)
-target_link_libraries(minic ${llvm_libs} pthread dl)
+target_link_libraries(minic ${llvm_libs} pthread dl -lLLVM-10.0.0)
 
 
 #add_executable(func func.cpp)
