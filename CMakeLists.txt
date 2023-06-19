@@ -49,6 +49,7 @@ link_directories(${LIB_DIR})
 link_directories(src)
 link_directories(${CMAKE_CURRENT_BINARY_DIR})
 link_directories(${INC_DIR})
+link_directories(${LLVM_LIBRARY_DIRS})
 
 #file(GLOB_RECURSE C_SOURCES "src/*.c")
 file(GLOB_RECURSE CXX_SOURCES "src/*.cpp")

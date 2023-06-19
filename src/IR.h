@@ -55,7 +55,7 @@ public:
 
     llvm::LLVMContext* context_;
 
-    llvm::Module* module_;
+    std::unique_ptr<llvm::Module> module_;
 
     std::map<std::string, std::map<std::string, llvm::Value *>> name_values_;
 

@@ -6,13 +6,13 @@
 
 IR::IR() {
     context_ = new llvm::LLVMContext();
-    module_ =  new llvm::Module("default", *context_);
+//    module_ =  new llvm::Module("default", *context_);
 }
 
 IR::IR(std::string &name) {
     context_ = new llvm::LLVMContext();
-    module_ =  new llvm::Module("default", *context_);
-    builder_ = new llvm::IRBuilder<>(module_->getContext());
+//    module_ =  new llvm::Module(name, *context_);
+    builder_ = new llvm::IRBuilder<>(*context_);
 }
 
 IR::~IR() {

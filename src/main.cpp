@@ -5,6 +5,10 @@
 #include <string>
 #include <vector>
 #include <llvm/Support/raw_ostream.h>
+#include <llvm/IR/Module.h>
+#include <llvm/IRReader/IRReader.h>
+#include <llvm/Support/SourceMgr.h>
+#include <llvm/Linker/Linker.h>
 #include <iostream>
 #include <fstream>
 
@@ -39,22 +43,21 @@ bool store_file(IR &ir, std::string &file_name) {
     return true;
 }
 
-void PreDeclareFunc(IR &ir) {
-    std::string path = "../src/preDeclareFunc.c";
-    yyin = fopen(path.c_str(), "r");
-    assert(yyin);
-    unique_ptr<BaseAST> ast;
-    auto ret = yyparse(ast);
-    if (ret) {
+void InitSylib(IR &ir) {
+    std::string path = "../lib/sylib.ll";
+    llvm::SMDiagnostic error;
+    ir.module_ = llvm::parseIRFile(path, error, *ir.context_);
+    if (!ir.module_) {
+        llvm::errs() << "Unable to find the target file\n";
+        error.print("IR Reader", llvm::errs());
         exit(-1);
     }
-    ast->CodeGen(ir);
 }
 
 int main(int argc, const char *argv[]) {
     std::string ir_name = "top";
     IR ir(ir_name);
-    PreDeclareFunc(ir);
+    InitSylib(ir);
 //    auto input = "../src/preDeclareFunc.c";
     auto input = argv[1];
     std::string test_hello = "../hello.c";
@@ -62,8 +65,8 @@ int main(int argc, const char *argv[]) {
     std::string input_file_name(file_path, 9, file_path.length());
 
     // 打开文件
-//    yyin = fopen(file_path.c_str(), "r");
-    yyin = fopen(test_hello.c_str(), "r");
+    yyin = fopen(file_path.c_str(), "r");
+//    yyin = fopen(test_hello.c_str(), "r");
     assert(yyin);
 
     unique_ptr<BaseAST> ast;
