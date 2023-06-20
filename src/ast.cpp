@@ -373,6 +373,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 llvm::Value *returnValue = exp_->CodeGen(ir);
                 value = ir.get_value("1", current_block);
                 ir.builder_->CreateStore(returnValue, value);
+                ir.builder_->CreateBr(ir.return_block_->current_);
                 break;
             }
         }
@@ -480,7 +481,6 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 value = ir.builder_->CreateZExtOrTrunc(value, llvm::Type::getInt1Ty(ir.module_->getContext()));
             }
             ir.builder_->CreateCondBr(value, loop_body, loop_exit);
-
 
             // loop_body
             ir.SetCurrentBlock(body);
@@ -988,9 +988,13 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
     }
     if (block_) {
         llvm::BasicBlock *entry = llvm::BasicBlock::Create(ir.module_->getContext(), "", func);
+        llvm::BasicBlock *returnBlock = llvm::BasicBlock::Create(ir.module_->getContext(), "", func);
         auto current_block = new BasicBlock(nullptr, entry);
+        auto return_block = new BasicBlock(current_block, returnBlock);
+        ir.return_block_ = return_block;
         ir.push_global_value(func, this->ident_);
         ir.SetCurrentBlock(current_block);
+
         auto value = ir.builder_->CreateAlloca(llvm::IntegerType::getInt32Ty(ir.module_->getContext()));
         auto zero = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()), 0);
         std::string block_name = current_block->current_->getParent()->getName().str();
@@ -1001,6 +1005,15 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
         this->AddParams(ir, name_list);
 
         block_->CodeGen(ir);
+
+        ir.SetCurrentBlock(return_block);
+        if (type_ != kVoid) {
+            llvm::Value *returnValue = ir.get_value("1", current_block);
+            llvm::Value* return_value = ir.builder_->CreateLoad(returnValue);
+            ir.builder_->CreateRet(return_value);
+        } else {
+            ir.builder_->CreateRetVoid();
+        }
     }
     return func;
 }
@@ -1059,23 +1072,27 @@ llvm::Value *BlockAST::CodeGen(IR &ir) {
         current_block = ir.GetCurrentBlock();
         auto &final_ins = current_block->current_->back();
         if (llvm::dyn_cast<llvm::BranchInst>(&final_ins)) {
-            return nullptr;
+            break;
         }
         item->CodeGen(ir);
     }
+//    if (llvm::succ_begin(current_block->current_) == llvm::succ_end(current_block->current_) && !ir.exit_block_) {
+//        llvm::Function *currentFunction = current_block->current_->getParent();
+//        if (currentFunction->getReturnType()->isIntegerTy()) {
+//            llvm::Value *returnValue = ir.get_value("1", current_block);
+//            returnValue = ir.builder_->CreateLoad(returnValue);
+//            ir.builder_->CreateRet(returnValue);
+//            return nullptr;
+//        }
+//    }
     current_block = ir.GetCurrentBlock();
-    if (llvm::succ_begin(current_block->current_) == llvm::succ_end(current_block->current_) && !ir.exit_block_) {
-        llvm::Function *currentFunction = current_block->current_->getParent();
-        if (currentFunction->getReturnType()->isIntegerTy()) {
-            llvm::Value *returnValue = ir.get_value("1", current_block);
-            returnValue = ir.builder_->CreateLoad(returnValue);
-            ir.builder_->CreateRet(returnValue);
-            return nullptr;
+    auto &final_ins = current_block->current_->back();
+
+    llvm::outs() << final_ins.getOpcode() << ' ' << llvm::Instruction::Br << '\n';
+    if (!llvm::dyn_cast<llvm::BranchInst>(&final_ins) || final_ins.getOpcode() != llvm::Instruction::Br) {
+        if (ir.exit_block_) {
+            ir.builder_->CreateBr(ir.exit_block_->current_);
         }
-    }
-    auto &final_ins = current_block->current_->getParent()->back();
-    if (!llvm::dyn_cast<llvm::BranchInst>(&final_ins)) {
-        ir.builder_->CreateBr(ir.exit_block_->current_);
     }
     return nullptr;
 }
