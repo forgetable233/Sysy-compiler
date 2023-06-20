@@ -7,39 +7,32 @@ target triple = "x86_64-pc-linux-gnu"
 define dso_local i32 @main() #0 {
   %1 = alloca i32, align 4
   %2 = alloca i32, align 4
-  %3 = alloca i32, align 4
-  %4 = alloca i32, align 4
   store i32 0, i32* %1, align 4
   store i32 10, i32* %2, align 4
-  br label %5
+  br label %3
 
-5:                                                ; preds = %15, %0
-  %6 = load i32, i32* %2, align 4
-  %7 = icmp ne i32 %6, 0
-  br i1 %7, label %8, label %16
+3:                                                ; preds = %11, %0
+  %4 = load i32, i32* %2, align 4
+  %5 = icmp sgt i32 %4, 0
+  br i1 %5, label %6, label %13
 
-8:                                                ; preds = %5
+6:                                                ; preds = %3
+  %7 = load i32, i32* %2, align 4
+  %8 = sub nsw i32 %7, 1
+  store i32 %8, i32* %2, align 4
   %9 = load i32, i32* %2, align 4
-  %10 = sub nsw i32 %9, 1
-  store i32 %10, i32* %2, align 4
-  %11 = load i32, i32* %2, align 4
-  %12 = icmp sgt i32 %11, 0
-  br i1 %12, label %13, label %14
+  %10 = icmp eq i32 %9, 5
+  br i1 %10, label %11, label %12
 
-13:                                               ; preds = %8
-  store i32 0, i32* %3, align 4
-  br label %15
+11:                                               ; preds = %6
+  br label %3
 
-14:                                               ; preds = %8
-  store i32 0, i32* %4, align 4
-  br label %15
+12:                                               ; preds = %6
+  br label %13
 
-15:                                               ; preds = %14, %13
-  br label %5
-
-16:                                               ; preds = %5
-  %17 = load i32, i32* %1, align 4
-  ret i32 %17
+13:                                               ; preds = %12, %3
+  %14 = load i32, i32* %2, align 4
+  ret i32 %14
 }
 
 attributes #0 = { noinline nounwind optnone uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "frame-pointer"="all" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }

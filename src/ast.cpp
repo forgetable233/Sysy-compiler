@@ -368,9 +368,12 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
         }
         case kReturn: {
             if (!exp_) {
-                return ir.builder_->CreateRetVoid();
+                break;
             } else {
-                return ir.builder_->CreateRet(exp_->CodeGen(ir));
+                llvm::Value *returnValue = exp_->CodeGen(ir);
+                value = ir.get_value("1", current_block);
+                ir.builder_->CreateStore(returnValue, value);
+                break;
             }
         }
         case kIf: {
@@ -386,6 +389,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                                                        "",
                                                        current_block->current_->getParent());
 
+
             auto _true = new BasicBlock(current_block, true_block);
 
             if (false_block_) {
@@ -393,59 +397,53 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 auto false_block = llvm::BasicBlock::Create(ir.module_->getContext(),
                                                             "",
                                                             current_block->current_->getParent());
-                llvm::BasicBlock *merge_block;
-                BasicBlock *_merge;
-                if (!isEnd) {
-                    merge_block = llvm::BasicBlock::Create(ir.module_->getContext(),
-                                                           "",
-                                                           current_block->current_->getParent());
+                auto merge_block = llvm::BasicBlock::Create(ir.module_->getContext(),
+                                                            "",
+                                                            current_block->current_->getParent());
 
-                    _merge = new BasicBlock(current_block, merge_block);
-                }
                 auto _false = new BasicBlock(current_block, false_block);
-                llvm::BranchInst::Create(true_block, false_block, value, current_block->current_);
+                auto _merge = new BasicBlock(current_block, merge_block);
 
-                //ir.builder_->CreateCondBr(value, true_block, false_block);
+                llvm::BranchInst::Create(true_block, false_block, value, current_block->current_);
+                auto current_exit = ir.exit_block_;
+                ir.exit_block_ = _merge;
                 // true block
                 ir.SetCurrentBlock(_true);
                 true_block_->CodeGen(ir);
-                auto now_block_true = ir.GetCurrentBlock();
-                auto &last_ins = now_block_true->current_->back();
-                if (!last_ins.isTerminator() && !llvm::ReturnInst::classof(&last_ins) && !isEnd) {
-                    ir.builder_->CreateBr(merge_block);
-                }
 
                 // false block
                 ir.SetCurrentBlock(_false);
                 false_block_->CodeGen(ir);
-                auto now_block_false = ir.GetCurrentBlock();
-                auto &false_last_ins = now_block_false->current_->back();
-                if (!false_last_ins.isTerminator() && !llvm::ReturnInst::classof(&false_last_ins) && !isEnd) {
-                    ir.builder_->CreateBr(merge_block);
+
+                if (!llvm::predecessors(_merge->current_).empty()) {
+                    ir.SetCurrentBlock(_merge);
+                } else {
+                    _merge->current_->eraseFromParent();
+                    ir.SetCurrentBlock(current_exit);
                 }
-                ir.SetCurrentBlock(_merge);
+                ir.exit_block_ = current_exit;
                 break;
             } else {
-                // 不存在false block的情况
-                llvm::BasicBlock *merge_block;
-                BasicBlock *_merge;
-                if (!isEnd) {
-                    merge_block = llvm::BasicBlock::Create(ir.module_->getContext(),
-                                                           "",
-                                                           current_block->current_->getParent());
+                auto merge_block = llvm::BasicBlock::Create(ir.module_->getContext(),
+                                                            "",
+                                                            current_block->current_->getParent());
+                auto _merge = new BasicBlock(current_block, merge_block);
 
-                    _merge = new BasicBlock(current_block, merge_block);
-                }
+                // 不存在false block的情况
                 ir.builder_->CreateCondBr(value, true_block, merge_block);
+                auto current_exit = ir.exit_block_;
+                ir.exit_block_ = _merge;
 
                 // true block
                 ir.SetCurrentBlock(_true);
                 true_block_->CodeGen(ir);
-                auto &last_ins = _true->current_->back();
-                if (!last_ins.isTerminator() && !llvm::ReturnInst::classof(&last_ins) && !isEnd) {
-                    ir.builder_->CreateBr(merge_block);
+
+                if (!llvm::predecessors(_merge->current_).empty()) {
+                    ir.SetCurrentBlock(_merge);
+                } else {
+                    _merge->current_->eraseFromParent();
+                    ir.SetCurrentBlock(current_exit);
                 }
-                ir.SetCurrentBlock(_merge);
                 break;
             }
             // 更改当前控制流
@@ -454,28 +452,21 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
             /** 首先生成对应的loop_header **/
             auto loop_header = llvm::BasicBlock::Create(ir.module_->getContext(), "",
                                                         current_block->current_->getParent());
-            llvm::BasicBlock *loop_exit = nullptr;
-            BasicBlock *exit;
+            auto loop_exit = llvm::BasicBlock::Create(ir.module_->getContext(), "",
+                                                                   current_block->current_->getParent());
             auto loop_body = llvm::BasicBlock::Create(ir.module_->getContext(), "",
                                                       current_block->current_->getParent());
 
-            if (!isEnd) {
-                loop_exit = llvm::BasicBlock::Create(ir.module_->getContext(), "",
-                                                     current_block->current_->getParent());
-                exit = new BasicBlock(current_block, loop_exit);
-            }
 
             auto header = new BasicBlock(current_block, loop_header);
             auto body = new BasicBlock(current_block, loop_body);
+            auto exit = new BasicBlock(current_block, loop_exit);
+            auto current_continue = ir.continue_block_;
+            auto current_break = ir.break_block_;
+            auto current_exit = ir.exit_block_;
             ir.continue_block_ = header;
-            if (!isEnd) {
-                ir.break_block_ = exit;
-            } else {
-                ir.break_block_ = current_block;
-            }
-
-            BasicBlock *temp_continue = ir.continue_block_;
-            BasicBlock *temp_break = ir.break_block_;
+            ir.break_block_ = exit;
+            ir.exit_block_ = header;
 
             // 首先进入header
             ir.builder_->CreateBr(loop_header);
@@ -488,27 +479,19 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 value = ir.builder_->CreateICmpSGT(value, zero);
                 value = ir.builder_->CreateZExtOrTrunc(value, llvm::Type::getInt1Ty(ir.module_->getContext()));
             }
-            if (!isEnd) {
-                ir.builder_->CreateCondBr(value, loop_body, loop_exit);
-            } else {
-                ir.builder_->CreateCondBr(value, loop_body, current_block->current_);
-            }
+            ir.builder_->CreateCondBr(value, loop_body, loop_exit);
+
 
             // loop_body
             ir.SetCurrentBlock(body);
             block_->CodeGen(ir);
-            auto now_block = ir.GetCurrentBlock();
-            auto &body_last = now_block->current_->back();
-            if (!body_last.isTerminator() && !llvm::ReturnInst::classof(&body_last)) {
-                ir.builder_->CreateBr(loop_header);
-            }
 
             // loop_exit
             ir.SetCurrentBlock(exit);
 
-            ir.continue_block_ = temp_continue;
-            ir.break_block_ = temp_break;
-
+            ir.continue_block_ = current_continue;
+            ir.break_block_ = current_break;
+            ir.exit_block_ = current_exit;
             break;
         }
         case kStatic: {
@@ -523,7 +506,6 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
             if (!ir.break_block_) {
                 llvm::report_fatal_error("unable to ues break in this place");
             }
-            ir.builder_->SetInsertPoint(current_block->current_);
             ir.builder_->CreateBr(ir.break_block_->current_);
             break;
         }
@@ -531,7 +513,6 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
             if (!ir.continue_block_) {
                 llvm::report_fatal_error("unable to use continue in this place");
             }
-            ir.builder_->SetInsertPoint(current_block->current_);
             ir.builder_->CreateBr(ir.continue_block_->current_);
             break;
         }
@@ -1012,6 +993,9 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
         ir.SetCurrentBlock(current_block);
         auto value = ir.builder_->CreateAlloca(llvm::IntegerType::getInt32Ty(ir.module_->getContext()));
         auto zero = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()), 0);
+        std::string block_name = current_block->current_->getParent()->getName().str();
+        block_name += current_block->current_->getName().str();
+        ir.push_value(value, block_name, "1");
         ir.builder_->CreateStore(zero, value);
 
         this->AddParams(ir, name_list);
@@ -1069,23 +1053,29 @@ void FuncDefAST::BuildAstTree() {
 }
 
 llvm::Value *BlockAST::CodeGen(IR &ir) {
-//    for (auto &it: this->stmt_) {
-//        it->CodeGen(ir);
-//    }
-//    return BaseAST::CodeGen(ir);
     auto current_block = ir.GetCurrentBlock();
-//    llvm::outs() << '\n';
-//    for (auto it = llvm::pred_begin(entry_block); it != llvm::pred_end(entry_block); ++it) {
-//        llvm::outs() << (*it)->getName() << '\n';
-//    }
-//    llvm::outs() << '\n';
     auto args = current_block->current_->getParent()->arg_begin();
     for (auto &item: this->stmt_) {
-        if (item == stmt_.back()) {
-            auto stmt = (StmtAST *) &(*item);
-            stmt->isEnd = true;
+        current_block = ir.GetCurrentBlock();
+        auto &final_ins = current_block->current_->back();
+        if (llvm::dyn_cast<llvm::BranchInst>(&final_ins)) {
+            return nullptr;
         }
         item->CodeGen(ir);
+    }
+    current_block = ir.GetCurrentBlock();
+    if (llvm::succ_begin(current_block->current_) == llvm::succ_end(current_block->current_) && !ir.exit_block_) {
+        llvm::Function *currentFunction = current_block->current_->getParent();
+        if (currentFunction->getReturnType()->isIntegerTy()) {
+            llvm::Value *returnValue = ir.get_value("1", current_block);
+            returnValue = ir.builder_->CreateLoad(returnValue);
+            ir.builder_->CreateRet(returnValue);
+            return nullptr;
+        }
+    }
+    auto &final_ins = current_block->current_->getParent()->back();
+    if (!llvm::dyn_cast<llvm::BranchInst>(&final_ins)) {
+        ir.builder_->CreateBr(ir.exit_block_->current_);
     }
     return nullptr;
 }

@@ -42,7 +42,7 @@ bool store_file(IR &ir, std::string &file_name) {
     ir.module_->print(output, nullptr);
     output.flush();
     output.close();
-//    ir.module_->print(llvm::outs(), nullptr);
+    ir.module_->print(llvm::outs(), nullptr);
     exit(0);
 }
 

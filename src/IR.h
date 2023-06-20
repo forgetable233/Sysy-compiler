@@ -48,7 +48,7 @@ private:
 public:
     BasicBlock *continue_block_ = nullptr;
     BasicBlock *break_block_ = nullptr;
-
+    BasicBlock *exit_block_ = nullptr;
     bool is_function_call = false;
 
     llvm::IRBuilder<> *builder_ = nullptr;
