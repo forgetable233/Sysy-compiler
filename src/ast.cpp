@@ -486,6 +486,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                     _merge->current_->eraseFromParent();
                     ir.SetCurrentBlock(current_exit);
                 }
+                ir.exit_block_ = current_exit;
                 break;
             }
             // 更改当前控制流
