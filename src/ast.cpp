@@ -1214,7 +1214,6 @@ llvm::Value *BlockAST::CodeGen(IR &ir) {
         item->CodeGen(ir);
     }
     current_block = ir.GetCurrentBlock();
-    int count = llvm::pred_size(current_block->current_);
     auto &final_ins = current_block->current_->back();
     if ((!llvm::dyn_cast<llvm::BranchInst>(&final_ins) ||
          final_ins.getOpcode() != llvm::Instruction::Br) &&

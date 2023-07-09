@@ -2,6 +2,7 @@ int a;
 
 int myFunc(int a, int b, int c) {
     a = 2;
+
     {
         int c;
         c = 0;
@@ -9,7 +10,7 @@ int myFunc(int a, int b, int c) {
             return 0;
         }
     }
-    c = 1;
+
     while (b > 0) {
         b = b - 1;
     }
