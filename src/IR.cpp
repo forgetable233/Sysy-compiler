@@ -3,6 +3,8 @@
 //
 
 #include <llvm/IR/Verifier.h>
+#include <llvm/Target/TargetOptions.h>
+#include <llvm/IR/LegacyPassManager.h>
 #include "IR.h"
 
 IR::IR() {
@@ -126,13 +128,54 @@ void IR::DeleteUnusedIns() {
     }
 }
 
-void IR::GenObj(std::string &input_file_name) {
-    // verify the target module
-    llvm::verifyModule(module_, llvm::errs());
-
-    // init the target machine
-    llvm::Triple triple(llvm::sys::getDefaultTargetTriple());
+//void IR::GenObj(std::string &input_file_name) {
+//    if (llvm::verifyModule(*module_, &llvm::errs())) {
+//        llvm::errs() << "Error: Invalid module\n";
+//        exit(2);
+//    }
+//    llvm::InitializeAllTargetInfos();
+//    llvm::InitializeAllTargets();
+//    llvm::InitializeAllTargetMCs();
+//    llvm::InitializeAllAsmParsers();
+//    llvm::InitializeAllAsmPrinters();
+//    std::string obj_file = "../outs/objs/";
+//    obj_file += input_file_name;
+//
+//    std::string targetTriple = llvm::sys::getHostCPUName();
+//    std::string errorString;
+//    const llvm::Target *target = llvm::TargetRegistry::lookupTarget(targetTriple, errorString);
+//    if (!target) {
+//        llvm::errs() << "failed to lookup target: " << errorString << '\n';
+//        exit(2);
+//    }
+//
 //    llvm::TargetOptions targetOptions;
-//    llvm::TargetMachine *targetMachine =
-}
+//    llvm::TargetMachine *targetMachine = target->createTargetMachine(targetTriple, "", "", targetOptions, llvm::None);
+//
+//    llvm::MCContext mcContext = llvm::MCContext(nullptr, nullptr, nullptr);
+//    llvm::MCSubtargetInfo *subtargetInfo = target->createMCSubtargetInfo(targetTriple, "x86_64", "");
+//    llvm::MCRegisterInfo *registerInfo = target->createMCRegInfo("");
+//    llvm::MCTargetOptions *options = new llvm::MCTargetOptions();
+//
+//    //    llvm::MCStreamer *mcStreamer = llvm::MCStreamer::c
+//    std::error_code errorCode;
+//    llvm::raw_fd_ostream outputFile(obj_file, errorCode, llvm::sys::fs::OF_None);
+//    if (errorCode) {
+//        llvm::errs() << "Failed to open output file: " << errorCode.message() << '\n';
+//        exit(2);
+//    }
+//
+//    const llvm::MCAsmInfo *asmInfo = targetMachine->getMCAsmInfo();
+//    const llvm::MCAsmBackend *asmBackend = target->createMCAsmBackend(*subtargetInfo, *registerInfo, *options);
+//    llvm::MCStreamer *mcStreamer = llvm::createAsmStreamer(mcContext, outputFile, nullptr, false, false);
+//
+//
+//    llvm::legacy::PassManager passManager;
+//    targetMachine->addPassesToEmitFile(passManager, mcStreamer, nullptr, llvm::CGFT_ObjectFile);
+//    passManager.run(*module_);
+//    mcStreamer.Finish();
+//
+//    outputFile.flush();
+//    outputFile.close();
+//}
 

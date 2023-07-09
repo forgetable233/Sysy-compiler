@@ -17,6 +17,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IR/CFG.h>
 #include <llvm/IR/Verifier.h>
+#include <llvm/IR/LegacyPassManager.h>
 #include <llvm/Support/raw_os_ostream.h>
 #include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/TarWriter.h>

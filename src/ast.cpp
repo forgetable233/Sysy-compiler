@@ -292,8 +292,18 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                                                    llvm::GlobalVariable::ExternalLinkage,
                                                    nullptr,
                                                    ident_);
-                    llvm::Constant *array = llvm::ConstantArray::get(
-                            llvm::ArrayType::get(llvm::ArrayType::get(int_type, array_size2_), size), list);
+                    std::vector<llvm::Constant *> initValues;
+                    initValues.resize(size);
+                    llvm::ArrayType *array_type = llvm::ArrayType::get(int_type, array_size2_);
+                    for (int i = 0; i < size; i++) {
+                        std::vector<llvm::Constant *>temp_list(list.begin() + i * size,
+                                                               list.begin() + i * size + array_size2_);
+                        initValues[i] = llvm::ConstantArray::get(array_type, temp_list);
+                    }
+//                    array_type->print(llvm::outs(), true);
+                    llvm::Constant *array = llvm::ConstantArray::get(llvm::ArrayType::get(array_type, size), initValues);
+
+                    array->getType()->print(llvm::outs(), true);
                     var->setInitializer(array);
                 } else {
                     // 1-dim
