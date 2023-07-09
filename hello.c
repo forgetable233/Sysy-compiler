@@ -1,5 +1,24 @@
-int main(){
-    int a[4][2]={1,2,3,4,5,6,7,8};
-    int b[4][2]={{a[0][0],a[0][1]},{3,4},{5,6},{7,8}};
-    return 0;
+int a;
+
+int myFunc(int a, int b, int c) {
+    a = 2;
+    {
+        int c;
+        c = 0;
+        if (c != 0) {
+            return 0;
+        }
+    }
+    c = 1;
+    while (b > 0) {
+        b = b - 1;
+    }
+    return (a) + (b);
+}
+
+int main() {
+    a = (3);
+    int b;
+    b = myFunc(1, 2, 1);
+    return ((a + b));
 }

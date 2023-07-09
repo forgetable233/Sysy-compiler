@@ -349,7 +349,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                     ResetAssignSize(size * array_size2_);
                     int begin = (int) assign_list_.size() - size * array_size2_;
                     value = ir.builder_->CreateAlloca(
-                            llvm::ArrayType::get(llvm::ArrayType::get(int_type, size), array_size2_),
+                            llvm::ArrayType::get(llvm::ArrayType::get(int_type, array_size2_), size),
                             nullptr);
                     for (int i = 0; i < size; ++i) {
                         auto pointer_1 = BaseAST::GetOffsetPointer(value, i, ir);
@@ -1148,7 +1148,6 @@ void FuncDefAST::BuildAstTree() {
 
 llvm::Value *BlockAST::CodeGen(IR &ir) {
     auto current_block = ir.GetCurrentBlock();
-    auto args = current_block->current_->getParent()->arg_begin();
     for (auto &item: this->stmt_) {
         current_block = ir.GetCurrentBlock();
         auto &final_ins = current_block->current_->back();
@@ -1161,7 +1160,7 @@ llvm::Value *BlockAST::CodeGen(IR &ir) {
     int count = llvm::pred_size(current_block->current_);
     auto &final_ins = current_block->current_->back();
     if ((!llvm::dyn_cast<llvm::BranchInst>(&final_ins) ||
-        final_ins.getOpcode() != llvm::Instruction::Br) &&
+         final_ins.getOpcode() != llvm::Instruction::Br) &&
         current_block != ir.return_block_) {
         if (ir.exit_block_) {
             ir.builder_->CreateBr(ir.exit_block_->current_);
