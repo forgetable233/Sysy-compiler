@@ -1088,10 +1088,11 @@ llvm::Value *BlockAST::CodeGen(IR &ir) {
     current_block = ir.GetCurrentBlock();
     auto &final_ins = current_block->current_->back();
 
-    llvm::outs() << final_ins.getOpcode() << ' ' << llvm::Instruction::Br << '\n';
     if (!llvm::dyn_cast<llvm::BranchInst>(&final_ins) || final_ins.getOpcode() != llvm::Instruction::Br) {
         if (ir.exit_block_) {
             ir.builder_->CreateBr(ir.exit_block_->current_);
+        } else {
+            ir.builder_->CreateBr(ir.return_block_->current_);
         }
     }
     return nullptr;
