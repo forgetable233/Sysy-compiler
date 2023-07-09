@@ -133,49 +133,26 @@ void IR::DeleteUnusedIns() {
 //        llvm::errs() << "Error: Invalid module\n";
 //        exit(2);
 //    }
-//    llvm::InitializeAllTargetInfos();
-//    llvm::InitializeAllTargets();
-//    llvm::InitializeAllTargetMCs();
-//    llvm::InitializeAllAsmParsers();
-//    llvm::InitializeAllAsmPrinters();
-//    std::string obj_file = "../outs/objs/";
-//    obj_file += input_file_name;
+//    llvm::InitializeNativeTarget();
+//    llvm::InitializeNativeTargetAsmPrinter();
+//    llvm::InitializeNativeTargetAsmParser();
 //
-//    std::string targetTriple = llvm::sys::getHostCPUName();
-//    std::string errorString;
-//    const llvm::Target *target = llvm::TargetRegistry::lookupTarget(targetTriple, errorString);
-//    if (!target) {
-//        llvm::errs() << "failed to lookup target: " << errorString << '\n';
-//        exit(2);
-//    }
-//
-//    llvm::TargetOptions targetOptions;
-//    llvm::TargetMachine *targetMachine = target->createTargetMachine(targetTriple, "", "", targetOptions, llvm::None);
-//
-//    llvm::MCContext mcContext = llvm::MCContext(nullptr, nullptr, nullptr);
-//    llvm::MCSubtargetInfo *subtargetInfo = target->createMCSubtargetInfo(targetTriple, "x86_64", "");
-//    llvm::MCRegisterInfo *registerInfo = target->createMCRegInfo("");
-//    llvm::MCTargetOptions *options = new llvm::MCTargetOptions();
-//
-//    //    llvm::MCStreamer *mcStreamer = llvm::MCStreamer::c
-//    std::error_code errorCode;
-//    llvm::raw_fd_ostream outputFile(obj_file, errorCode, llvm::sys::fs::OF_None);
-//    if (errorCode) {
-//        llvm::errs() << "Failed to open output file: " << errorCode.message() << '\n';
-//        exit(2);
-//    }
-//
-//    const llvm::MCAsmInfo *asmInfo = targetMachine->getMCAsmInfo();
-//    const llvm::MCAsmBackend *asmBackend = target->createMCAsmBackend(*subtargetInfo, *registerInfo, *options);
-//    llvm::MCStreamer *mcStreamer = llvm::createAsmStreamer(mcContext, outputFile, nullptr, false, false);
+//    llvm::Triple target_triple("x86_64-pc-linux-gnu");
+//    std::string error;
+//    const llvm::Target *target = llvm::TargetRegistry::lookupTarget(target_triple.getTriple(), error);
+//    llvm::TargetOptions target_options;
+//    llvm::Reloc::Model reloc_model = llvm::Reloc::Model::PIC_;
+//    llvm::CodeModel::Model code_model = llvm::CodeModel::Small;
+//    llvm::CodeGenOpt::Level optimization_level = llvm::CodeGenOpt::Default;
+//    llvm::TargetMachine *target_machine = target->createTargetMachine(target_triple.getTriple(),
+//                                                                      "generic",
+//                                                                      "",
+//                                                                      target_options,
+//                                                                      reloc_model,
+//                                                                      code_model,
+//                                                                      optimization_level);
+//    llvm::legacy::PassManager pass_manager;
 //
 //
-//    llvm::legacy::PassManager passManager;
-//    targetMachine->addPassesToEmitFile(passManager, mcStreamer, nullptr, llvm::CGFT_ObjectFile);
-//    passManager.run(*module_);
-//    mcStreamer.Finish();
-//
-//    outputFile.flush();
-//    outputFile.close();
 //}
 

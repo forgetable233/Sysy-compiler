@@ -454,7 +454,11 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                     ir.SetCurrentBlock(_merge);
                 } else {
                     _merge->current_->eraseFromParent();
-                    ir.SetCurrentBlock(current_exit);
+                    if (current_exit) {
+                        ir.SetCurrentBlock(current_exit);
+                    } else {
+                        ir.SetCurrentBlock(ir.return_block_);
+                    }
                 }
                 ir.exit_block_ = current_exit;
                 break;
@@ -1155,8 +1159,9 @@ llvm::Value *BlockAST::CodeGen(IR &ir) {
     current_block = ir.GetCurrentBlock();
     int count = llvm::pred_size(current_block->current_);
     auto &final_ins = current_block->current_->back();
-    if (!llvm::dyn_cast<llvm::BranchInst>(&final_ins) ||
-        final_ins.getOpcode() != llvm::Instruction::Br) {
+    if ((!llvm::dyn_cast<llvm::BranchInst>(&final_ins) ||
+        final_ins.getOpcode() != llvm::Instruction::Br) &&
+        current_block != ir.return_block_) {
         if (ir.exit_block_) {
             ir.builder_->CreateBr(ir.exit_block_->current_);
         } else {

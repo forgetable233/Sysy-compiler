@@ -23,7 +23,6 @@ for root, folder, files in os.walk(exec_folder):
         tar_result = None
         with open(out_file, 'r') as output_file:
             tar_result = output_file.read()
-        print(tar_result)
         if os.path.exists(in_file):
             with open(in_file, 'r') as input_file:
                 content = input_file.read()
@@ -60,7 +59,7 @@ for root, folder, files in os.walk(exec_folder):
         data = None
         with open(process_out_result, 'r') as temp_file :
             data = temp_file.read()
-        data = data.replace('', '').replace('\n', '')
+        data = data.replace(' ', '').replace('\n', '')
         tar_result = tar_result.replace('', '').replace('\n', '')
         if data == tar_result:
             count = count + 1

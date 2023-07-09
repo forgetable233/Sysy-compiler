@@ -25,6 +25,7 @@
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/FileCheck.h>
 #include <llvm/Support/FileSystem.h>
+#include <llvm/Support/raw_os_ostream.h>
 
 /**
  * 以一个module为标准构建一个IR

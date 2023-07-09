@@ -80,5 +80,6 @@ int main(int argc, const char *argv[]) {
     store_file(ir, input_file_name);
     std::string file(input_file_name, 0, input_file_name.length() - 2);
     file += ".o";
+//    llvm::outs() << file << '\n';
 //    ir.GenObj(file);
 }

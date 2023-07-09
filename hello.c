@@ -1,9 +1,12 @@
+int a;
+int b;
 int main(){
-    int a=10;
-    while(a>0){
-        a=a-1;
-        if(a==5)
-            break;
+    a = getint();
+    b = getint();
+    if ( a && b ) {
+        return 1;
     }
-    return a;
+    else {
+        return 0;
+    }
 }
