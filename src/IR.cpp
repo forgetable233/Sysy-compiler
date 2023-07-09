@@ -2,6 +2,7 @@
 // Created by dcr on 23-5-15.
 //
 
+#include <llvm/IR/Verifier.h>
 #include "IR.h"
 
 IR::IR() {
@@ -123,5 +124,15 @@ void IR::DeleteUnusedIns() {
             }
         }
     }
+}
+
+void IR::GenObj(std::string &input_file_name) {
+    // verify the target module
+    llvm::verifyModule(module_, llvm::errs());
+
+    // init the target machine
+    llvm::Triple triple(llvm::sys::getDefaultTargetTriple());
+//    llvm::TargetOptions targetOptions;
+//    llvm::TargetMachine *targetMachine =
 }
 

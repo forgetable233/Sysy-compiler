@@ -80,6 +80,7 @@ int main(int argc, const char *argv[]) {
     }
     ast->BuildAstTree();
     ast->CodeGen(ir);
+//    ir.GenerateObj(file_path);
 //    ir.module_->print(llvm::outs(), nullptr);
     store_file(ir, input_file_name);
 }

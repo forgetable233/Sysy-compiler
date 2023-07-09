@@ -5,17 +5,25 @@
 #ifndef COMPILER_IR_H
 #define COMPILER_IR_H
 
+
+#include <memory>
+#include <string>
+#include <map>
+#include <vector>
 #include <llvm/IR/Value.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/GlobalIFunc.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
-#include <memory>
-#include <string>
-#include <map>
-#include <vector>
-#include <llvm/Support/raw_os_ostream.h>
 #include <llvm/IR/CFG.h>
+#include <llvm/IR/Verifier.h>
+#include <llvm/Support/raw_os_ostream.h>
+#include <llvm/Support/TargetRegistry.h>
+#include <llvm/Support/TarWriter.h>
+#include <llvm/Support/TargetParser.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/FileCheck.h>
+#include <llvm/Support/FileSystem.h>
 
 /**
  * 以一个module为标准构建一个IR
@@ -55,7 +63,7 @@ public:
 
     llvm::IRBuilder<> *builder_ = nullptr;
 
-    llvm::LLVMContext* context_;
+    llvm::LLVMContext *context_;
 
     std::unique_ptr<llvm::Module> module_;
 
@@ -88,7 +96,9 @@ public:
 
     void DeleteUnusedIns();
 
-    BasicBlock * GetCurrentBlock();
+    BasicBlock *GetCurrentBlock();
+
+    void GenObj(std::string &input_file_name);
 };
 
 
