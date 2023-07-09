@@ -1,9 +1,13 @@
-int a;
+int a,b,c;
+
+void add(int a,int b){
+    c=a+b;
+    return;
+}
 
 int main(){
-    a = 10;
-    if( a>0 ){
-        return 1;
-    }
-    return 0;
+    a=3;
+    b=2;
+    add(a,b);
+    return c;
 }

@@ -61,7 +61,7 @@ int main(int argc, const char *argv[]) {
     std::string ir_name = "top";
     IR ir(ir_name);
     InitSylib(ir);
-//    auto input = "../tests/00_arr_defn2.sy ";
+//    auto input = "../tests/10_if_else.sy";
     auto input = argv[1];
     std::string test_hello = "../hello.c";
     std::string file_path = input;
@@ -80,9 +80,6 @@ int main(int argc, const char *argv[]) {
     }
     ast->BuildAstTree();
     ast->CodeGen(ir);
+//    ir.module_->print(llvm::outs(), nullptr);
     store_file(ir, input_file_name);
-    std::string file_name(file_path, 9, file_path.length() - 2);
-    file_name += 'o';
-//    ir.GenerateObj(file_name);
-    exit(0);
 }
