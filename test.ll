@@ -4,47 +4,43 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 target triple = "x86_64-pc-linux-gnu"
 
 ; Function Attrs: noinline nounwind optnone uwtable
-define dso_local i32 @ifElseElseIf() #0 {
+define dso_local i32 @if_ifElse_() #0 {
   %1 = alloca i32, align 4
   %2 = alloca i32, align 4
-  store i32 66, i32* %1, align 4
-  store i32 8923, i32* %2, align 4
+  store i32 5, i32* %1, align 4
+  store i32 10, i32* %2, align 4
   %3 = load i32, i32* %1, align 4
   %4 = icmp eq i32 %3, 5
-  br i1 %4, label %5, label %6
+  br i1 %4, label %5, label %13
 
 5:                                                ; preds = %0
-  store i32 25, i32* %2, align 4
-  br label %14
+  %6 = load i32, i32* %2, align 4
+  %7 = icmp eq i32 %6, 10
+  br i1 %7, label %8, label %9
 
-6:                                                ; preds = %0
-  %7 = load i32, i32* %1, align 4
-  %8 = icmp eq i32 %7, 10
-  br i1 %8, label %9, label %10
+8:                                                ; preds = %5
+  store i32 25, i32* %1, align 4
+  br label %12
 
-9:                                                ; preds = %6
-  store i32 42, i32* %2, align 4
+9:                                                ; preds = %5
+  %10 = load i32, i32* %1, align 4
+  %11 = add nsw i32 %10, 15
+  store i32 %11, i32* %1, align 4
+  br label %12
+
+12:                                               ; preds = %9, %8
   br label %13
 
-10:                                               ; preds = %6
-  %11 = load i32, i32* %1, align 4
-  %12 = mul nsw i32 %11, 2
-  store i32 %12, i32* %2, align 4
-  br label %13
-
-13:                                               ; preds = %10, %9
-  br label %14
-
-14:                                               ; preds = %13, %5
-  %15 = load i32, i32* %2, align 4
-  ret i32 %15
+13:                                               ; preds = %12, %0
+  %14 = load i32, i32* %1, align 4
+  ret i32 %14
 }
 
 ; Function Attrs: noinline nounwind optnone uwtable
 define dso_local i32 @main() #0 {
   %1 = alloca i32, align 4
   store i32 0, i32* %1, align 4
-  %2 = call i32 @ifElseElseIf()
+  %2 = call i32 @if_ifElse_()
   ret i32 %2
 }
 

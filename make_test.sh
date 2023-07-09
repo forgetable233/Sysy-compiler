@@ -8,6 +8,7 @@ TAR_FOLDER="../tests/success/"
 EXEC_FOLDER="../outs/exec/"
 LL_FOLDER="../outs/ll/"
 ASM_FOLDER="../outs/asm/"
+LINK_LIB="../lib/sylib.a"
 
 echo "$FOLDER"
 for file in "$FOLDER"*.sy; do
@@ -15,15 +16,29 @@ for file in "$FOLDER"*.sy; do
     ./minic "${file}"
     return_code=$?
     if [ ${return_code} -eq 255 ]; then
-        echo "${file}"
+      echo "${file}"
     fi
     if [ ${return_code} -eq 0 ]; then
-#        mv "${file}" "${TAR_FOLDER}"
-        file_name_sy=${file:9}
-        file_name=${file_name_sy:0:${#file_names_sy}-2}
-        llvm-as "${LL_FOLDER}${file_name}ll" -o "${ASM_FOLDER}${file_name}bc"
+      #        mv "${file}" "${TAR_FOLDER}"
+      file_name_sy=${file:9}
+      file_name=${file_name_sy:0:${#file_names_sy}-2}
+      llc -filetype=obj "${LL_FOLDER}${file_name}ll" -o "${ASM_FOLDER}${file_name}o"
     fi
   fi
+done
+
+for file in "$ASM_FOLDER"*.o; do
+#  echo ${file}
+  file_name_o=${file:12}
+  file_name=${file_name_o:0:${#file_name_o}-2}
+  clang -o "${EXEC_FOLDER}${file_name}" "${file}" -L "${LINK_LIB}"
+done
+
+for file in "${EXEC_FOLDER}"*; do
+  echo ${file}
+  ./${file}
+  return_code=$?
+  echo "${return_code}"
 done
 #echo "${1}"
 #./minic "${1}"

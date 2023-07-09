@@ -526,6 +526,13 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
             // loop_body
             ir.SetCurrentBlock(body);
             block_->CodeGen(ir);
+            current_block = ir.GetCurrentBlock();
+            auto &final_ins1 = current_block->current_->back();
+            if (!llvm::dyn_cast<llvm::BranchInst>(&final_ins1) ||
+                final_ins1.getOpcode() != llvm::Instruction::Br ||
+                current_block->current_->getInstList().empty()) {
+                ir.builder_->CreateBr(exit->current_);
+            }
 
             // loop_exit
             ir.SetCurrentBlock(exit);
