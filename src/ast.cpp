@@ -429,6 +429,13 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 // true block
                 ir.SetCurrentBlock(_true);
                 true_block_->CodeGen(ir);
+                current_block = ir.GetCurrentBlock();
+                auto &final_ins1 = current_block->current_->back();
+                if (!llvm::dyn_cast<llvm::BranchInst>(&final_ins1) ||
+                    final_ins1.getOpcode() != llvm::Instruction::Br ||
+                    current_block->current_->getInstList().empty()) {
+                    ir.builder_->CreateBr(_merge->current_);
+                }
 
                 // false block
                 ir.SetCurrentBlock(_false);
@@ -439,7 +446,8 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
 
                 auto &final_ins = current_block->current_->back();
                 if (!llvm::dyn_cast<llvm::BranchInst>(&final_ins) ||
-                    final_ins.getOpcode() != llvm::Instruction::Br) {
+                    final_ins.getOpcode() != llvm::Instruction::Br ||
+                    current_block->current_->getInstList().empty()) {
                     ir.builder_->CreateBr(_merge->current_);
                 }
                 if (!llvm::predecessors(_merge->current_).empty()) {
@@ -464,6 +472,13 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 // true block
                 ir.SetCurrentBlock(_true);
                 true_block_->CodeGen(ir);
+                current_block = ir.GetCurrentBlock();
+                auto &final_ins = current_block->current_->back();
+                if (!llvm::dyn_cast<llvm::BranchInst>(&final_ins) ||
+                    final_ins.getOpcode() != llvm::Instruction::Br ||
+                    current_block->current_->getInstList().empty()) {
+                    ir.builder_->CreateBr(_merge->current_);
+                }
 
                 if (!llvm::predecessors(_merge->current_).empty()) {
                     ir.SetCurrentBlock(_merge);
