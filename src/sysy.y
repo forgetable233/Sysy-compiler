@@ -463,6 +463,15 @@ Var
     	ast->assign_list_.emplace_back(std::move(item));
     }
     $$ = ast;
+  } | IDENT L_BRACK Number R_BRACK L_BRACK Number R_BRACK L_BRACK Number R_BRACK {
+    auto ast = new StmtAST();
+    ast->type_ = kDeclareArray;
+    ast->ident_ = *unique_ptr<string>($1);
+    ast->key_word_ = *make_unique<string>("int");
+    ast->array_size_ = $3;
+    ast->array_size2_ = $6;
+    ast->array_size3_ = $9;
+    $$ = ast;
   }
   ;
 
@@ -754,6 +763,15 @@ Expr
     ast->array_offset_ = unique_ptr<BaseAST>($3);
     ast->array_offset2_ = unique_ptr<BaseAST>($6);
     ast->ident_ = *unique_ptr<string>($1);
+    $$ = ast;
+  } | IDENT L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK L_BRACK Expr R_BRACK ASS Expr {
+    auto ast = new ExprAST();
+    ast->type_ = kAssignArray;
+    ast->array_offset_ = unique_ptr<BaseAST>($3);
+    ast->array_offset2_ = unique_ptr<BaseAST>($6);
+    ast->array_offset3_ = unique_ptr<BaseAST>($9);
+    ast->ident_ = *unique_ptr<string>($1);
+    ast->rExp_ = unique_ptr<BaseAST>($12);
     $$ = ast;
   } | SUB Expr {
     auto ast = new ExprAST();

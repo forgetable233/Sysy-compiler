@@ -149,6 +149,7 @@ public:
 
     std::unique_ptr<BaseAST> array_offset_ = nullptr;
     std::unique_ptr<BaseAST> array_offset2_ = nullptr;
+    std::unique_ptr<BaseAST> array_offset3_ = nullptr;
 
     std::vector<std::unique_ptr<BaseAST>> param_lists_;
 
@@ -192,6 +193,8 @@ public:
     int array_size_ = 0;
 
     int array_size2_ = 0;
+
+    int array_size3_ = 0;
 
     bool isEnd = false;
 
