@@ -378,7 +378,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 }
                 block_name = current_block->current_->getParent()->getName().str();
                 block_name += current_block->current_->getName().str();
-                ir.push_value(value, block_name, value->getName().str());
+                ir.push_value(value, block_name, this->ident_);
             }
             break;
         }
@@ -705,6 +705,7 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
         case kAtomArray: {
             auto offset = &(*array_offset_);
             value = ir.get_value(this->ident_, current_block);
+            assert(value);
             if (!BaseAST::is_array(value)) {
                 llvm::report_fatal_error("The type of the param does not match, requires array but input ident");
             }
