@@ -28,15 +28,21 @@ for file in "$FOLDER"*.sy; do
 done
 
 for file in "$ASM_FOLDER"*.o; do
-#  echo ${file}
+  #  echo ${file}
   file_name_o=${file:12}
   file_name=${file_name_o:0:${#file_name_o}-2}
   clang -o "${EXEC_FOLDER}${file_name}" "${file}" -L "${LINK_LIB}"
 done
 
 for file in "${EXEC_FOLDER}"*; do
-  echo ${file}
-  ./${file}
+  in_file=${FOLDER}${file:13:${#file}}.in
+  # shellcheck disable=SC2086
+  if [ -f ${in_file} ]; then
+    echo "find"
+    ./${file} <${in_file}
+  else
+    ./${file}
+  fi
   return_code=$?
   echo "${return_code}"
 done
