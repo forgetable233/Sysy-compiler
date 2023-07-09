@@ -65,41 +65,41 @@ llvm::Value *IR::get_global_value(const std::string &value_name) {
     return tar_value->second;
 }
 
-llvm::Value *
-IR::get_value(const std::string &value_name, const BasicBlock *current_block) {
-    llvm::Value *value = nullptr;
-    std::string block_name;
-    if (current_block) {
-        // 先从各个block中寻找
-        for (auto temp = current_block; temp; temp = temp->pre_) {
-            block_name = temp->current_->getParent()->getName().str();
-            block_name += temp->current_->getName().str();
-            value = this->get_basic_block_value(block_name, value_name);
-            if (value) {
-                return value;
-            }
-        }
-        int i = 0;
-//        llvm::outs() << '\n';
-
-        // 从函数列表中寻找
-        for (auto arg = current_block->current_->getParent()->arg_begin();
-             arg != current_block->current_->getParent()->arg_end(); ++arg, ++i) {
-            if (strcmp(arg->getName().str().c_str(), value_name.c_str()) == 0) {
-                for (auto temp = current_block; temp; temp = temp->pre_) {
-                    block_name = temp->current_->getParent()->getName().str();
-                    block_name += temp->current_->getName().str();
-                    value = this->get_basic_block_value(block_name, std::to_string(i));
-                    if (value) {
-                        return value;
-                    }
-                }
-            }
-        }
-    }
-    value = this->get_global_value(value_name);
-    return value;
-}
+//llvm::Value *
+//IR::get_value(const std::string &value_name, const BasicBlock *current_block) {
+//    llvm::Value *value = nullptr;
+//    std::string block_name;
+//    if (current_block) {
+//        // 先从各个block中寻找
+//        for (auto temp = current_block; temp; temp = temp->pre_) {
+//            block_name = temp->current_->getParent()->getName().str();
+//            block_name += temp->current_->getName().str();
+//            value = this->get_basic_block_value(block_name, value_name);
+//            if (value) {
+//                return value;
+//            }
+//        }
+//        int i = 0;
+////        llvm::outs() << '\n';
+//
+//        // 从函数列表中寻找
+//        for (auto arg = current_block->current_->getParent()->arg_begin();
+//             arg != current_block->current_->getParent()->arg_end(); ++arg, ++i) {
+//            if (strcmp(arg->getName().str().c_str(), value_name.c_str()) == 0) {
+//                for (auto temp = current_block; temp; temp = temp->pre_) {
+//                    block_name = temp->current_->getParent()->getName().str();
+//                    block_name += temp->current_->getName().str();
+//                    value = this->get_basic_block_value(block_name, std::to_string(i));
+//                    if (value) {
+//                        return value;
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    value = this->get_global_value(value_name);
+//    return value;
+//}
 
 BasicBlock *IR::GetCurrentBlock() {
     return current_block_;
@@ -123,6 +123,43 @@ void IR::DeleteUnusedIns() {
                     instruction.getOpcode() == llvm::Instruction::Br) {
                     haveEnd = true;
                 }
+            }
+        }
+    }
+}
+
+void IR::push_value(llvm::Value *value, std::string &value_name, std::string &func_name, int block_id) {
+    for (auto &item: params_) {
+        if (item.func_name_ == func_name) {
+            item.values_.emplace_front(value, block_id, value_name);
+            return;
+        }
+    }
+    params_.emplace_back(func_name);
+    params_.back().values_.emplace_front(value, block_id, value_name);
+}
+
+llvm::Value *IR::get_value(std::string &func_name, std::string &ident_name) {
+    llvm::Value *value = nullptr;
+    for (auto &item : params_) {
+        if (item.func_name_ == func_name) {
+            for (auto &temp_value : item.values_) {
+                if (temp_value.value_name_ == ident_name) {
+                    value = temp_value.value_;
+                    return value;
+                }
+            }
+        }
+    }
+    value = this->get_global_value(ident_name);
+    return value;
+}
+
+void IR::pop_value(std::string &func_name, int block_id) {
+    for (auto &item : params_) {
+        if (item.func_name_ == func_name) {
+            while (item.values_.front().block_id_ == block_id) {
+                item.values_.pop_front();
             }
         }
     }

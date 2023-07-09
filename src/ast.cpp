@@ -182,6 +182,11 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 ir.push_value(value,
                               block_name,
                               this->ident_);
+                std::string func_name = current_block->current_->getParent()->getName().str();
+                ir.push_value(value,
+                              this->ident_,
+                              func_name,
+                              current_block->block_id_);
                 return value;
             }
         }
@@ -197,13 +202,18 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 ir.push_global_value(var, this->ident_);
                 break;
             } else {
-                ir.get_value(this->ident_, current_block);
+//                ir.get_value(this->ident_, current_block);
                 value = ir.builder_->CreateAlloca(int_type);
                 auto &assign = assign_list_.back();
                 ir.builder_->CreateStore(assign->CodeGen(ir), value);
                 block_name = current_block->current_->getParent()->getName().str();
                 block_name += current_block->current_->getName().str();
                 ir.push_value(value, block_name, this->ident_);
+                std::string func_name = current_block->current_->getParent()->getName().str();
+                ir.push_value(value,
+                              this->ident_,
+                              func_name,
+                              current_block->block_id_);
                 return value;
             }
         case kDeclareArray: {
@@ -276,6 +286,11 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 ir.push_value(value,
                               block_name,
                               this->ident_);
+                std::string func_name = current_block->current_->getParent()->getName().str();
+                ir.push_value(value,
+                              this->ident_,
+                              func_name,
+                              current_block->block_id_);
                 break;
             }
         }
@@ -379,6 +394,11 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 block_name = current_block->current_->getParent()->getName().str();
                 block_name += current_block->current_->getName().str();
                 ir.push_value(value, block_name, this->ident_);
+                std::string func_name = current_block->current_->getParent()->getName().str();
+                ir.push_value(value,
+                              this->ident_,
+                              func_name,
+                              current_block->block_id_);
             }
             break;
         }
@@ -391,7 +411,10 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 break;
             } else {
                 llvm::Value *returnValue = exp_->CodeGen(ir);
-                value = ir.get_value("1", current_block);
+//                value = ir.get_value("1", current_block);
+                std::string func_name = current_block->current_->getParent()->getName().str();
+                std::string ident_name = "1";
+                value = ir.get_value(func_name, ident_name);
                 ir.builder_->CreateStore(returnValue, value);
                 ir.builder_->CreateBr(ir.return_block_->current_);
                 break;
@@ -409,7 +432,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
             auto true_block = llvm::BasicBlock::Create(ir.module_->getContext(),
                                                        "",
                                                        current_block->current_->getParent());
-            auto _true = new BasicBlock(current_block, true_block);
+            auto _true = new BasicBlock(current_block, true_block, block_id_++);
 
             if (false_block_) {
                 // 存在false block的情况
@@ -420,8 +443,8 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                                                             "",
                                                             current_block->current_->getParent());
 
-                auto _false = new BasicBlock(current_block, false_block);
-                auto _merge = new BasicBlock(current_block, merge_block);
+                auto _false = new BasicBlock(current_block, false_block, block_id_++);
+                auto _merge = new BasicBlock(current_block, merge_block, block_id_++);
 
                 llvm::BranchInst::Create(true_block, false_block, value, current_block->current_);
                 auto current_exit = ir.exit_block_;
@@ -466,7 +489,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 auto merge_block = llvm::BasicBlock::Create(ir.module_->getContext(),
                                                             "",
                                                             current_block->current_->getParent());
-                auto _merge = new BasicBlock(current_block, merge_block);
+                auto _merge = new BasicBlock(current_block, merge_block, block_id_++);
 
                 // 不存在false block的情况
                 ir.builder_->CreateCondBr(value, true_block, merge_block);
@@ -505,9 +528,9 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                                                       current_block->current_->getParent());
 
 
-            auto header = new BasicBlock(current_block, loop_header);
-            auto body = new BasicBlock(current_block, loop_body);
-            auto exit = new BasicBlock(current_block, loop_exit);
+            auto header = new BasicBlock(current_block, loop_header, block_id_++);
+            auto body = new BasicBlock(current_block, loop_body, block_id_++);
+            auto exit = new BasicBlock(current_block, loop_exit, block_id_++);
             auto current_continue = ir.continue_block_;
             auto current_break = ir.break_block_;
             auto current_exit = ir.exit_block_;
@@ -687,7 +710,9 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
         case kAtomNum:
             return llvm::ConstantInt::get(context, llvm::APInt(32, num_));
         case kAtomIdent: {
-            value = ir.get_value(this->ident_, current_block);
+//            value = ir.get_value(this->ident_, current_block);
+            std::string func_name = current_block->current_->getParent()->getName().str();
+            value = ir.get_value(func_name, this->ident_);
             if (!value) {
                 llvm::outs() << current_block->current_->getName() << '\n';
                 llvm::outs() << this->ident_ << '\n';
@@ -704,7 +729,9 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
         }
         case kAtomArray: {
             auto offset = &(*array_offset_);
-            value = ir.get_value(this->ident_, current_block);
+//            value = ir.get_value(this->ident_, current_block);
+            std::string func_name = current_block->current_->getParent()->getName().str();
+            value = ir.get_value(func_name, this->ident_);
             assert(value);
             if (!BaseAST::is_array(value)) {
                 llvm::report_fatal_error("The type of the param does not match, requires array but input ident");
@@ -767,14 +794,19 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                 }
             }
         }
-        case kAssign:
-            value = ir.get_value(this->ident_, current_block);
+        case kAssign: {
+//            value = ir.get_value(this->ident_, current_block);
+            std::string func_name = current_block->current_->getParent()->getName().str();
+            value = ir.get_value(func_name, this->ident_);
             r_exp = (ExprAST *) (&(*rExp_));
             r_exp_value = r_exp->CodeGen(ir);
             ir.builder_->CreateStore(r_exp_value, value, "store");
             return r_exp_value;
+        }
         case kAssignArray: {
-            value = ir.get_value(this->ident_, current_block);
+//            value = ir.get_value(this->ident_, current_block);
+            std::string func_name = current_block->current_->getParent()->getName().str();
+            value = ir.get_value(func_name, this->ident_);
             // check the type of the value
             if (!BaseAST::is_array(value)) {
                 llvm::report_fatal_error("The type of the param does not match, requires array but input ident");
@@ -1070,8 +1102,8 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
     if (block_) {
         llvm::BasicBlock *entry = llvm::BasicBlock::Create(ir.module_->getContext(), "", func);
         llvm::BasicBlock *returnBlock = llvm::BasicBlock::Create(ir.module_->getContext(), "", func);
-        auto current_block = new BasicBlock(nullptr, entry);
-        auto return_block = new BasicBlock(current_block, returnBlock);
+        auto current_block = new BasicBlock(nullptr, entry, block_id_++);
+        auto return_block = new BasicBlock(current_block, returnBlock, block_id_++);
         ir.return_block_ = return_block;
         ir.push_global_value(func, this->ident_);
         ir.SetCurrentBlock(current_block);
@@ -1081,6 +1113,9 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
         std::string block_name = current_block->current_->getParent()->getName().str();
         block_name += current_block->current_->getName().str();
         ir.push_value(value, block_name, "1");
+        std::string func_name = current_block->current_->getParent()->getName().str();
+        std::string ident_name = "1";
+        ir.push_value(value, ident_name, func_name, current_block->block_id_);
         ir.builder_->CreateStore(zero, value);
 
         this->AddParams(ir, name_list);
@@ -1089,7 +1124,11 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
 
         ir.SetCurrentBlock(return_block);
         if (type_ != kVoid) {
-            llvm::Value *returnValue = ir.get_value("1", current_block);
+//            llvm::Value *returnValue = ir.get_value("1", current_block);
+            llvm::Value *returnValue;
+            std::string func_name = current_block->current_->getParent()->getName().str();
+            std::string ident_name = "1";
+            returnValue = ir.get_value(func_name, ident_name);
             llvm::Value *return_value = ir.builder_->CreateLoad(returnValue);
             ir.builder_->CreateRet(return_value);
         } else {
@@ -1109,6 +1148,11 @@ void FuncDefAST::AddParams(IR &ir, std::vector<std::string> &name_list) {
             llvm::IntegerType *integerType = llvm::IntegerType::get(ir.module_->getContext(), 32);
             auto value = ir.builder_->CreateAlloca(integerType);
             ir.push_value(value, block_name, name_list[i]);
+            std::string func_name = current_block->current_->getParent()->getName();
+            ir.push_value(value,
+                          name_list[i],
+                          func_name,
+                          current_block->block_id_);
         } else {
             if (item.getType()->getPointerElementType()->isArrayTy()) {
                 int size = (int) item.getType()->getPointerElementType()->getArrayNumElements();
@@ -1116,17 +1160,30 @@ void FuncDefAST::AddParams(IR &ir, std::vector<std::string> &name_list) {
                 llvm::PointerType *pointer = llvm::PointerType::get(llvm::ArrayType::get(inter_type, size), 0);
                 auto value = ir.builder_->CreateAlloca(pointer);
                 ir.push_value(value, block_name, name_list[i]);
+                std::string func_name = current_block->current_->getParent()->getName().str();
+                ir.push_value(value,
+                              name_list[i],
+                              func_name,
+                              current_block->block_id_);
             } else {
                 llvm::PointerType *pointerType = llvm::PointerType::getInt32PtrTy(ir.module_->getContext());
                 auto value = ir.builder_->CreateAlloca(pointerType);
                 ir.push_value(value, block_name, name_list[i]);
+                std::string func_name = current_block->current_->getParent()->getName().str();
+                ir.push_value(value,
+                              name_list[i],
+                              func_name,
+                              current_block->block_id_);
             }
         }
         i++;
     }
     i = 0;
     for (auto &item: current_block->current_->getParent()->args()) {
-        auto value = ir.get_value(name_list[i++], current_block);
+//        auto value = ir.get_value(name_list[i++], current_block);
+        llvm::Value *value;
+        std::string func_name = current_block->current_->getParent()->getName().str();
+        value = ir.get_value(func_name, name_list[i++]);
         ir.builder_->CreateStore(&item, value);
     }
 }

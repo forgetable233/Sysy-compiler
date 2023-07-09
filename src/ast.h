@@ -5,8 +5,6 @@
 #ifndef COMPILER_AST_H
 #define COMPILER_AST_H
 
-// TODO 控制流图的生成，在if和while中，是不是要将current改为引用
-// TODO 后端生成最后的RISC-V
 #include <memory>
 #include <iostream>
 #include <vector>
@@ -102,6 +100,8 @@ class BaseAST {
 private:
 
 public:
+    int block_id_ = 0;
+
     bool isConst = false;
 
     BaseAST *parent_ = nullptr;
