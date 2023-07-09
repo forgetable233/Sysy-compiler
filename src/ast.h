@@ -190,6 +190,8 @@ public:
     std::unique_ptr<BaseAST> true_block_ = nullptr;
     std::unique_ptr<BaseAST> false_block_ = nullptr;
 
+    bool if_begin = false;
+
     int array_size_ = 0;
 
     int array_size2_ = 0;

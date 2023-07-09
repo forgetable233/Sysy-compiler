@@ -27,8 +27,8 @@ void FuncDefAST::Dump(int tab_num) const {
     OutTab(tab_num);
     std::cout << "FuncDefAST: { " << std::endl;
 
-    func_type_->Dump(tab_num + 1);
-    std::cout << "," << std::endl;
+//    func_type_->Dump(tab_num + 1);
+//    std::cout << "," << std::endl;
     OutTab(tab_num + 1);
     std::cout << "FuncName: " << ident_ << std::endl;
 //    OutTab(tab_num + 1);
@@ -122,7 +122,6 @@ void StmtAST::Dump(int tab_num) const {
             OutTab(tab_num + 1);
             std::cout << std::endl << "The true_block is :" << std::endl;
             this->true_block_->Dump(tab_num + 1);
-
             if (this->false_block_) {
                 OutTab(tab_num + 1);
                 std::cout << std::endl << "The false_block is :" << std::endl;
@@ -314,7 +313,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                     llvm::Constant *array = llvm::ConstantArray::get(llvm::ArrayType::get(array_type, size),
                                                                      initValues);
 
-                    array->getType()->print(llvm::outs(), true);
+//                    array->getType()->print(llvm::outs(), true);
                     var->setInitializer(array);
                 } else {
                     // 1-dim
@@ -410,8 +409,6 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
             auto true_block = llvm::BasicBlock::Create(ir.module_->getContext(),
                                                        "",
                                                        current_block->current_->getParent());
-
-
             auto _true = new BasicBlock(current_block, true_block);
 
             if (false_block_) {
@@ -437,6 +434,14 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 ir.SetCurrentBlock(_false);
                 false_block_->CodeGen(ir);
 
+                // 完成false和true之后，最后的控制流可能在新的merge_block中，需要考虑这种情况，将新的控制流定位到当前的merge_block中
+                current_block = ir.GetCurrentBlock();
+
+                auto &final_ins = current_block->current_->back();
+                if (!llvm::dyn_cast<llvm::BranchInst>(&final_ins) ||
+                    final_ins.getOpcode() != llvm::Instruction::Br) {
+                    ir.builder_->CreateBr(_merge->current_);
+                }
                 if (!llvm::predecessors(_merge->current_).empty()) {
                     ir.SetCurrentBlock(_merge);
                 } else {
@@ -1124,19 +1129,11 @@ llvm::Value *BlockAST::CodeGen(IR &ir) {
         }
         item->CodeGen(ir);
     }
-//    if (llvm::succ_begin(current_block->current_) == llvm::succ_end(current_block->current_) && !ir.exit_block_) {
-//        llvm::Function *currentFunction = current_block->current_->getParent();
-//        if (currentFunction->getReturnType()->isIntegerTy()) {
-//            llvm::Value *returnValue = ir.get_value("1", current_block);
-//            returnValue = ir.builder_->CreateLoad(returnValue);
-//            ir.builder_->CreateRet(returnValue);
-//            return nullptr;
-//        }
-//    }
     current_block = ir.GetCurrentBlock();
+    int count = llvm::pred_size(current_block->current_);
     auto &final_ins = current_block->current_->back();
-
-    if (!llvm::dyn_cast<llvm::BranchInst>(&final_ins) || final_ins.getOpcode() != llvm::Instruction::Br) {
+    if (!llvm::dyn_cast<llvm::BranchInst>(&final_ins) ||
+        final_ins.getOpcode() != llvm::Instruction::Br) {
         if (ir.exit_block_) {
             ir.builder_->CreateBr(ir.exit_block_->current_);
         } else {
