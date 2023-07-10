@@ -517,6 +517,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 break;
             }
             // 更改当前控制流
+
         }
         case kWhile: {
             /** 首先生成对应的loop_header **/
@@ -544,22 +545,30 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
             // loop_header
             ir.SetCurrentBlock(header);
             value = exp_->CodeGen(ir);
+            ir.builder_->CreateCondBr(value, loop_body, loop_exit);
             if (value->getType()->isIntegerTy() && value->getType()->getIntegerBitWidth() == 32) {
                 llvm::Value *zero = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()), 0);
                 value = ir.builder_->CreateICmpSGT(value, zero);
                 value = ir.builder_->CreateZExtOrTrunc(value, llvm::Type::getInt1Ty(ir.module_->getContext()));
             }
-            ir.builder_->CreateCondBr(value, loop_body, loop_exit);
 
             // loop_body
             ir.SetCurrentBlock(body);
-            block_->CodeGen(ir);
-            current_block = ir.GetCurrentBlock();
-            auto &final_ins1 = current_block->current_->back();
-            if (!llvm::dyn_cast<llvm::BranchInst>(&final_ins1) ||
-                final_ins1.getOpcode() != llvm::Instruction::Br ||
-                current_block->current_->getInstList().empty()) {
-                ir.builder_->CreateBr(exit->current_);
+            if (dynamic_cast<StmtAST*>(block_.get())) {
+                auto stmt = dynamic_cast<StmtAST*>(block_.get());
+                block_->CodeGen(ir);
+                if (stmt->type_ != kReturn) {
+                    ir.builder_->CreateBr(loop_header);
+                }
+            } else {
+                block_->CodeGen(ir);
+                current_block = ir.GetCurrentBlock();
+                auto &final_ins1 = current_block->current_->back();
+                if (!llvm::dyn_cast<llvm::BranchInst>(&final_ins1) ||
+                    final_ins1.getOpcode() != llvm::Instruction::Br ||
+                    current_block->current_->getInstList().empty()) {
+                    ir.builder_->CreateBr(exit->current_);
+                }
             }
 
             // loop_exit
