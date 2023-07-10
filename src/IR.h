@@ -103,6 +103,7 @@ private:
 
     std::vector<FuncParams> params_;
 public:
+    bool not_finished_ = false;
     BasicBlock *continue_block_ = nullptr;
     BasicBlock *break_block_ = nullptr;
     BasicBlock *exit_block_ = nullptr;

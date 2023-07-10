@@ -1220,13 +1220,19 @@ llvm::Value *BlockAST::CodeGen(IR &ir) {
         if (llvm::dyn_cast<llvm::BranchInst>(&final_ins)) {
             break;
         }
+        bool temp = ir.not_finished_;
+        if (dynamic_cast<BlockAST*>(item.get())) {
+            ir.not_finished_ = true;
+        }
         item->CodeGen(ir);
+        ir.not_finished_ = temp;
     }
     current_block = ir.GetCurrentBlock();
     auto &final_ins = current_block->current_->back();
     if ((!llvm::dyn_cast<llvm::BranchInst>(&final_ins) ||
          final_ins.getOpcode() != llvm::Instruction::Br) &&
-        current_block != ir.return_block_) {
+        current_block != ir.return_block_ &&
+        !ir.not_finished_) {
         if (ir.exit_block_) {
             ir.builder_->CreateBr(ir.exit_block_->current_);
         } else {
