@@ -28,11 +28,6 @@ for root, folder, files in os.walk(exec_folder):
                 content = input_file.read()
                 process = subprocess.Popen([exec_file], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
                 std_out, error = process.communicate(content.encode())
-                # start_time = time.time()
-                # while process.poll() is None:
-                #     if time.time() - start_time > time_out:
-                #         process.terminate()
-                #         break
                 process.wait()
                 return_code = process.returncode
                 with open(process_out_result, 'w') as process_out:
@@ -43,11 +38,6 @@ for root, folder, files in os.walk(exec_folder):
 
         else:
             process = subprocess.Popen([exec_file], stdout=subprocess.PIPE)
-            # start_time = time.time()
-            # while process.poll() is None:
-            #     if time.time() - start_time > time_out:
-            #         process.terminate()
-            #         break
             std_out, error = process.communicate()
             process.wait()
             return_code = process.returncode
