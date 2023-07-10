@@ -173,6 +173,9 @@ void IR::GenObj(std::string &input_file_name) {
     llvm::InitializeNativeTarget();
     llvm::InitializeNativeTargetAsmPrinter();
     llvm::InitializeNativeTargetAsmParser();
+    llvm::InitializeAllTargets();
+    llvm::InitializeAllAsmPrinters();
+    llvm::InitializeAllAsmParsers();
 
     llvm::Triple target_triple("x86_64-pc-linux-gnu");
     std::string error;
@@ -188,5 +191,25 @@ void IR::GenObj(std::string &input_file_name) {
                                                                       reloc_model,
                                                                       code_model,
                                                                       optimization_level);
+    module_->setDataLayout(target_machine->createDataLayout());
+    module_->setTargetTriple(target_triple.getTriple());
+    std::error_code error_code;
+    llvm::raw_fd_ostream output(input_file_name, error_code, llvm::sys::fs::OF_None);
+    if (error_code) {
+        llvm::errs() << "Error opening output file: " << error_code.message() << "\n";
+        exit(1);
+    }
+
+    llvm::CodeGenFileType fileType = llvm::CodeGenFileType::CGFT_ObjectFile;
+    llvm::legacy::PassManager codeGenMananger;
+    if (target_machine->addPassesToEmitFile(codeGenMananger, output, nullptr, fileType)) {
+        llvm::errs() << "Error adding passes to emit file\n";
+    }
+
+    codeGenMananger.run(*module_);
+    output.flush();
+    output.close();
+
+    delete target_machine;
 }
 

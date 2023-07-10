@@ -37,8 +37,9 @@ bool store_file(IR &ir, std::string &file_name) {
     ir.module_->print(output, nullptr);
     output.flush();
     output.close();
-    ir.module_->print(llvm::outs(), nullptr);
-    exit(0);
+//    ir.module_->print(llvm::outs(), nullptr);
+//    exit(0);
+    return true;
 }
 
 void InitSylib(IR &ir) {
@@ -56,11 +57,11 @@ int main(int argc, const char *argv[]) {
     std::string ir_name = "top";
     IR ir(ir_name);
     InitSylib(ir);
-//    auto input = "../tests/10_if_else.sy";
-    auto input = argv[1];
+    auto input = "../tests/10_if_else.sy";
+//    auto input = argv[1];
 //    std::string test_hello = "../hello.c";
-//    std::string file_path = input;
-    std::string file_path = "../hello.c";
+    std::string file_path = input;
+//    std::string file_path = "../hello.c";
     std::string input_file_name(file_path, 9, file_path.length());
 
     // 打开文件
@@ -80,8 +81,8 @@ int main(int argc, const char *argv[]) {
 //    ir.module_->print(llvm::outs(), nullptr);
     Passes::Optimizer(ir);
     store_file(ir, input_file_name);
-    std::string file(input_file_name, 0, input_file_name.length() - 2);
+    std::string file(input_file_name, 0, input_file_name.length() - 3);
     file += ".o";
-//    llvm::outs() << file << '\n';
-//    ir.GenObj(file);
+    llvm::outs() << file << '\n';
+    ir.GenObj(file);
 }

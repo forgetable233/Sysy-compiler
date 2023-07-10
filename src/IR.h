@@ -22,6 +22,7 @@
 #include <llvm/IR/CFG.h>
 #include <llvm/IR/Verifier.h>
 #include <llvm/IR/LegacyPassManager.h>
+#include <llvm/IR/DerivedTypes.h>
 #include <llvm/Support/raw_os_ostream.h>
 #include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/TarWriter.h>
@@ -30,6 +31,10 @@
 #include <llvm/Support/FileCheck.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/raw_os_ostream.h>
+#include <llvm/Support/CodeGen.h>
+#include <llvm/ADT/Triple.h>
+#include <llvm/ExecutionEngine/ExecutionEngine.h>
+#include <llvm/ExecutionEngine/GenericValue.h>
 
 /**
  * 以一个module为标准构建一个IR
