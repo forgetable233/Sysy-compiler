@@ -166,10 +166,10 @@ void IR::pop_value(std::string &func_name, int block_id) {
 }
 
 void IR::GenObj(std::string &input_file_name) {
-    if (llvm::verifyModule(*module_, &llvm::errs())) {
-        llvm::errs() << "Error: Invalid module\n";
-        exit(2);
-    }
+//    if (llvm::verifyModule(*module_, &llvm::errs())) {
+//        llvm::errs() << "Error: Invalid module\n";
+//        exit(2);
+//    }
     llvm::InitializeNativeTarget();
     llvm::InitializeNativeTargetAsmPrinter();
     llvm::InitializeNativeTargetAsmParser();

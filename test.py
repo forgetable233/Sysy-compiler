@@ -26,7 +26,7 @@ test = int(argument[4])
 ## 首先进行编译
 if if_compile == 1:
     ins = 'make -j8'
-    work_dict= './build/'
+    work_dict = './build/'
     process = subprocess.Popen(ins, shell=True, cwd=work_dict)
     process.wait()
     if process.returncode == 0:
@@ -102,7 +102,7 @@ if test == 1:
                     if return_code is not None:
                         process_out.write(str(return_code))
             data = None
-            with open(process_out_result, 'r') as temp_file :
+            with open(process_out_result, 'r') as temp_file:
                 data = temp_file.read()
             data = data.replace(' ', '').replace('\n', '')
             tar_result = tar_result.replace('', '').replace('\n', '')

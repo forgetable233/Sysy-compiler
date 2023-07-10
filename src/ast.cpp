@@ -962,7 +962,7 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
                 case kAnd:
                     return ir.builder_->CreateAnd(l_exp_value, r_exp_value);
                 case kMod:
-                    return ir.builder_->CreateURem(l_exp_value, r_exp_value);
+                    return ir.builder_->CreateSRem(l_exp_value, r_exp_value);
                 case kOr:
                     return ir.builder_->CreateOr(l_exp_value, r_exp_value);
                 case kLarger:
