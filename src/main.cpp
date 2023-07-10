@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 
+#include "passes.h"
 #include "ast.h"
 
 // TODO 完成多个变量的声明以及定义
@@ -77,6 +78,7 @@ int main(int argc, const char *argv[]) {
 //    ast->Dump(0);
 //    ir.GenerateObj(file_path);
 //    ir.module_->print(llvm::outs(), nullptr);
+    Passes::Optimizer(ir);
     store_file(ir, input_file_name);
     std::string file(input_file_name, 0, input_file_name.length() - 2);
     file += ".o";

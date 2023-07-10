@@ -165,31 +165,28 @@ void IR::pop_value(std::string &func_name, int block_id) {
     }
 }
 
-//void IR::GenObj(std::string &input_file_name) {
-//    if (llvm::verifyModule(*module_, &llvm::errs())) {
-//        llvm::errs() << "Error: Invalid module\n";
-//        exit(2);
-//    }
-//    llvm::InitializeNativeTarget();
-//    llvm::InitializeNativeTargetAsmPrinter();
-//    llvm::InitializeNativeTargetAsmParser();
-//
-//    llvm::Triple target_triple("x86_64-pc-linux-gnu");
-//    std::string error;
-//    const llvm::Target *target = llvm::TargetRegistry::lookupTarget(target_triple.getTriple(), error);
-//    llvm::TargetOptions target_options;
-//    llvm::Reloc::Model reloc_model = llvm::Reloc::Model::PIC_;
-//    llvm::CodeModel::Model code_model = llvm::CodeModel::Small;
-//    llvm::CodeGenOpt::Level optimization_level = llvm::CodeGenOpt::Default;
-//    llvm::TargetMachine *target_machine = target->createTargetMachine(target_triple.getTriple(),
-//                                                                      "generic",
-//                                                                      "",
-//                                                                      target_options,
-//                                                                      reloc_model,
-//                                                                      code_model,
-//                                                                      optimization_level);
-//    llvm::legacy::PassManager pass_manager;
-//
-//
-//}
+void IR::GenObj(std::string &input_file_name) {
+    if (llvm::verifyModule(*module_, &llvm::errs())) {
+        llvm::errs() << "Error: Invalid module\n";
+        exit(2);
+    }
+    llvm::InitializeNativeTarget();
+    llvm::InitializeNativeTargetAsmPrinter();
+    llvm::InitializeNativeTargetAsmParser();
+
+    llvm::Triple target_triple("x86_64-pc-linux-gnu");
+    std::string error;
+    const llvm::Target *target = llvm::TargetRegistry::lookupTarget(target_triple.getTriple(), error);
+    llvm::TargetOptions target_options;
+    llvm::Reloc::Model reloc_model = llvm::Reloc::Model::PIC_;
+    llvm::CodeModel::Model code_model = llvm::CodeModel::Small;
+    llvm::CodeGenOpt::Level optimization_level = llvm::CodeGenOpt::Default;
+    llvm::TargetMachine *target_machine = target->createTargetMachine(target_triple.getTriple(),
+                                                                      "generic",
+                                                                      "",
+                                                                      target_options,
+                                                                      reloc_model,
+                                                                      code_model,
+                                                                      optimization_level);
+}
 
