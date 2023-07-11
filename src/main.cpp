@@ -57,8 +57,8 @@ int main(int argc, const char *argv[]) {
     std::string ir_name = "top";
     IR ir(ir_name);
     InitSylib(ir);
-//    auto input = "../tests/10_if_else.sy";
-    auto input = argv[1];
+    auto input = "../tests/10_if_else.sy";
+//    auto input = argv[1];
 //    std::string test_hello = "../hello.c";
     std::string file_path = input;
 //    std::string file_path = "../hello.c";
@@ -84,5 +84,7 @@ int main(int argc, const char *argv[]) {
     std::string file(input_file_name, 0, input_file_name.length() - 3);
     file += ".o";
 //    llvm::outs() << file << '\n';
-    ir.GenObj(file);
+//    ir.GenObj(file);
+//     ir.module_->print(llvm::outs(), nullptr);
+    Passes::ConvertToSSA(ir);
 }

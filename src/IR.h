@@ -117,6 +117,7 @@ public:
 
     std::unique_ptr<llvm::Module> module_;
 
+    std::unique_ptr<llvm::Module> ssa_module_;
 //    std::stack<>
 
     std::map<std::string, std::map<std::string, llvm::Value *>> name_values_;

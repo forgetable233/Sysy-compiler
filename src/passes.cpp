@@ -9,12 +9,7 @@ void Passes::Optimizer(IR &ir) {
     passManager.add(llvm::createDeadInstEliminationPass());
     passManager.add(llvm::createMergeICmpsLegacyPass());
     passManager.add(llvm::createSCCPPass());
-    bool changed = passManager.run(*ir.module_);
-//    if (changed) {
-//        llvm::outs() << "changed!!!\n";
-//    } else {
-//        llvm::outs() << "not changed???\n";
-//    }
+    passManager.add(llvm::createDeadCodeEliminationPass());
 }
 
 void Passes::LoopOptimizer(IR &ir) {
@@ -39,4 +34,10 @@ void Passes::DeadCodeDelete(IR &ir) {
 void Passes::InsCombine(IR &ir) {
     llvm::legacy::PassManager passManager;
 
+}
+
+void Passes::ConvertToSSA(IR &ir) {
+    llvm::legacy::PassManager PM;
+
+//    PM.add()
 }
