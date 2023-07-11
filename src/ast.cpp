@@ -548,13 +548,14 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
 
             // loop_header
             ir.SetCurrentBlock(header);
-            value = exp_->CodeGen(ir);
-            ir.builder_->CreateCondBr(value, loop_body, loop_exit);
-            if (value->getType()->isIntegerTy() && value->getType()->getIntegerBitWidth() == 32) {
-                llvm::Value *zero = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()), 0);
-                value = ir.builder_->CreateICmpSGT(value, zero);
-                value = ir.builder_->CreateZExtOrTrunc(value, llvm::Type::getInt1Ty(ir.module_->getContext()));
-            }
+            ShortCircuit(dynamic_cast<ExprAST*>(exp_.get()), body, exit, ir);
+//            value = exp_->CodeGen(ir);
+//            ir.builder_->CreateCondBr(value, loop_body, loop_exit);
+//            if (value->getType()->isIntegerTy() && value->getType()->getIntegerBitWidth() == 32) {
+//                llvm::Value *zero = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()), 0);
+//                value = ir.builder_->CreateICmpSGT(value, zero);
+//                value = ir.builder_->CreateZExtOrTrunc(value, llvm::Type::getInt1Ty(ir.module_->getContext()));
+//            }
 
             // loop_body
             ir.SetCurrentBlock(body);
