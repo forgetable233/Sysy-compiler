@@ -10,13 +10,21 @@
 #include <llvm/Pass.h>
 #include <llvm/Passes/PassBuilder.h>
 #include <llvm/Analysis/LoopPass.h>
+#include <llvm/Analysis/MemorySSA.h>
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/IR/Dominators.h>
 #include <llvm/IR/IRPrintingPasses.h>
 #include <llvm/Transforms/Scalar/LoopPassManager.h>
 #include <llvm/Transforms/Scalar/DeadStoreElimination.h>
 #include <llvm/Transforms/Scalar/DCE.h>
+#include <llvm/Transforms/Scalar/MemCpyOptimizer.h>
 #include <llvm/Transforms/Scalar.h>
+#include <llvm/Transforms/Utils/PromoteMemToReg.h>
+#include <llvm/Transforms/Utils/Mem2Reg.h>
+#include <llvm/Transforms/Utils.h>
+#include <llvm/Transforms/Utils/SSAUpdater.h>
+#include <llvm/Transforms/Utils/SSAUpdaterBulk.h>
+#include <llvm/Transforms/Utils/SSAUpdaterImpl.h>
 #include "IR.h"
 
 class Passes {

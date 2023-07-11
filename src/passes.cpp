@@ -37,7 +37,7 @@ void Passes::InsCombine(IR &ir) {
 }
 
 void Passes::ConvertToSSA(IR &ir) {
-    llvm::legacy::PassManager PM;
-
-//    PM.add()
+    llvm::legacy::PassManager passManager;
+    passManager.add(llvm::createPromoteMemoryToRegisterPass());
+    passManager.run(*ir.module_);
 }

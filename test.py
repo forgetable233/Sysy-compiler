@@ -15,7 +15,7 @@ test_folder = './tests/'
 out_folder = './outs/out/'
 sy_folder = './tests/sy/'
 ll_folder = './outs/ll/'
-obj_folder = './outs/obj/'
+obj_folder = './outs/objs/'
 lib_tar = './lib/sylib.a'
 
 if_compile = int(argument[1])
@@ -48,7 +48,7 @@ if generate_ll_o == 1:
             if process.returncode != 0:
                 print(file)
     rm_ins = 'rm outs/obj/*.o'
-    mv_ins = 'mv build/*.o outs/obj/'
+    mv_ins = 'mv build/*.o outs/objs/'
     subprocess.run(rm_ins, shell=True)
     subprocess.run(mv_ins, shell=True)
 
