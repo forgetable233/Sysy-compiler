@@ -79,8 +79,8 @@ int main(int argc, const char *argv[]) {
 //    ast->Dump(0);
 //    ir.GenerateObj(file_path);
 //    ir.module_->print(llvm::outs(), nullptr);
-    Passes::Optimizer(ir);
-    Passes::ConvertToSSA(ir);
+//    Passes::Optimizer(ir);
+//    Passes::ConvertToSSA(ir);
     store_file(ir, input_file_name);
     std::string file(input_file_name, 0, input_file_name.length() - 3);
     file += ".o";

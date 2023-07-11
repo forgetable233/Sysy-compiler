@@ -49,7 +49,7 @@ if generate_ll_o == 1:
                 print(file)
     rm_ins = 'rm outs/obj/*.o'
     mv_ins = 'mv build/*.o outs/objs/'
-    subprocess.run(rm_ins, shell=True)
+    # subprocess.run(rm_ins, shell=True)
     subprocess.run(mv_ins, shell=True)
 
 if generate_exec == 1:

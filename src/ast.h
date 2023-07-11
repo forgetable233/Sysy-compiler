@@ -215,6 +215,8 @@ public:
     void BuildAstTree() override;
 
     void ResetAssignSize(int size);
+
+    void ShortCircuit(ExprAST *exp, BasicBlock *true_block, BasicBlock *false_block, IR &ir);
 };
 
 /**

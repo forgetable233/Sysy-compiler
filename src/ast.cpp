@@ -422,17 +422,18 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
         }
         case kIf: {
             // get condition code
-            value = exp_->CodeGen(ir);
-            if (value->getType()->isIntegerTy() && value->getType()->getIntegerBitWidth() == 32) {
-                llvm::Value *zero = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()), 0);
-                value = ir.builder_->CreateICmpSGT(value, zero);
-                value = ir.builder_->CreateZExtOrTrunc(value, llvm::Type::getInt1Ty(ir.module_->getContext()));
-            }
+//            value = exp_->CodeGen(ir);
+//            if (value->getType()->isIntegerTy() && value->getType()->getIntegerBitWidth() == 32) {
+//                llvm::Value *zero = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()), 0);
+//                value = ir.builder_->CreateICmpSGT(value, zero);
+//                value = ir.builder_->CreateZExtOrTrunc(value, llvm::Type::getInt1Ty(ir.module_->getContext()));
+//            }
             // get true block
             auto true_block = llvm::BasicBlock::Create(ir.module_->getContext(),
                                                        "",
                                                        current_block->current_->getParent());
             auto _true = new BasicBlock(current_block, true_block, block_id_++);
+            auto exp = dynamic_cast<ExprAST *>(exp_.get());
 
             if (false_block_) {
                 // 存在false block的情况
@@ -446,7 +447,8 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 auto _false = new BasicBlock(current_block, false_block, block_id_++);
                 auto _merge = new BasicBlock(current_block, merge_block, block_id_++);
 
-                llvm::BranchInst::Create(true_block, false_block, value, current_block->current_);
+                ShortCircuit(exp, _true, _false, ir);
+//                llvm::BranchInst::Create(true_block, false_block, value, current_block->current_);
                 auto current_exit = ir.exit_block_;
                 ir.exit_block_ = _merge;
                 // true block
@@ -492,7 +494,9 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 auto _merge = new BasicBlock(current_block, merge_block, block_id_++);
 
                 // 不存在false block的情况
-                ir.builder_->CreateCondBr(value, true_block, merge_block);
+
+                ShortCircuit(exp, _true, _merge, ir);
+//                ir.builder_->CreateCondBr(value, true_block, merge_block);
                 auto current_exit = ir.exit_block_;
                 ir.exit_block_ = _merge;
 
@@ -554,8 +558,8 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
 
             // loop_body
             ir.SetCurrentBlock(body);
-            if (dynamic_cast<StmtAST*>(block_.get())) {
-                auto stmt = dynamic_cast<StmtAST*>(block_.get());
+            if (dynamic_cast<StmtAST *>(block_.get())) {
+                auto stmt = dynamic_cast<StmtAST *>(block_.get());
                 block_->CodeGen(ir);
                 if (stmt->type_ != kReturn) {
                     ir.builder_->CreateBr(loop_header);
@@ -648,6 +652,37 @@ void StmtAST::ResetAssignSize(int size) {
             temp_assign->num_ = 0;
             assign_list_.emplace_back(std::unique_ptr<BaseAST>(temp_assign));
         }
+    }
+}
+
+void StmtAST::ShortCircuit(ExprAST *exp, BasicBlock *true_block, BasicBlock *false_block, IR &ir) {
+    auto current_block = ir.GetCurrentBlock();
+    if (exp->type_ == kAnd) {
+        auto next_block = llvm::BasicBlock::Create(ir.module_->getContext(),
+                                                   "",
+                                                   current_block->current_->getParent());
+        auto _next = new BasicBlock(current_block, next_block, block_id_++);
+        ShortCircuit(dynamic_cast<ExprAST *>(exp->lExp_.get()), _next, false_block, ir);
+        ir.SetCurrentBlock(_next);
+        ShortCircuit(dynamic_cast<ExprAST *>(exp->rExp_.get()), true_block, false_block, ir);
+    } else if (exp->type_ == kOr) {
+        auto next_block = llvm::BasicBlock::Create(ir.module_->getContext(),
+                                                   "",
+                                                   current_block->current_->getParent());
+        auto _next = new BasicBlock(current_block, next_block, block_id_++);
+        ShortCircuit(dynamic_cast<ExprAST *>(exp->lExp_.get()), true_block, _next, ir);
+        ir.SetCurrentBlock(_next);
+        ShortCircuit(dynamic_cast<ExprAST *>(exp->rExp_.get()), true_block, false_block, ir);
+    } else if (exp->type_ == kParen) {
+        ShortCircuit(dynamic_cast<ExprAST*>(exp->lExp_.get()), true_block, false_block, ir);
+    } else {
+        llvm::Value *value = exp->CodeGen(ir);
+        if (value->getType()->isIntegerTy() && value->getType()->getIntegerBitWidth() == 32) {
+            llvm::Value *zero = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty((ir.module_->getContext())), 0);
+            value = ir.builder_->CreateICmpSGT(value, zero);
+            value = ir.builder_->CreateZExtOrTrunc(value, llvm::Type::getInt1Ty(ir.module_->getContext()));
+        }
+        ir.builder_->CreateCondBr(value, true_block->current_, false_block->current_);
     }
 }
 
@@ -1221,7 +1256,7 @@ llvm::Value *BlockAST::CodeGen(IR &ir) {
             break;
         }
         bool temp = ir.not_finished_;
-        if (dynamic_cast<BlockAST*>(item.get())) {
+        if (dynamic_cast<BlockAST *>(item.get())) {
             ir.not_finished_ = true;
         }
         item->CodeGen(ir);
