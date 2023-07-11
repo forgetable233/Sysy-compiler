@@ -209,7 +209,6 @@ void IR::GenObj(std::string &input_file_name) {
     codeGenMananger.run(*module_);
     output.flush();
     output.close();
-
     delete target_machine;
 }
 
