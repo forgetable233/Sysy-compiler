@@ -164,6 +164,20 @@ if use_clang == 1:
             print('The time used by minic to generate obj file is ', minic_obj_end - minic_obj_begin)
 
             print('Faster ', clang_obj_end - clang_obj_begin - (minic_obj_end - minic_obj_begin))
+            minic_obj_path = './outs/objs/' + file[:-2] + 'o'
+            clang_obj_size = os.path.getsize(clang_obj_file_name)
+            minic_obj_size = os.path.getsize(minic_obj_path)
+            clang_exec_path = os.path.join(clang_exec_folder, file[:-3])
+            print(clang_exec_path)
+            link = 'gcc -o ' + clang_exec_path + ' ' + clang_obj_file_name + ' -L ' + './lib/sylib.o'
+            subprocess.run(link, shell=True)
+            print('The size of the clang obj is ', clang_obj_size)
+            print('The size of the minic obj is ', minic_obj_size)
+
+            # print(minic_exec_file_name)
+            # clang_exec_size = os.path.getsize(clang_exec_path)
+
+            # minic_exec_path = os.path.getsize()
             print('=====================================================')
 
 
