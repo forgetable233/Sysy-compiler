@@ -67,6 +67,10 @@ public:
     static void isLiveIns(IR &ir);
 
     static void Constant(IR &ir);
+
+    static void StrengthReduction(IR &ir);
+
+    static void DEC(IR &ir);
 };
 
 

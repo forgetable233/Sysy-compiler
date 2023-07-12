@@ -58,8 +58,8 @@ int main(int argc, const char *argv[]) {
 //    auto input = "../tests/10_if_else.sy";
     auto input = argv[1];
 //    std::string test_hello = "../hello.c";
-    std::string file_path = input;
-//    std::string file_path = "../hello.c";
+//    std::string file_path = input;
+    std::string file_path = "../hello.c";
     std::string input_file_name(file_path, 9, file_path.length());
 
     // 打开文件
@@ -82,11 +82,12 @@ int main(int argc, const char *argv[]) {
 //    Passes::LoopOptimizer(ir);
 //    Passes::DeadCodeDelete(ir);
 //    Passes::MyDCE(ir);
+    Passes::StrengthReduction(ir);
     Passes::Constant(ir);
     store_file(ir, input_file_name);
     std::string file(input_file_name, 0, input_file_name.length() - 3);
     file += ".o";
-//    ir.GenObj(file);
+    ir.GenObj(file);
 //    llvm::outs() << file << '\n';
 //     ir.module_->print(llvm::outs(), nullptr);
 }
