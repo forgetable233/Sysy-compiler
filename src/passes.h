@@ -32,6 +32,20 @@
 #include "IR.h"
 //#include "MyDCE.h"
 
+struct OpTreeNode {
+    OpTreeNode(llvm::Value *_op, llvm::Instruction *_ins) {
+        op = _op;
+        ins = _ins;
+        preNode = nullptr;
+    }
+
+    llvm::Value *op;
+
+    llvm::Instruction *ins;
+
+    OpTreeNode *preNode;
+};
+
 class Passes {
 public:
     Passes() = default;
@@ -51,6 +65,8 @@ public:
     static bool isDeadIns(llvm::Instruction &ins);
 
     static void isLiveIns(IR &ir);
+
+    static void Constant(IR &ir);
 };
 
 

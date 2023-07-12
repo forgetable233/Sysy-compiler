@@ -77,15 +77,16 @@ int main(int argc, const char *argv[]) {
 //    ast->Dump(0);
 //    ir.GenerateObj(file_path);
 //    ir.module_->print(llvm::outs(), nullptr);
-    Passes::ConvertToSSA(ir);
-    Passes::Optimizer(ir);
-    Passes::LoopOptimizer(ir);
-    Passes::DeadCodeDelete(ir);
+//    Passes::ConvertToSSA(ir);
+//    Passes::Optimizer(ir);
+//    Passes::LoopOptimizer(ir);
+//    Passes::DeadCodeDelete(ir);
 //    Passes::MyDCE(ir);
+    Passes::Constant(ir);
     store_file(ir, input_file_name);
     std::string file(input_file_name, 0, input_file_name.length() - 3);
     file += ".o";
-    ir.GenObj(file);
+//    ir.GenObj(file);
 //    llvm::outs() << file << '\n';
 //     ir.module_->print(llvm::outs(), nullptr);
 }
