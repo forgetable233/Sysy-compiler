@@ -15,8 +15,6 @@
 #include "passes.h"
 #include "ast.h"
 
-// TODO 完成多个变量的声明以及定义
-// TODO 重新组织param_list
 using namespace std;
 extern FILE *yyin;
 
@@ -79,9 +77,11 @@ int main(int argc, const char *argv[]) {
 //    ast->Dump(0);
 //    ir.GenerateObj(file_path);
 //    ir.module_->print(llvm::outs(), nullptr);
-//    Passes::Optimizer(ir);
-//    Passes::ConvertToSSA(ir);
-    Passes::MyDCE(ir);
+    Passes::ConvertToSSA(ir);
+    Passes::Optimizer(ir);
+    Passes::LoopOptimizer(ir);
+    Passes::DeadCodeDelete(ir);
+//    Passes::MyDCE(ir);
     store_file(ir, input_file_name);
     std::string file(input_file_name, 0, input_file_name.length() - 3);
     file += ".o";

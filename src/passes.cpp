@@ -10,6 +10,7 @@ void Passes::Optimizer(IR &ir) {
     passManager.add(llvm::createMergeICmpsLegacyPass());
     passManager.add(llvm::createSCCPPass());
     passManager.add(llvm::createDeadCodeEliminationPass());
+    passManager.run(*ir.module_);
 }
 
 void Passes::LoopOptimizer(IR &ir) {
@@ -23,12 +24,7 @@ void Passes::DeadCodeDelete(IR &ir) {
     llvm::legacy::PassManager passManager;
     passManager.add(llvm::createCFGSimplificationPass());
     passManager.add(llvm::createDeadInstEliminationPass());
-    bool changed = passManager.run(*ir.module_);
-//    if (changed) {
-//        llvm::outs() << "changed!!!\n";
-//    } else {
-//        llvm::outs() << "not changed???\n";
-//    }
+    passManager.run(*ir.module_);
 }
 
 void Passes::InsCombine(IR &ir) {
@@ -43,14 +39,47 @@ void Passes::ConvertToSSA(IR &ir) {
 }
 
 void Passes::MyDCE(IR &ir) {
-    llvm::legacy::PassManager PM;
-    llvm::FunctionPassManager FPM;
-//    FPM.addPass(new MyDeadCodeEliminationPass());
-    PM.add(new MyDeadCodeEliminationPass());
-    bool modified = PM.run(*ir.module_);
+    bool modified = false;
+    std::stack<llvm::Instruction*> deadIns;
+    for (auto &F : ir.module_->getFunctionList()) {
+        for (auto &block : F.getBasicBlockList()) {
+            for (auto &ins : block.getInstList()) {
+                if (isDeadIns(ins)) {
+                    deadIns.push(&ins);
+                    modified = true;
+                }
+            }
+        }
+        while (!deadIns.empty()) {
+            auto ins = deadIns.top();
+            ins->eraseFromParent();
+            deadIns.pop();
+        }
+    }
     if (modified) {
         llvm::outs() << "modified\n";
     } else {
         llvm::outs() << "not modified\n";
     }
+}
+
+bool Passes::isDeadIns(llvm::Instruction &ins) {
+    if (!ins.hasNUses(0)) {
+        return false;
+    }
+    if (ins.mayHaveSideEffects()) {
+        return false;
+    }
+    if (llvm::isa<llvm::BranchInst>(ins) || llvm::isa<llvm::SwitchInst>(ins)) {
+        return false;
+    }
+    if (llvm::isa<llvm::StoreInst>(ins)) {
+        return false;
+    }
+    return ins.isEHPad() || ins.isTerminator();
+}
+
+void Passes::isLiveIns(IR &ir) {
+
+//    llvm::LibFunc.
 }

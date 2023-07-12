@@ -27,9 +27,10 @@
 #include <llvm/Transforms/Utils/SSAUpdater.h>
 #include <llvm/Transforms/Utils/SSAUpdaterBulk.h>
 #include <llvm/Transforms/Utils/SSAUpdaterImpl.h>
+#include <llvm/ADT/SmallPtrSet.h>
 
 #include "IR.h"
-#include "MyDCE.h"
+//#include "MyDCE.h"
 
 class Passes {
 public:
@@ -46,6 +47,10 @@ public:
     static void ConvertToSSA(IR &ir);
 
     static void MyDCE(IR &ir);
+
+    static bool isDeadIns(llvm::Instruction &ins);
+
+    static void isLiveIns(IR &ir);
 };
 
 
