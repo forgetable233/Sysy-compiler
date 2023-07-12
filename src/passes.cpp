@@ -165,7 +165,8 @@ llvm::Value *isConstant(llvm::Value *operands, IR &ir) {
 }
 
 // 首先清掉全部的无效的oad
-void DeleteLoad(llvm::Function &F) {
+bool DeleteLoad(llvm::Function &F) {
+    bool modified = false;
     for (auto &block: F.getBasicBlockList()) {
         std::map<llvm::Value *, llvm::Value *> value_map;
         for (auto ins = block.getInstList().begin();
@@ -180,6 +181,7 @@ void DeleteLoad(llvm::Function &F) {
                 if (value_map.find(tar) != value_map.end()) {
                     ins->replaceAllUsesWith(value_map[tar]);
                     ins = ins->eraseFromParent();
+                    modified = true;
                 }
             }
         }
@@ -187,30 +189,52 @@ void DeleteLoad(llvm::Function &F) {
 }
 
 // 下面删掉能在编译阶段能完成的运算
-void DeleteOp(llvm::Function &F, IR &ir) {
+bool DeleteOp(llvm::Function &F, IR &ir) {
+    bool modified = false;
     for (auto &block: F.getBasicBlockList()) {
         for (auto ins = block.getInstList().begin();
              ins != block.getInstList().end();
              ++ins) {
             if (!llvm::isa<llvm::StoreInst>(ins) &&
-                !llvm::isa<llvm::StoreInst>(ins)) {
-                if (llvm::isa<llvm::AddOperator>(ins)) {
-                    auto op1 = ins->getOperand(0);
-                    auto op2 = ins->getOperand(1);
-                    auto const_op1 = llvm::dyn_cast<llvm::ConstantInt>(op1);
-                    auto const_op2 = llvm::dyn_cast<llvm::ConstantInt>(op2);
-                    if (const_op1 && const_op2) {
-                        int re = std::stoi(const_op1->getValue().toString(10, true)) +
-                                 std::stoi(const_op2->getValue().toString(10, true));
-                        llvm::Constant *const_re = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()),
-                                                                          llvm::APInt(32, re));
-                        ins->replaceAllUsesWith(const_re);
-                        ins = ins->eraseFromParent();
+                !llvm::isa<llvm::LoadInst>(ins) &&
+                !llvm::isa<llvm::AllocaInst>(ins) &&
+                !llvm::isa<llvm::BranchInst>(ins) &&
+                !llvm::isa<llvm::ReturnInst>(ins) &&
+                ins->getNumOperands() == 2) {
+                auto op1 = ins->getOperand(0);
+                auto op2 = ins->getOperand(1);
+                auto const_op1 = llvm::dyn_cast<llvm::ConstantInt>(op1);
+                auto const_op2 = llvm::dyn_cast<llvm::ConstantInt>(op2);
+                if (const_op1 && const_op2) {
+                    modified = true;
+                    int num1 = std::stoi(const_op1->getValue().toString(10, true));
+                    int num2 = std::stoi(const_op2->getValue().toString(10, true));
+                    int re;
+                    llvm::Constant *const_re;
+                    if (llvm::isa<llvm::AddOperator>(ins)) {
+                        re = num1 + num2;
+                        const_re = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()),
+                                                          llvm::APInt(32, re));
+                    } else if (llvm::isa<llvm::SubOperator>(ins)) {
+                        re = num1 - num2;
+                        const_re = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()),
+                                                          llvm::APInt(32, re));
+                    } else if (llvm::isa<llvm::MulOperator>(ins)) {
+                        re = num1 * num2;
+                        const_re = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()),
+                                                          llvm::APInt(32, re));
+                    } else if (llvm::isa<llvm::SDivOperator>(ins)) {
+                        re = num1 / num2;
+                        const_re = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()),
+                                                          llvm::APInt(32, re));
                     }
+                    ins->replaceAllUsesWith(const_re);
+                    ins = ins->eraseFromParent();
                 }
             }
         }
     }
+    return modified;
 }
 
 void Passes::Constant(IR &ir) {
@@ -221,8 +245,10 @@ void Passes::Constant(IR &ir) {
             continue;
         }
         if (begin) {
-            DeleteLoad(F);
-            DeleteOp(F, ir);
+            while (DeleteLoad(F) || DeleteOp(F, ir)) {
+                DeleteLoad(F);
+                DeleteOp(F, ir);
+            }
 //            for (auto &block: F.getBasicBlockList()) {
 //                std::map<llvm::Value *, OpTreeNode *> tree;
 //                for (auto &ins: block.getInstList()) {
