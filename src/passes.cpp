@@ -227,6 +227,8 @@ bool DeleteOp(llvm::Function &F, IR &ir) {
                         re = num1 / num2;
                         const_re = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()),
                                                           llvm::APInt(32, re));
+                    } else {
+                        return false;
                     }
                     ins->replaceAllUsesWith(const_re);
                     ins = ins->eraseFromParent();
