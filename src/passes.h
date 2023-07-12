@@ -14,6 +14,8 @@
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/IR/Dominators.h>
 #include <llvm/IR/IRPrintingPasses.h>
+#include <llvm/PassRegistry.h>
+#include <llvm/Pass.h>
 #include <llvm/Transforms/Scalar/LoopPassManager.h>
 #include <llvm/Transforms/Scalar/DeadStoreElimination.h>
 #include <llvm/Transforms/Scalar/DCE.h>
@@ -25,7 +27,9 @@
 #include <llvm/Transforms/Utils/SSAUpdater.h>
 #include <llvm/Transforms/Utils/SSAUpdaterBulk.h>
 #include <llvm/Transforms/Utils/SSAUpdaterImpl.h>
+
 #include "IR.h"
+#include "MyDCE.h"
 
 class Passes {
 public:
@@ -40,6 +44,10 @@ public:
     static void InsCombine(IR &ir);
 
     static void ConvertToSSA(IR &ir);
+
+    static void MyDCE(IR &ir);
 };
+
+
 
 #endif //COMPILER_PASSES_H

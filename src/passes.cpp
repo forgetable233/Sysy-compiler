@@ -41,3 +41,16 @@ void Passes::ConvertToSSA(IR &ir) {
     passManager.add(llvm::createPromoteMemoryToRegisterPass());
     passManager.run(*ir.module_);
 }
+
+void Passes::MyDCE(IR &ir) {
+    llvm::legacy::PassManager PM;
+    llvm::FunctionPassManager FPM;
+//    FPM.addPass(new MyDeadCodeEliminationPass());
+    PM.add(new MyDeadCodeEliminationPass());
+    bool modified = PM.run(*ir.module_);
+    if (modified) {
+        llvm::outs() << "modified\n";
+    } else {
+        llvm::outs() << "not modified\n";
+    }
+}
