@@ -379,5 +379,23 @@ void Passes::StrengthReduction(IR &ir) {
 }
 
 void Passes::DEC(IR &ir) {
-
+    bool begin = false;
+    for (auto &F : ir.module_->getFunctionList()) {
+        if (F.getName().str() == "_sysy_stoptime") {
+            begin = true;
+            continue;
+        }
+        if (begin) {
+            for (auto &block : F.getBasicBlockList()) {
+                for (auto &ins : block.getInstList()) {
+                    auto condition = llvm::dyn_cast<llvm::BranchInst>(&ins);
+                    if (condition && condition->isConditional()) {
+                        if (auto constant = llvm::dyn_cast<llvm::ConstantInt>(condition->getCondition())) {
+                            constant->print(llvm::outs());
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

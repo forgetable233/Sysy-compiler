@@ -16,6 +16,7 @@
 #include <llvm/IR/IRPrintingPasses.h>
 #include <llvm/PassRegistry.h>
 #include <llvm/Pass.h>
+#include <llvm/IR/CFG.h>
 #include <llvm/Transforms/Scalar/LoopPassManager.h>
 #include <llvm/Transforms/Scalar/DeadStoreElimination.h>
 #include <llvm/Transforms/Scalar/DCE.h>
