@@ -6,6 +6,7 @@
 #define COMPILER_PASSES_H
 #pragma once
 #include <map>
+#include <llvm/ADT/DenseMap.h>
 #include <algorithm>
 #include <llvm/Pass.h>
 #include <llvm/Passes/PassBuilder.h>

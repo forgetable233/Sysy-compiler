@@ -1,6 +1,6 @@
 //
-// Created by dcr on 23-7-10.
 //
+// Created by dcr on 23-7-10.
 
 #include "passes.h"
 
@@ -160,7 +160,7 @@ void BuildOpTree(llvm::BasicBlock &block, std::map<llvm::Value *, OpTreeNode *> 
 bool DeleteLoad(llvm::Function &F) {
     bool modified = false;
     for (auto &block: F.getBasicBlockList()) {
-        std::map<llvm::Value *, llvm::Value *> value_map;
+        llvm::DenseMap<llvm::Value *, llvm::Value *> value_map;
         for (auto ins = block.getInstList().begin();
              ins != block.getInstList().end();
              ++ins) {
@@ -220,7 +220,7 @@ bool DeleteOp(llvm::Function &F, IR &ir) {
                         re = num1 / num2;
                         const_re = llvm::ConstantInt::get(llvm::IntegerType::getInt32Ty(ir.module_->getContext()),
                                                           llvm::APInt(32, re));
-                    } else if (auto comp = llvm::dyn_cast<llvm::CmpInst>(ins)){
+                    } else if (auto comp = llvm::dyn_cast<llvm::CmpInst>(ins)) {
                         bool comp_re = false;
                         auto pre = comp->getPredicate();
                         if (pre == llvm::CmpInst::ICMP_EQ) {
@@ -317,7 +317,7 @@ void Passes::StrengthReduction(IR &ir) {
                             int num = std::stoi(const_1->getValue().toString(10, true));
                             if (num == 0) {
                                 llvm::Constant *constantInt = llvm::ConstantInt::get(ir.module_->getContext(),
-                                                                                        llvm::APInt(32, 0));
+                                                                                     llvm::APInt(32, 0));
                                 ins->replaceAllUsesWith(constantInt);
                                 ins = ins->eraseFromParent();
                                 continue;
@@ -358,7 +358,7 @@ void Passes::StrengthReduction(IR &ir) {
                         auto op = ins->getOperand(1);
                         if (auto constant = llvm::dyn_cast<llvm::ConstantInt>(op)) {
                             int num = std::stoi(constant->getValue().toString(10, true));
-                            if (num == 1){
+                            if (num == 1) {
                                 ins->replaceAllUsesWith(ins->getOperand(0));
                                 ins = ins->eraseFromParent();
                             } else if (is2Times(num)) {
@@ -378,24 +378,135 @@ void Passes::StrengthReduction(IR &ir) {
 //    Passes::Constant(ir);
 }
 
+bool isSignal(llvm::BasicBlock *block, llvm::BasicBlock *tar_block) {
+    if (block == tar_block || !block) {
+        return true;
+    }
+    if (predecessors(block).empty()) {
+        return false;
+    }
+    for (auto pred: predecessors(block)) {
+        if (!isSignal(pred, tar_block)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void SafeDeleteBlock(llvm::BasicBlock *tar_block) {
+
+}
+
+void DeleteBlock(llvm::BasicBlock *tar_block, llvm::BasicBlock *current_block) {
+    if (!current_block || !isSignal(current_block, tar_block)) {
+        return;
+    }
+    // 确定当前的block要删掉，下面检查哪些successor要删掉
+    auto sucessors = successors(current_block);
+    current_block->eraseFromParent();
+    for (auto it = sucessors.begin();
+         it != sucessors.end();
+         ++it) {
+        auto temp_block = llvm::dyn_cast<llvm::BasicBlock>(*it);
+        DeleteBlock(tar_block, temp_block);
+    }
+//    current_block->print(llvm::outs());
+//    llvm::outs() << '\n';
+}
+
+void RecursionDelete(llvm::Function *F) {
+    bool clean = false;
+    while (!clean) {
+        clean = true;
+        for (auto &block: F->getBasicBlockList()) {
+            if (predecessors(&block).empty() && &block != &F->getEntryBlock()) {
+                block.eraseFromParent();
+                clean = false;
+                break;
+            }
+        }
+    }
+}
+
 void Passes::DEC(IR &ir) {
     bool begin = false;
-    for (auto &F : ir.module_->getFunctionList()) {
+    for (auto &F: ir.module_->getFunctionList()) {
         if (F.getName().str() == "_sysy_stoptime") {
             begin = true;
             continue;
         }
         if (begin) {
-            for (auto &block : F.getBasicBlockList()) {
-                for (auto &ins : block.getInstList()) {
-                    auto condition = llvm::dyn_cast<llvm::BranchInst>(&ins);
-                    if (condition && condition->isConditional()) {
-                        if (auto constant = llvm::dyn_cast<llvm::ConstantInt>(condition->getCondition())) {
-                            constant->print(llvm::outs());
+            auto entery = &F.getEntryBlock();
+            while (!successors(entery).empty()) {
+                if (auto br_ins = llvm::dyn_cast<llvm::BranchInst>(entery->getTerminator())) {
+                    if (br_ins->isConditional()) {
+                        if (auto condition = llvm::dyn_cast<llvm::ConstantInt>(br_ins->getCondition())) {
+                            auto true_block = br_ins->getSuccessor(0);
+                            auto false_block = br_ins->getSuccessor(1);
+                            if (condition->isOne()) {
+                                llvm::IRBuilder<> builder(br_ins->getParent());
+                                builder.SetInsertPoint(&*br_ins);
+                                auto new_ins = builder.CreateBr(llvm::dyn_cast<llvm::BasicBlock>(true_block));
+                                br_ins->replaceAllUsesWith(new_ins);
+                                br_ins->eraseFromParent();
+                                RecursionDelete(&F);
+//                                DeleteBlock(llvm::dyn_cast<llvm::BasicBlock>(false_block),
+//                                            llvm::dyn_cast<llvm::BasicBlock>(false_block));
+                                entery = true_block;
+                            } else {
+                                llvm::IRBuilder<> builder(br_ins->getParent());
+                                builder.SetInsertPoint(&*br_ins);
+                                auto new_ins = builder.CreateBr(llvm::dyn_cast<llvm::BasicBlock>(false_block));
+                                br_ins->replaceAllUsesWith(new_ins);
+                                br_ins->eraseFromParent();
+                                RecursionDelete(&F);
+//                                DeleteBlock(llvm::dy n_cast<llvm::BasicBlock>(true_block),
+//                                            llvm::dyn_cast<llvm::BasicBlock>(true_block));
+                                entery = false_block;
+                            }
+                        } else {
+                            break;
                         }
+                    } else {
+                        entery = *succ_begin(entery);
                     }
+                } else {
+                    entery->print(llvm::outs());
+                    llvm::outs() << '\n';
                 }
             }
+//            for (auto &block: F.getBasicBlockList()) {
+//                for (auto ins = block.getInstList().begin();
+//                     ins != block.getInstList().end();
+//                     ++ins) {
+//                    auto condition = llvm::dyn_cast<llvm::BranchInst>(&*ins);
+//                    if (condition && condition->isConditional()) {
+//                        if (auto constant = llvm::dyn_cast<llvm::ConstantInt>(condition->getCondition())) {
+//                            auto true_block = condition->getSuccessor(0);
+//                            auto false_block = condition->getSuccessor(1);
+//                            if (constant->isOne()) {
+//                                llvm::outs() << "true\n";
+//                                llvm::IRBuilder<> builder(ins->getParent());
+//                                builder.SetInsertPoint(&*ins);
+//                                auto new_inst = builder.CreateBr(llvm::dyn_cast<llvm::BasicBlock>(true_block));
+//                                ins->replaceAllUsesWith(new_inst);
+//                                ins = ins->eraseFromParent();
+//                                DeleteBlock(llvm::dyn_cast<llvm::BasicBlock>(false_block),
+//                                            llvm::dyn_cast<llvm::BasicBlock>(false_block));
+//                            } else {
+//                                llvm::outs() << "false\n";
+//                                llvm::IRBuilder<> builder(ins->getParent());
+//                                builder.SetInsertPoint(&*ins);
+//                                auto new_inst = builder.CreateBr(llvm::dyn_cast<llvm::BasicBlock>(false_block));
+//                                ins->replaceAllUsesWith(new_inst);
+//                                ins = ins->eraseFromParent();
+//                                DeleteBlock(llvm::dyn_cast<llvm::BasicBlock>(true_block),
+//                                            llvm::dyn_cast<llvm::BasicBlock>(true_block));
+//                            }
+//                        }
+//                    }
+//                }
+//            }
         }
     }
 }
