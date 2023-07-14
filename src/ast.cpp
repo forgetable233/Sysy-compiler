@@ -179,6 +179,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 block_name = current_block->current_->getParent()->getName().str();
                 block_name += current_block->current_->getName().str();
                 value = ir.builder_->CreateAlloca(int_type);
+
                 ir.push_value(value,
                               block_name,
                               this->ident_);
@@ -187,6 +188,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                               this->ident_,
                               func_name,
                               current_block->block_id_);
+                ir.push_value_version(value, value, current_block->current_);
                 return value;
             }
         }
@@ -214,6 +216,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                               this->ident_,
                               func_name,
                               current_block->block_id_);
+                ir.push_value_version(value, value, current_block->current_);
                 return value;
             }
         case kDeclareArray: {
@@ -291,6 +294,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                               this->ident_,
                               func_name,
                               current_block->block_id_);
+                ir.push_value_version(value, value, current_block->current_);
                 break;
             }
         }
@@ -399,6 +403,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                               this->ident_,
                               func_name,
                               current_block->block_id_);
+                ir.push_value_version(value, value, current_block->current_);
             }
             break;
         }
@@ -415,6 +420,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
                 std::string func_name = current_block->current_->getParent()->getName().str();
                 std::string ident_name = "1";
                 value = ir.get_value(func_name, ident_name);
+                value = ir.get_new_value_version(value, current_block->current_);
                 ir.builder_->CreateStore(returnValue, value);
                 ir.builder_->CreateBr(ir.return_block_->current_);
                 break;
@@ -548,7 +554,7 @@ llvm::Value *StmtAST::CodeGen(IR &ir) {
 
             // loop_header
             ir.SetCurrentBlock(header);
-            ShortCircuit(dynamic_cast<ExprAST*>(exp_.get()), body, exit, ir);
+            ShortCircuit(dynamic_cast<ExprAST *>(exp_.get()), body, exit, ir);
 //            value = exp_->CodeGen(ir);
 //            ir.builder_->CreateCondBr(value, loop_body, loop_exit);
 //            if (value->getType()->isIntegerTy() && value->getType()->getIntegerBitWidth() == 32) {
@@ -675,7 +681,7 @@ void StmtAST::ShortCircuit(ExprAST *exp, BasicBlock *true_block, BasicBlock *fal
         ir.SetCurrentBlock(_next);
         ShortCircuit(dynamic_cast<ExprAST *>(exp->rExp_.get()), true_block, false_block, ir);
     } else if (exp->type_ == kParen) {
-        ShortCircuit(dynamic_cast<ExprAST*>(exp->lExp_.get()), true_block, false_block, ir);
+        ShortCircuit(dynamic_cast<ExprAST *>(exp->lExp_.get()), true_block, false_block, ir);
     } else {
         llvm::Value *value = exp->CodeGen(ir);
         if (value->getType()->isIntegerTy() && value->getType()->getIntegerBitWidth() == 32) {
@@ -758,6 +764,7 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
 //            value = ir.get_value(this->ident_, current_block);
             std::string func_name = current_block->current_->getParent()->getName().str();
             value = ir.get_value(func_name, this->ident_);
+            value = ir.get_new_value_version(value, current_block->current_);
             if (!value) {
                 llvm::outs() << current_block->current_->getName() << '\n';
                 llvm::outs() << this->ident_ << '\n';
@@ -777,6 +784,7 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
 //            value = ir.get_value(this->ident_, current_block);
             std::string func_name = current_block->current_->getParent()->getName().str();
             value = ir.get_value(func_name, this->ident_);
+            value = ir.get_new_value_version(value, current_block->current_);
             assert(value);
             if (!BaseAST::is_array(value)) {
                 llvm::report_fatal_error("The type of the param does not match, requires array but input ident");
@@ -840,18 +848,21 @@ llvm::Value *ExprAST::CodeGen(IR &ir) {
             }
         }
         case kAssign: {
-//            value = ir.get_value(this->ident_, current_block);
             std::string func_name = current_block->current_->getParent()->getName().str();
-            value = ir.get_value(func_name, this->ident_);
+            auto origin_value = ir.get_value(func_name, this->ident_);
+            value = ir.get_new_value_version(origin_value, current_block->current_);
             r_exp = (ExprAST *) (&(*rExp_));
             r_exp_value = r_exp->CodeGen(ir);
             ir.builder_->CreateStore(r_exp_value, value, "store");
+            auto new_value = ir.builder_->CreateLoad(value);
+            ir.push_value_version(origin_value, new_value, current_block->current_);
             return r_exp_value;
         }
         case kAssignArray: {
 //            value = ir.get_value(this->ident_, current_block);
             std::string func_name = current_block->current_->getParent()->getName().str();
             value = ir.get_value(func_name, this->ident_);
+            value = ir.get_new_value_version(value, current_block->current_);
             // check the type of the value
             if (!BaseAST::is_array(value)) {
                 llvm::report_fatal_error("The type of the param does not match, requires array but input ident");
@@ -1174,6 +1185,7 @@ llvm::Value *FuncDefAST::CodeGen(IR &ir) {
             std::string func_name = current_block->current_->getParent()->getName().str();
             std::string ident_name = "1";
             returnValue = ir.get_value(func_name, ident_name);
+            returnValue = ir.get_new_value_version(value, current_block->current_);
             llvm::Value *return_value = ir.builder_->CreateLoad(returnValue);
             ir.builder_->CreateRet(return_value);
         } else {
@@ -1229,7 +1241,9 @@ void FuncDefAST::AddParams(IR &ir, std::vector<std::string> &name_list) {
         llvm::Value *value;
         std::string func_name = current_block->current_->getParent()->getName().str();
         value = ir.get_value(func_name, name_list[i++]);
+        value = ir.get_new_value_version(value, current_block->current_);
         ir.builder_->CreateStore(&item, value);
+        ir.push_value_version(value, value, current_block->current_);
     }
 }
 

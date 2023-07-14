@@ -77,6 +77,7 @@ struct Value {
         block_id_ = -1;
         value_name_ = "";
     }
+
     llvm::Value *value_;
 
     int block_id_;
@@ -95,6 +96,24 @@ struct FuncParams {
 
     std::deque<Value> values_;
     std::string func_name_;
+};
+
+struct BlockValue {
+    BlockValue(llvm::Value *_value,
+               llvm::BasicBlock *_block) {
+        value_ = _value;
+        block_ = _block;
+    }
+
+    BlockValue() {
+        value_ = nullptr;
+
+        block_ = nullptr;
+    }
+
+    llvm::Value *value_;
+
+    llvm::BasicBlock *block_;
 };
 
 class IR {
@@ -118,13 +137,14 @@ public:
     std::unique_ptr<llvm::Module> module_;
 
     std::unique_ptr<llvm::Module> ssa_module_;
-//    std::stack<>
 
     std::map<std::string, std::map<std::string, llvm::Value *>> name_values_;
 
     std::map<std::string, std::map<std::string, std::string>> name_ident_;
 
     std::map<std::string, llvm::Value *> global_values_;
+
+    std::map<llvm::Value *, std::vector<BlockValue *>> value_version;
 
     std::vector<BasicBlock> blocks_;
 
@@ -158,6 +178,14 @@ public:
     void pop_value(std::string &func_name, int block_id);
 
     llvm::Value *get_value(std::string &func_name, std::string &ident_name);
+
+    void push_value_version(llvm::Value *origin_value, llvm::Value *value, llvm::BasicBlock *block);
+
+    llvm::Value *get_new_value_version(llvm::Value *value, llvm::BasicBlock *block);
+
+    void get_all_pred_version(std::vector<BlockValue *> &version_list,
+                              llvm::BasicBlock *current_block,
+                              llvm::Value *tar_value);
 };
 
 

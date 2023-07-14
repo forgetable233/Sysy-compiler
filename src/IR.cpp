@@ -141,9 +141,9 @@ void IR::push_value(llvm::Value *value, std::string &value_name, std::string &fu
 
 llvm::Value *IR::get_value(std::string &func_name, std::string &ident_name) {
     llvm::Value *value = nullptr;
-    for (auto &item : params_) {
+    for (auto &item: params_) {
         if (item.func_name_ == func_name) {
-            for (auto &temp_value : item.values_) {
+            for (auto &temp_value: item.values_) {
                 if (temp_value.value_name_ == ident_name) {
                     value = temp_value.value_;
                     return value;
@@ -156,7 +156,7 @@ llvm::Value *IR::get_value(std::string &func_name, std::string &ident_name) {
 }
 
 void IR::pop_value(std::string &func_name, int block_id) {
-    for (auto &item : params_) {
+    for (auto &item: params_) {
         if (item.func_name_ == func_name) {
             while (item.values_.front().block_id_ == block_id) {
                 item.values_.pop_front();
@@ -210,5 +210,51 @@ void IR::GenObj(std::string &input_file_name) {
     output.flush();
     output.close();
     delete target_machine;
+}
+
+void IR::push_value_version(llvm::Value *origin_value,
+                            llvm::Value *value,
+                            llvm::BasicBlock *block) {
+    if (value_version.find(origin_value) == value_version.end()) {
+        std::vector<BlockValue *> version_list;
+        version_list.push_back(new BlockValue(value, block));
+        value_version.insert(std::pair<llvm::Value *, std::vector<BlockValue *>>(origin_value, version_list));
+    } else {
+        auto version_list = value_version[origin_value];
+        for (auto block_version: version_list) {
+            if (block_version->block_ == block) {
+                block_version->value_ = value;
+                return;
+            }
+        }
+        version_list.push_back(new BlockValue(value, block));
+    }
+}
+
+llvm::Value *IR::get_new_value_version(llvm::Value *value, llvm::BasicBlock *block) {
+    llvm::Value *re_value = value;
+    if (value_version.find(value) == value_version.end()) {
+        return re_value;
+    }
+    for (auto version: value_version[value]) {
+        if (version->block_ == block) {
+            re_value = version->value_;
+            break;
+        }
+    }
+    return re_value;
+}
+
+void IR::get_all_pred_version(std::vector<BlockValue *> &version_list,
+                              llvm::BasicBlock *current_block,
+                              llvm::Value *tar_value) {
+    auto preds = predecessors(current_block);
+    for (auto version: value_version[tar_value]) {
+        for (auto pred: preds) {
+            if (&*pred == version->block_) {
+                version_list.push_back(new BlockValue(version->value_, version->block_));
+            }
+        }
+    }
 }
 

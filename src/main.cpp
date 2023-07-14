@@ -85,7 +85,7 @@ int main(int argc, const char *argv[]) {
 //    Passes::StrengthReduction(ir);
 //    Passes::Constant(ir);
 //    Passes::DEC(ir);
-    Passes::MySSA(ir);
+//    Passes::MySSA(ir);
     store_file(ir, input_file_name);
     std::string file(input_file_name, 0, input_file_name.length() - 3);
     file += ".o";
