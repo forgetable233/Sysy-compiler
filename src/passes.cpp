@@ -510,3 +510,93 @@ void Passes::DEC(IR &ir) {
         }
     }
 }
+
+// 只有Store指令会改变其声明，所以只要关注store指令即可
+llvm::Value *getLastDeclare(llvm::BasicBlock *block, llvm::Value *tar_value, IR &ir) {
+    llvm::Value *new_value = nullptr;
+    llvm::IRBuilder<> builder(ir.module_->getContext());
+    auto ins_list = llvm::reverse(block->getInstList());
+    for (auto & ins : ins_list) {
+        if (llvm::isa<llvm::StoreInst>(ins)) {
+            if (auto tar = getPointerOperand(&ins) == tar_value) {
+                builder.SetInsertPoint(ins.getNextNode());
+                new_value = builder.CreateLoad(tar_value);
+            }
+        }
+    }
+    return new_value;
+}
+
+void Passes::MySSA(IR &ir) {
+    bool begin = false;
+    for (auto &F: ir.module_->getFunctionList()) {
+        if (F.getName().str() == "_sysy_stoptime") {
+            begin = true;
+            continue;
+        }
+        if (begin) {
+            for (auto &block: F.getBasicBlockList()) {
+                if (pred_size(&block) >= 2) {
+                    auto predessors = predecessors(&block);
+                    for (auto &ins: block.getInstList()) {
+                        if (!llvm::isa<llvm::AllocaInst>(ins)) {
+                            if (llvm::isa<llvm::LoadInst>(ins)) {
+                                auto load_tar = getPointerOperand(&ins);
+                                llvm::IRBuilder<> builder(ir.module_->getContext());
+                                builder.SetInsertPoint(block.getFirstNonPHI());
+                                std::vector<New_Value *> new_value_list;
+                                for (auto pred: predessors) {
+                                    auto new_value = getLastDeclare(pred, load_tar, ir);
+                                    if (!new_value) {
+                                        break;
+                                    }
+                                    new_value_list.push_back(new New_Value(new_value, pred));
+                                }
+                                if (new_value_list.size() > 1) {
+                                    auto phi_node = builder.CreatePHI(
+                                            llvm::IntegerType::getInt32Ty(ir.module_->getContext()),
+                                            new_value_list.size());
+                                    for (auto value: new_value_list) {
+                                        phi_node->addIncoming(value->value_,
+                                                              value->block_);
+                                    }
+                                    load_tar->replaceAllUsesWith(phi_node);
+                                }
+                            } else if (llvm::isa<llvm::StoreInst>(ins)) {
+                            } else if (!llvm::isa<llvm::CallInst>(ins) && !llvm::isa<llvm::ReturnInst>(ins)) {
+                                if (ins.getNumOperands() != 2) {
+                                    llvm::outs() << '\n';
+                                } else {
+                                    llvm::IRBuilder<> builder(ir.module_->getContext());
+                                    builder.SetInsertPoint(block.getFirstNonPHI());
+                                    std::vector<New_Value *> new_value_list;
+                                    for (int i = 0; i < 2; i++) {
+                                        llvm::Value *op = ins.getOperand(i);
+                                        for (auto pred: predessors) {
+                                            auto new_value = getLastDeclare(pred, op, ir);
+                                            if (!new_value) {
+                                                break;
+                                            }
+                                            new_value_list.push_back(new New_Value{new_value, pred});
+                                        }
+                                        // 创建phi结点
+                                        if (new_value_list.size() > 1) {
+                                            auto phi_node = ir.builder_->CreatePHI(
+                                                    llvm::IntegerType::getInt32Ty(ir.module_->getContext()),
+                                                    new_value_list.size());
+                                            for (auto &new_vale: new_value_list) {
+                                                phi_node->addIncoming(new_vale->value_,
+                                                                      new_vale->block_);
+                                            }
+                                            op->replaceAllUsesWith(phi_node);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

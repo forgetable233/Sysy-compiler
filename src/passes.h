@@ -5,6 +5,7 @@
 #ifndef COMPILER_PASSES_H
 #define COMPILER_PASSES_H
 #pragma once
+
 #include <map>
 #include <llvm/ADT/DenseMap.h>
 #include <algorithm>
@@ -48,6 +49,23 @@ struct OpTreeNode {
     OpTreeNode *preNode;
 };
 
+struct New_Value {
+    New_Value(llvm::Value *_value, llvm::BasicBlock *_block) {
+        value_ = _value;
+        block_ = _block;
+    }
+
+    New_Value() {
+        value_ = nullptr;
+
+        block_ = nullptr;
+    }
+
+    llvm::Value *value_;
+
+    llvm::BasicBlock *block_;
+};
+
 class Passes {
 public:
     Passes() = default;
@@ -73,8 +91,9 @@ public:
     static void StrengthReduction(IR &ir);
 
     static void DEC(IR &ir);
-};
 
+    static void MySSA(IR &ir);
+};
 
 
 #endif //COMPILER_PASSES_H
